@@ -1,0 +1,389 @@
+{% extends 'admin/base.html.twig' %}
+
+{% set isEdit = tenant.id is not null %}
+
+{% block title %}{{ isEdit ? 'Editar Tenant — ' ~ tenant.name : 'Novo Tenant' }}{% endblock %}
+
+{% block breadcrumbs %}
+    {% set breadcrumbs = [
+        { label: 'Dashboard', route: 'admin_dash' },
+        { label: 'Tenants', route: 'admin_tenant_index' },
+        { label: isEdit ? tenant.name : 'Novo', route: null }
+    ] %}
+    {{ include('admin/_partials/breadcrumbs.html.twig', { breadcrumbs: breadcrumbs }) }}
+{% endblock %}
+
+{% block stylesheets %}
+    <link rel="stylesheet" href="https://cdn.quilljs.com/1.3.7/quill.snow.css">
+{% endblock %}
+
+{% block body %}
+
+{% set primaryLight  = tenant.primaryColor       ?? '#0044cc' %}
+{% set secondaryLight= tenant.secondaryColor     ?? '#ffaa00' %}
+{% set primaryDark   = tenant.primaryColorDark   ?? '#3b82f6' %}
+{% set secondaryDark = tenant.secondaryColorDark ?? '#fbbf24' %}
+
+{{ form_start(form, { attr: { enctype: 'multipart/form-data', novalidate: 'novalidate', id: 'tenant-form' } }) }}
+
+<div class="page-header">
+    <div>
+        <h1 class="page-title">
+            <i class="fa-solid fa-building" style="margin-right:8px;color:var(--bm-accent)" aria-hidden="true"></i>
+            {{ tenant is defined ? tenant.name : 'Novo Tenant' }}
+        </h1>
+    </div>
+    <div style="display:flex;gap:10px">
+        <a href="{{ path('admin_tenant_index') }}" class="btn-secondary">
+            <i class="fa-solid fa-arrow-left" aria-hidden="true"></i>
+            Voltar
+        </a>
+        <button type="submit" class="btn-primary">
+            <i class="fa-solid fa-check" aria-hidden="true"></i>
+            Salvar
+        </button>
+    </div>
+</div>
+
+<div style="display:grid;grid-template-columns:1fr 420px;gap:24px;align-items:start">
+
+    {# ══ Coluna principal ══════════════════════════════════════════════════════ #}
+    <div style="display:flex;flex-direction:column;gap:20px">
+
+        {# ── Identificação ── #}
+        <div class="admin-card">
+            <div class="form-section-title"><i class="fa-solid fa-circle-info" aria-hidden="true"></i> Identificação</div>
+            <div class="form-grid">
+                <div>{{ form_row(form.name) }}</div>
+                <div>{{ form_row(form.domain) }}</div>
+                <div>{{ form_row(form.contactEmail) }}</div>
+                <div>{{ form_row(form.phone) }}</div>
+                <div class="full">{{ form_row(form.address) }}</div>
+                <div>{{ form_row(form.activeTheme) }}</div>
+            </div>
+        </div>
+
+        {# ── Aparência e Cores ── #}
+        <div class="admin-card">
+            <div class="form-section-title"><i class="fa-solid fa-palette" aria-hidden="true"></i> Aparência e Tema</div>
+
+            {# Ocultamos os inputs Symfony de cor, usamos nossos próprios e sincronizamos #}
+            <div style="display:none">
+                {{ form_row(form.primaryColor) }}
+                {{ form_row(form.secondaryColor) }}
+                {{ form_row(form.primaryColorDark) }}
+                {{ form_row(form.secondaryColorDark) }}
+            </div>
+
+            {# Modo Claro #}
+            <div style="margin:0 0 .65rem;font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--bm-muted)">
+                Modo Claro
+            </div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.5rem">
+                <div>
+                    <label class="form-label">Cor Primária</label>
+                    <div style="display:flex;gap:.5rem;align-items:center">
+                        <input type="color" id="primaryColorPicker" value="{{ primaryLight }}"
+                               style="width:44px;height:36px;padding:2px;border:1px solid var(--bm-border);border-radius:6px;cursor:pointer;background:none"
+                               oninput="syncColor('primaryColorPicker','primaryColorHex','tenant_primaryColor')">
+                        <input type="text" id="primaryColorHex" value="{{ primaryLight }}"
+                               maxlength="7" placeholder="#0044cc"
+                               class="form-control" style="flex:1;font-family:monospace"
+                               oninput="syncHex('primaryColorHex','primaryColorPicker','tenant_primaryColor')">
+                    </div>
+                </div>
+                <div>
+                    <label class="form-label">Cor Secundária</label>
+                    <div style="display:flex;gap:.5rem;align-items:center">
+                        <input type="color" id="secondaryColorPicker" value="{{ secondaryLight }}"
+                               style="width:44px;height:36px;padding:2px;border:1px solid var(--bm-border);border-radius:6px;cursor:pointer;background:none"
+                               oninput="syncColor('secondaryColorPicker','secondaryColorHex','tenant_secondaryColor')">
+                        <input type="text" id="secondaryColorHex" value="{{ secondaryLight }}"
+                               maxlength="7" placeholder="#ffaa00"
+                               class="form-control" style="flex:1;font-family:monospace"
+                               oninput="syncHex('secondaryColorHex','secondaryColorPicker','tenant_secondaryColor')">
+                    </div>
+                </div>
+            </div>
+
+            {# Modo Escuro #}
+            <div style="margin:0 0 .65rem;font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--bm-muted)">
+                Modo Escuro
+            </div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:2rem">
+                <div>
+                    <label class="form-label">Cor Primária (dark)</label>
+                    <div style="display:flex;gap:.5rem;align-items:center">
+                        <input type="color" id="primaryDarkPicker" value="{{ primaryDark }}"
+                               style="width:44px;height:36px;padding:2px;border:1px solid var(--bm-border);border-radius:6px;cursor:pointer;background:none"
+                               oninput="syncColor('primaryDarkPicker','primaryDarkHex','tenant_primaryColorDark')">
+                        <input type="text" id="primaryDarkHex" value="{{ primaryDark }}"
+                               maxlength="7" placeholder="#3b82f6"
+                               class="form-control" style="flex:1;font-family:monospace"
+                               oninput="syncHex('primaryDarkHex','primaryDarkPicker','tenant_primaryColorDark')">
+                    </div>
+                </div>
+                <div>
+                    <label class="form-label">Cor Secundária (dark)</label>
+                    <div style="display:flex;gap:.5rem;align-items:center">
+                        <input type="color" id="secondaryDarkPicker" value="{{ secondaryDark }}"
+                               style="width:44px;height:36px;padding:2px;border:1px solid var(--bm-border);border-radius:6px;cursor:pointer;background:none"
+                               oninput="syncColor('secondaryDarkPicker','secondaryDarkHex','tenant_secondaryColorDark')">
+                        <input type="text" id="secondaryDarkHex" value="{{ secondaryDark }}"
+                               maxlength="7" placeholder="#fbbf24"
+                               class="form-control" style="flex:1;font-family:monospace"
+                               oninput="syncHex('secondaryDarkHex','secondaryDarkPicker','tenant_secondaryColorDark')">
+                    </div>
+                </div>
+            </div>
+
+            {# ── Prévia em tempo real ── #}
+            <div style="margin:0 0 .75rem;font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--bm-muted)">
+                Prévia em Tempo Real
+            </div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem">
+
+                {# Modo Claro #}
+                <div id="preview-light"
+                     style="--pp: {{ primaryLight }};--ps: {{ secondaryLight }};
+                            background:#ffffff;color:#1f2937;border:1px solid #e5e7eb;
+                            border-radius:12px;padding:1.5rem;display:flex;flex-direction:column;gap:1rem;position:relative">
+                    <div style="position:absolute;top:.6rem;right:.6rem;font-size:.6rem;font-weight:700;text-transform:uppercase;background:#f3f4f6;color:#6b7280;padding:.2rem .5rem;border-radius:4px">Claro</div>
+                    <h4 style="margin:0;font-size:1rem;font-weight:700;color:var(--pp);transition:color .15s">Portal de Carreiras</h4>
+                    <div style="display:flex;gap:.5rem;flex-wrap:wrap">
+                        <button type="button" style="background:var(--pp);color:#fff;border:none;padding:.4rem .85rem;font-size:.78rem;font-weight:600;border-radius:6px;cursor:default;transition:background .15s;display:inline-flex;align-items:center;gap:.4rem">
+                            <i class="fa-solid fa-paper-plane"></i> Candidatar-se
+                        </button>
+                        <button type="button" style="background:transparent;color:var(--pp);border:2px solid var(--pp);padding:.35rem .8rem;font-size:.78rem;font-weight:600;border-radius:6px;cursor:default;transition:all .15s">
+                            Saiba mais
+                        </button>
+                    </div>
+                    <div style="background:#f9fafb;border-left:4px solid var(--ps);border-radius:6px;padding:.75rem;display:flex;gap:.6rem;align-items:flex-start;transition:border-color .15s">
+                        <div class="ps-bg-light" style="background:rgba(255,170,0,.12);color:var(--ps);width:30px;height:30px;border-radius:6px;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:.9rem;transition:color .15s,background .15s">
+                            <i class="fa-solid fa-star"></i>
+                        </div>
+                        <div>
+                            <p style="margin:0;font-size:.78rem;font-weight:600;color:#111827">Vaga em Destaque</p>
+                            <p style="margin:0;font-size:.72rem;color:#6b7280">Médico Plantonista · São Paulo</p>
+                        </div>
+                    </div>
+                </div>
+
+                {# Modo Escuro #}
+                <div id="preview-dark"
+                     style="--pp: {{ primaryDark }};--ps: {{ secondaryDark }};
+                            background:#0f172a;color:#f1f5f9;border:1px solid #334155;
+                            border-radius:12px;padding:1.5rem;display:flex;flex-direction:column;gap:1rem;position:relative">
+                    <div style="position:absolute;top:.6rem;right:.6rem;font-size:.6rem;font-weight:700;text-transform:uppercase;background:#1e293b;color:#94a3b8;padding:.2rem .5rem;border-radius:4px">Escuro</div>
+                    <h4 style="margin:0;font-size:1rem;font-weight:700;color:var(--pp);transition:color .15s">Portal de Carreiras</h4>
+                    <div style="display:flex;gap:.5rem;flex-wrap:wrap">
+                        <button type="button" style="background:var(--pp);color:#fff;border:none;padding:.4rem .85rem;font-size:.78rem;font-weight:600;border-radius:6px;cursor:default;transition:background .15s;display:inline-flex;align-items:center;gap:.4rem">
+                            <i class="fa-solid fa-paper-plane"></i> Candidatar-se
+                        </button>
+                        <button type="button" style="background:transparent;color:var(--pp);border:2px solid var(--pp);padding:.35rem .8rem;font-size:.78rem;font-weight:600;border-radius:6px;cursor:default;transition:all .15s">
+                            Saiba mais
+                        </button>
+                    </div>
+                    <div style="background:#1e293b;border-left:4px solid var(--ps);border-radius:6px;padding:.75rem;display:flex;gap:.6rem;align-items:flex-start;transition:border-color .15s">
+                        <div class="ps-bg-dark" style="background:rgba(251,191,36,.1);color:var(--ps);width:30px;height:30px;border-radius:6px;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:.9rem;transition:color .15s,background .15s">
+                            <i class="fa-solid fa-star"></i>
+                        </div>
+                        <div>
+                            <p style="margin:0;font-size:.78rem;font-weight:600;color:#f1f5f9">Vaga em Destaque</p>
+                            <p style="margin:0;font-size:.72rem;color:#94a3b8">Médico Plantonista · São Paulo</p>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        {# ── SEO ── #}
+        <div class="admin-card">
+            <div class="form-section-title"><i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i> SEO</div>
+            <div class="form-grid">
+                <div class="full">{{ form_row(form.seoTitle) }}</div>
+                <div class="full">{{ form_row(form.seoDescription) }}</div>
+            </div>
+        </div>
+
+        {# ── LGPD ── #}
+        <div class="admin-card">
+            <div class="form-section-title"><i class="fa-solid fa-shield" aria-hidden="true"></i> LGPD</div>
+            <div style="display:flex;flex-direction:column;gap:16px">
+                {{ form_row(form.lgpdTermsHtml) }}
+                {{ form_row(form.privacyPolicyHtml) }}
+            </div>
+        </div>
+
+    </div>
+
+    {# ══ Coluna lateral ═════════════════════════════════════════════════════ #}
+    <div style="display:flex;flex-direction:column;gap:20px">
+
+        {# ── Logo Claro ── #}
+        <div class="admin-card">
+            <div class="form-section-title"><i class="fa-solid fa-image" aria-hidden="true"></i> Logo (Modo Claro)</div>
+            {% if tenant is defined and tenant.logo %}
+                <div style="margin-bottom:12px;display:flex;align-items:center;gap:12px">
+                    <img src="/uploads/tenants/logo/{{ tenant.logo }}"
+                         alt="Logo atual" id="logo-preview"
+                         style="height:64px;max-width:180px;object-fit:contain;border:1px solid var(--bm-border);border-radius:8px;padding:6px;background:#fff">
+                    <span style="font-size:.8rem;color:var(--bm-muted)">Logo atual</span>
+                </div>
+            {% else %}
+                <div id="logo-preview-wrap" style="margin-bottom:12px">
+                    <div style="height:64px;width:120px;border:1px dashed var(--bm-border);border-radius:8px;display:flex;align-items:center;justify-content:center;color:var(--bm-muted)">
+                        <i class="fa-solid fa-image fa-lg"></i>
+                    </div>
+                </div>
+            {% endif %}
+            {{ form_row(form.logoFile) }}
+        </div>
+
+        {# ── Logo Escuro ── #}
+        <div class="admin-card">
+            <div class="form-section-title"><i class="fa-solid fa-moon" aria-hidden="true"></i> Logo (Modo Escuro)</div>
+            {% if tenant is defined and tenant.darkLogo %}
+                <div style="margin-bottom:12px">
+                    <img src="/uploads/tenants/dark-logo/{{ tenant.darkLogo }}"
+                         alt="Logo dark"
+                         style="height:64px;max-width:180px;object-fit:contain;border:1px solid #334155;border-radius:8px;padding:6px;background:#0f172a">
+                </div>
+            {% endif %}
+            {{ form_row(form.darkLogoFile) }}
+        </div>
+
+        {# ── Favicon ── #}
+        <div class="admin-card">
+            <div class="form-section-title"><i class="fa-solid fa-star" aria-hidden="true"></i> Favicon</div>
+            {% if tenant is defined and tenant.favicon %}
+                <div style="margin-bottom:12px">
+                    <img src="/uploads/tenants/favicon/{{ tenant.favicon }}"
+                         alt="Favicon"
+                         style="height:40px;width:40px;object-fit:contain;border:1px solid var(--bm-border);border-radius:6px;padding:4px">
+                </div>
+            {% endif %}
+            {{ form_row(form.faviconFile) }}
+        </div>
+
+        {# ── reCAPTCHA ── #}
+        <div class="admin-card">
+            <div class="form-section-title"><i class="fa-solid fa-robot" aria-hidden="true"></i> reCAPTCHA</div>
+            <div style="display:flex;flex-direction:column;gap:12px">
+                {{ form_row(form.recaptchaSiteKey) }}
+                {{ form_row(form.recaptchaSecretKey) }}
+            </div>
+        </div>
+
+        {# ── Card cor atual (live) ── #}
+        <div class="admin-card" id="live-color-card"
+             style="background:linear-gradient(135deg, {{ primaryLight }}, {{ primaryDark }});color:#fff;transition:background .3s">
+            <div style="font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;opacity:.7;margin-bottom:.5rem">Tema selecionado</div>
+            <div style="display:flex;gap:.5rem;align-items:center;margin-bottom:.75rem">
+                <div id="swatch-primary" style="width:28px;height:28px;border-radius:50%;background:{{ primaryLight }};border:2px solid rgba(255,255,255,.5);transition:background .15s"></div>
+                <div id="swatch-secondary" style="width:22px;height:22px;border-radius:50%;background:{{ secondaryLight }};border:2px solid rgba(255,255,255,.4);transition:background .15s"></div>
+                <div id="swatch-primary-dark" style="width:22px;height:22px;border-radius:50%;background:{{ primaryDark }};border:2px solid rgba(255,255,255,.4);transition:background .15s"></div>
+                <div id="swatch-secondary-dark" style="width:18px;height:18px;border-radius:50%;background:{{ secondaryDark }};border:2px solid rgba(255,255,255,.4);transition:background .15s"></div>
+            </div>
+            <div style="font-weight:700;font-size:1rem;margin-bottom:.25rem" id="card-tenant-name">
+                {{ tenant is defined ? tenant.name : 'Novo Tenant' }}
+            </div>
+            <div style="font-size:.8rem;opacity:.8">
+                <span id="card-hex-primary">{{ primaryLight }}</span> / <span id="card-hex-secondary">{{ secondaryLight }}</span>
+            </div>
+        </div>
+
+    </div>
+
+</div>
+
+{{ form_end(form) }}
+
+{% endblock %}
+
+{% block javascripts %}
+{{ parent() }}
+<script src="https://cdn.quilljs.com/1.3.7/quill.min.js"></script>
+<script>
+function updatePreview() {
+    const pL  = document.getElementById('primaryColorPicker').value   || '#0044cc';
+    const sL  = document.getElementById('secondaryColorPicker').value || '#ffaa00';
+    const pD  = document.getElementById('primaryDarkPicker').value    || '#3b82f6';
+    const sD  = document.getElementById('secondaryDarkPicker').value  || '#fbbf24';
+
+    const light = document.getElementById('preview-light');
+    const dark  = document.getElementById('preview-dark');
+
+    if (light) { light.style.setProperty('--pp', pL); light.style.setProperty('--ps', sL); }
+    if (dark)  { dark.style.setProperty('--pp', pD);  dark.style.setProperty('--ps', sD);  }
+
+    const bgLight = document.querySelector('.ps-bg-light');
+    const bgDark  = document.querySelector('.ps-bg-dark');
+    if (bgLight) bgLight.style.background = hexToRgba(sL, .12);
+    if (bgDark)  bgDark.style.background  = hexToRgba(sD, .10);
+
+    const card = document.getElementById('live-color-card');
+    if (card) card.style.background = `linear-gradient(135deg, ${pL}, ${pD})`;
+
+    const sp = document.getElementById('swatch-primary');       if (sp) sp.style.background = pL;
+    const ss = document.getElementById('swatch-secondary');     if (ss) ss.style.background = sL;
+    const spd = document.getElementById('swatch-primary-dark'); if (spd) spd.style.background = pD;
+    const ssd = document.getElementById('swatch-secondary-dark'); if (ssd) ssd.style.background = sD;
+
+    const hp = document.getElementById('card-hex-primary');   if (hp) hp.textContent = pL;
+    const hs = document.getElementById('card-hex-secondary'); if (hs) hs.textContent = sL;
+}
+
+function syncColor(pickerId, hexId, formFieldId) {
+    const val = document.getElementById(pickerId).value;
+    document.getElementById(hexId).value = val;
+    const field = document.getElementById(formFieldId);
+    if (field) field.value = val;
+    updatePreview();
+}
+
+function syncHex(hexId, pickerId, formFieldId) {
+    const val = document.getElementById(hexId).value;
+    if (/^#[0-9a-fA-F]{6}$/.test(val)) {
+        document.getElementById(pickerId).value = val;
+        const field = document.getElementById(formFieldId);
+        if (field) field.value = val;
+        updatePreview();
+    }
+}
+
+function hexToRgba(hex, alpha) {
+    hex = hex.replace('#', '');
+    if (hex.length === 3) hex = hex[0]+hex[0]+hex[1]+hex[1]+hex[2]+hex[2];
+    const r = parseInt(hex.substr(0,2),16)||0;
+    const g = parseInt(hex.substr(2,2),16)||0;
+    const b = parseInt(hex.substr(4,2),16)||0;
+    return `rgba(${r},${g},${b},${alpha})`;
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    updatePreview();
+
+    const nameField = document.querySelector('input[id*="name"]');
+    const cardName  = document.getElementById('card-tenant-name');
+    if (nameField && cardName) {
+        nameField.addEventListener('input', () => {
+            cardName.textContent = nameField.value || 'Novo Tenant';
+        });
+    }
+
+    ['lgpdTermsHtml', 'privacyPolicyHtml'].forEach(id => {
+        const el = document.querySelector(`textarea.quill-editor[id*="${id}"]`);
+        if (!el) return;
+        const container = document.createElement('div');
+        container.style.cssText = 'min-height:120px';
+        el.parentNode.insertBefore(container, el);
+        el.style.display = 'none';
+        const quill = new Quill(container, { theme: 'snow' });
+        quill.root.innerHTML = el.value;
+        quill.on('text-change', () => { el.value = quill.root.innerHTML; });
+    });
+});
+</script>
+{% endblock %}

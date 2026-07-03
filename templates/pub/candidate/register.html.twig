@@ -1,0 +1,67 @@
+{% extends 'pub/base.html.twig' %}
+{% block title %}Cadastrar Currículo{% endblock %}
+
+{% block body %}
+<div style="padding:2.5rem 1.5rem;max-width:680px;margin:0 auto">
+
+    <div style="text-align:center;margin-bottom:2rem">
+        {% if tenant.logo %}
+            <img src="/uploads/tenants/logo/{{ tenant.logo }}" alt="{{ tenant.name }}" style="height:50px;object-fit:contain;margin-bottom:1rem">
+        {% endif %}
+        <h1 style="font-size:1.6rem;font-weight:800">Cadastre seu currículo</h1>
+        <p style="color:#64748b;margin-top:.4rem">Já tem conta? <a href="{{ path('pub_candidate_login') }}" style="color:var(--pub-primary,#0044cc);font-weight:600">Faça login</a></p>
+    </div>
+
+    {% for type, messages in app.flashes %}
+        {% for message in messages %}
+            <div class="pub-flash-{{ type }}"><i class="fa-solid fa-circle-{{ type == 'success' ? 'check' : 'exclamation' }}"></i>{{ message }}</div>
+        {% endfor %}
+    {% endfor %}
+
+    {{ form_start(form, {attr: {novalidate: 'novalidate'}}) }}
+
+    <div class="pub-card">
+        <div class="pub-card-title"><i class="fa-solid fa-user"></i> Dados pessoais</div>
+        <div class="pub-form-group">{{ form_label(form.name) }}{{ form_widget(form.name) }}{{ form_errors(form.name) }}</div>
+        <div class="pub-grid-2">
+            <div class="pub-form-group">{{ form_label(form.email) }}{{ form_widget(form.email) }}{{ form_errors(form.email) }}</div>
+            <div class="pub-form-group">{{ form_label(form.phone) }}{{ form_widget(form.phone) }}{{ form_errors(form.phone) }}</div>
+        </div>
+        <div class="pub-grid-2">
+            <div class="pub-form-group">{{ form_label(form.city) }}{{ form_widget(form.city) }}{{ form_errors(form.city) }}</div>
+            <div class="pub-form-group">{{ form_label(form.state) }}{{ form_widget(form.state) }}{{ form_errors(form.state) }}</div>
+        </div>
+    </div>
+
+    <div class="pub-card">
+        <div class="pub-card-title"><i class="fa-solid fa-lock"></i> Dados de acesso</div>
+        <div class="pub-form-group">
+            {{ form_label(form.plainPassword.first) }}
+            {{ form_widget(form.plainPassword.first) }}
+            {{ form_errors(form.plainPassword.first) }}
+        </div>
+        <div class="pub-form-group">
+            {{ form_label(form.plainPassword.second) }}
+            {{ form_widget(form.plainPassword.second) }}
+            {{ form_errors(form.plainPassword.second) }}
+        </div>
+    </div>
+
+    <div class="pub-card">
+        <div style="display:flex;align-items:flex-start;gap:10px">
+            {{ form_widget(form.lgpdConsent, {attr: {style: 'width:18px;height:18px;margin-top:2px;flex-shrink:0;accent-color:var(--pub-primary,#0044cc)'}}) }}
+            <label style="font-size:.875rem;color:#475569;cursor:pointer">
+                Li e aceito os <a href="#" style="color:var(--pub-primary,#0044cc)">termos de uso</a> e a <a href="#" style="color:var(--pub-primary,#0044cc)">política de privacidade</a>, autorizando o uso dos meus dados conforme a LGPD.
+            </label>
+        </div>
+        {{ form_errors(form.lgpdConsent) }}
+    </div>
+
+    <button type="submit" class="pub-btn-primary" style="width:100%;justify-content:center;font-size:1rem;padding:14px">
+        <i class="fa-solid fa-check"></i>
+        Criar minha conta
+    </button>
+
+    {{ form_end(form) }}
+</div>
+{% endblock %}

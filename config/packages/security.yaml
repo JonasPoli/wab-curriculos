@@ -1,0 +1,75 @@
+security:
+    role_hierarchy:
+        ROLE_SUPER_ADMIN: [ROLE_ADMIN, ROLE_EDITOR, ROLE_REVISOR]
+        ROLE_ADMIN:       [ROLE_EDITOR]
+        ROLE_EDITOR:      [ROLE_REVISOR]
+
+    password_hashers:
+        Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface: 'auto'
+
+    providers:
+        app_user_provider:
+            entity:
+                class: App\Entity\User
+                property: username
+        candidate_provider:
+            entity:
+                class: App\Entity\Candidate
+                property: email
+
+    firewalls:
+        dev:
+            pattern: ^/(_(profiler|wdt)|css|images|js)/
+            security: false
+
+        candidate:
+            pattern: ^/trabalhe-conosco
+            lazy: true
+            provider: candidate_provider
+            form_login:
+                login_path: pub_candidate_login
+                check_path: pub_candidate_login
+                enable_csrf: true
+                default_target_path: pub_candidate_dashboard
+                username_parameter: _email
+                password_parameter: _password
+            logout:
+                path: pub_candidate_logout
+                target: pub_candidate_login
+
+        main:
+            lazy: true
+            provider: app_user_provider
+            form_login:
+                login_path: app_login
+                check_path: app_login
+                enable_csrf: true
+                default_target_path: admin_dash
+            logout:
+                path: app_logout
+            switch_user:
+                role: ROLE_SUPER_ADMIN
+                parameter: _switch_user
+
+    access_control:
+        - { path: ^/trabalhe-conosco/entrar, roles: PUBLIC_ACCESS }
+        - { path: ^/trabalhe-conosco/cadastro, roles: PUBLIC_ACCESS }
+        - { path: ^/trabalhe-conosco/esqueci-a-senha, roles: PUBLIC_ACCESS }
+        - { path: ^/trabalhe-conosco/redefinir-senha, roles: PUBLIC_ACCESS }
+        - { path: ^/trabalhe-conosco/removido, roles: PUBLIC_ACCESS }
+        - { path: ^/trabalhe-conosco, roles: ROLE_CANDIDATE }
+        - { path: ^/esqueci-a-senha, roles: PUBLIC_ACCESS }
+        - { path: ^/redefinir-senha, roles: PUBLIC_ACCESS }
+        - { path: ^/solicitar-exclusao, roles: PUBLIC_ACCESS }
+        - { path: ^/confirmar-exclusao, roles: PUBLIC_ACCESS }
+        - { path: ^/superadmin, roles: ROLE_SUPER_ADMIN }
+        - { path: ^/admin, roles: ROLE_ADMIN }
+
+when@test:
+    security:
+        password_hashers:
+            Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface:
+                algorithm: auto
+                cost: 4
+                time_cost: 3
+                memory_cost: 10

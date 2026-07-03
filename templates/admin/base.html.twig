@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="pt-BR" class="{{ app.user and is_granted('ROLE_PREVIOUS_ADMIN') ? 'impersonating' : '' }}">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Admin{% endblock %} · {{ site_name|default('WAB Admin') }}</title>
+    <meta name="robots" content="noindex, nofollow">
+    <meta name="theme-color" content="#0f1117">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+    <link rel="stylesheet" href="{{ asset('styles/app.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css" integrity="sha512-2SwdPD6INVrV/lHTZbO2nodKhrnDdJK9/kg2XD1r9uGqPo1cUbujc+IYdlYdEErWNu69gVcYgdxlmVmzTWnetw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    
+    {{ importmap('app') }}
+
+    {% if current_tenant() %}
+        {{ tenant_css_vars() }}
+    {% endif %}
+
+    {% block stylesheets %}{% endblock %}
+
+    <script>
+        (function(){
+            const t = localStorage.getItem('theme');
+            const dark = t === 'dark' || (!t && window.matchMedia('(prefers-color-scheme: dark)').matches);
+            document.documentElement.classList.toggle('dark', dark);
+        })();
+    </script>
+</head>
+<body class="admin-body" data-controller="nav">
+
+{% set impersonating_tenant = app.session.get('admin_impersonate_tenant_name') %}
+{% if impersonating_tenant %}
+    <div class="impersonate-banner" role="alert" style="background:linear-gradient(90deg,#7c3aed,#4f46e5);justify-content:space-between">
+        <span>
+            <i class="fa-solid fa-building" aria-hidden="true"></i>
+            Gerenciando tenant: <strong>{{ impersonating_tenant }}</strong>
+        </span>
+        <a href="{{ path('admin_tenant_exit_impersonate') }}"
+           class="impersonate-exit"
+           aria-label="Sair da gestão do tenant e voltar ao Super Admin">
+            <i class="fa-solid fa-right-from-bracket" aria-hidden="true"></i>
+            Sair do tenant
+        </a>
+    </div>
+{% endif %}
+
+{# ══════════════════════════════════════════════════════════════════════════
+   SIDEBAR
+   ══════════════════════════════════════════════════════════════════════════ #}
+<aside class="admin-sidebar"
+       id="admin-sidebar"
+       data-nav-target="sidebar"
+       aria-label="Menu de navegação">
+
+    {# ── Brand ─────────────────────────────────────────────────────────── #}
+    {% set _tenant = current_tenant() %}
+    <div class="sidebar-brand" {% if _tenant %}style="background:linear-gradient(135deg,var(--bm-accent,#7c3aed),var(--color-secondary,#4f46e5));border-radius:10px;margin:8px;padding:10px"{% endif %}>
+        {% if _tenant and _tenant.logo %}
+            <img src="/uploads/tenants/logo/{{ _tenant.logo }}"
+                 alt="{{ _tenant.name }}"
+                 style="height:36px;max-width:120px;object-fit:contain;filter:brightness(0) invert(1);flex-shrink:0">
+        {% else %}
+            <div class="sidebar-brand-icon" aria-hidden="true">
+                <i class="fa-solid fa-{{ _tenant ? 'building' : 'shield-halved' }}"></i>
+            </div>
+        {% endif %}
+        <div class="sidebar-brand-text">
+            <span class="sidebar-brand-name">{{ _tenant ? _tenant.name : site_name|default('WAB Admin') }}</span>
+            <span class="sidebar-brand-sub">{{ _tenant ? 'Painel do Tenant' : 'Área Administrativa' }}</span>
+        </div>
+    </div>
+
+    {# ── Nav ───────────────────────────────────────────────────────────── #}
+    <nav class="sidebar-nav" aria-label="Navegação principal">
+
+        <div class="sidebar-section-label">Principal</div>
+
+        <a {{nav_item_class('admin_dash')}} href="{{ path('admin_dash') }}">
+            <i class="fa-solid fa-house" aria-hidden="true"></i>
+            <span>Dashboard</span>
+        </a>
+
+        {# Seção de Candidatos e Configurações: apenas quando gerenciando um tenant #}
+        {% if _tenant %}
+            <div class="sidebar-section-label">Candidatos</div>
+
+            <a {{nav_item_class('admin_candidate')}} href="{{ path('admin_candidate_index') }}">
+                <i class="fa-solid fa-users" aria-hidden="true"></i>
+                <span>Todos os Candidatos</span>
+            </a>
+
+            <a {{nav_item_class('admin_candidate_index')}} href="{{ path('admin_candidate_index', {q: ''}) }}" style="{{ app.request.get('_route') == 'admin_candidate_index' and (app.request.query.all|length > 0) ? 'background:var(--bm-accent);color:#fff;' : '' }}" title="Busca avançada com filtros">
+                <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
+                <span>Buscar Currículos</span>
+            </a>
+
+            <div class="sidebar-section-label">Configurações</div>
+
+            <a {{nav_item_class('admin_area_of_interest')}} href="{{ path('admin_area_of_interest_index') }}">
+                <i class="fa-solid fa-sitemap" aria-hidden="true"></i>
+                <span>Áreas de Interesse</span>
+            </a>
+
+            <a {{nav_item_class('admin_career')}} href="{{ path('admin_career_index') }}">
+                <i class="fa-solid fa-briefcase" aria-hidden="true"></i>
+                <span>Cargos</span>
+            </a>
+        {% endif %}
+
+        {# Seção Super Admin: apenas para SuperAdmin sem tenant ativo #}
+        {% if is_granted('ROLE_SUPER_ADMIN') and not _tenant %}
+            <div class="sidebar-section-label">Super Admin</div>
+
+            <a {{nav_item_class('admin_tenant')}} href="{{ path('admin_tenant_index') }}">
+                <i class="fa-solid fa-building" aria-hidden="true"></i>
+                <span>Tenants</span>
+            </a>
+
+            <a {{nav_item_class('admin_user')}} href="{{ path('admin_user_index') }}">
+                <i class="fa-solid fa-user-shield" aria-hidden="true"></i>
+                <span>Usuários Admin</span>
+            </a>
+        {% endif %}
+
+        {% block sidebar_links %}{% endblock %}
+
+    </nav>
+
+    {# ── Footer ────────────────────────────────────────────────────────── #}
+    <div class="sidebar-footer">
+        <div class="sidebar-user">
+            <div class="sidebar-user-avatar" aria-hidden="true"
+                 style="width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,#4f8ef7,#a855f7);color:white;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;flex-shrink:0">
+                {{ (app.user.name ?? app.user.userIdentifier)|first|upper }}
+            </div>
+            <div class="sidebar-user-info" style="min-width:0;flex:1">
+                <span class="sidebar-user-name">{{ app.user.name ?? app.user.userIdentifier }}</span>
+                <span class="sidebar-user-role">Administrador</span>
+            </div>
+        </div>
+        <a href="{{ path('app_logout') }}"
+                class="theme-toggle"
+                aria-label="Sair"
+                title="Sair">
+            <i class="fa-solid fa-right-from-bracket" aria-hidden="true"></i>
+        </a>
+    </div>
+
+</aside>
+
+{# ══════════════════════════════════════════════════════════════════════════
+   MAIN WRAPPER
+   ══════════════════════════════════════════════════════════════════════════ #}
+<div class="admin-main" id="admin-main">
+
+    {# ── Mobile topbar ─────────────────────────────────────────────────── #}
+    <header class="admin-topbar" aria-label="Cabeçalho">
+        <button type="button"
+                class="topbar-menu-btn"
+                data-action="click->nav#toggleSidebar"
+                aria-expanded="false"
+                aria-controls="admin-sidebar"
+                aria-label="Abrir menu">
+            <i class="fa-solid fa-bars" aria-hidden="true"></i>
+        </button>
+
+        <div class="topbar-breadcrumbs">
+            {% block breadcrumbs %}{% endblock %}
+        </div>
+
+        <div class="topbar-actions">
+            <button type="button"
+                    class="topbar-icon-btn"
+                    id="theme-btn-topbar"
+                    onclick="document.documentElement.classList.contains('dark') ? lightMode() : darkMode(); updateThemeIcons()"
+                    aria-label="Alternar tema"
+                    title="Alternar tema">
+                <i class="fa-regular fa-sun" id="theme-icon-topbar" aria-hidden="true"></i>
+            </button>
+        </div>
+    </header>
+
+    {% if app.flashes|length > 0 %}
+        <div class="flash-container" aria-live="polite">
+            {{ include('admin/_partials/flash.html.twig') }}
+        </div>
+    {% endif %}
+
+    {% if is_granted('IS_IMPERSONATOR') %}
+        <div style="background:linear-gradient(135deg,#7c3aed,#4f46e5);color:#fff;padding:10px 24px;display:flex;align-items:center;gap:12px;font-size:.85rem;font-weight:600">
+            <i class="fa-solid fa-user-secret fa-lg"></i>
+            <span>Você está logado como <strong>{{ app.user.userIdentifier }}</strong></span>
+            <a href="{{ path('admin_dash') }}?_switch_user=_exit"
+               style="margin-left:auto;background:rgba(255,255,255,.2);color:#fff;padding:5px 16px;border-radius:6px;text-decoration:none;font-size:.82rem;transition:background .15s"
+               onmouseover="this.style.background='rgba(255,255,255,.35)'"
+               onmouseout="this.style.background='rgba(255,255,255,.2)'">
+                <i class="fa-solid fa-right-from-bracket"></i>
+                Sair da impersonação
+            </a>
+        </div>
+    {% endif %}
+
+    <main class="admin-content" id="main-content">
+        {% block body %}{% endblock %}
+    </main>
+
+</div>
+
+{# ── Mobile overlay ────────────────────────────────────────────────────── #}
+<div class="sidebar-overlay" data-nav-target="overlay" data-action="click->nav#closeSidebar" aria-hidden="true"></div>
+
+{% block javascripts %}{% endblock %}
+
+</body>
+</html>

@@ -1,0 +1,49 @@
+{% extends 'admin/base.html.twig' %}
+
+{% block title %}{{ title ?? 'Cargo' }}{% endblock %}
+
+{% block breadcrumbs %}
+    {% set breadcrumbs = [
+        { label: 'Dashboard', route: 'admin_dash' },
+        { label: 'Cargos', route: 'admin_career_index' },
+        { label: title ?? 'Novo Cargo', route: null }
+    ] %}
+    {{ include('admin/_partials/breadcrumbs.html.twig', { breadcrumbs: breadcrumbs }) }}
+{% endblock %}
+
+{% block body %}
+
+{{ form_start(form, { attr: { novalidate: 'novalidate' } }) }}
+
+<div class="page-header">
+    <div>
+        <h1 class="page-title">
+            <i class="fa-solid fa-briefcase" style="margin-right:8px;color:var(--bm-accent)" aria-hidden="true"></i>
+            {{ title ?? 'Novo Cargo' }}
+        </h1>
+    </div>
+    <div style="display:flex;gap:10px">
+        <a href="{{ path('admin_career_index') }}" class="btn-secondary">
+            <i class="fa-solid fa-arrow-left" aria-hidden="true"></i>
+            Voltar
+        </a>
+        <button type="submit" class="btn-primary">
+            <i class="fa-solid fa-check" aria-hidden="true"></i>
+            Salvar
+        </button>
+    </div>
+</div>
+
+<div style="max-width:540px">
+    <div class="card">
+        <div class="card-body" style="display:flex;flex-direction:column;gap:14px">
+            {{ form_row(form.area) }}
+            {{ form_row(form.title) }}
+            {{ form_row(form.active) }}
+        </div>
+    </div>
+</div>
+
+{{ form_end(form) }}
+
+{% endblock %}

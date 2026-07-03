@@ -1,0 +1,12 @@
+{% extends 'admin/tenant/new.html.twig' %}
+
+{% block title %}Editar Tenant — {{ tenant.name }}{% endblock %}
+
+{% block breadcrumbs %}
+    {% set breadcrumbs = [
+        { label: 'Dashboard', route: 'admin_dash' },
+        { label: 'Tenants', route: 'admin_tenant_index' },
+        { label: tenant.name, route: null }
+    ] %}
+    {{ include('admin/_partials/breadcrumbs.html.twig', { breadcrumbs: breadcrumbs }) }}
+{% endblock %}

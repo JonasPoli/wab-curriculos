@@ -1,0 +1,65 @@
+{% extends 'pub/candidate/layout.html.twig' %}
+{% block title %}Dados Pessoais{% endblock %}
+
+{% block content %}
+{{ form_start(form, {attr: {novalidate: 'novalidate'}}) }}
+
+<div class="pub-card">
+    <div class="pub-card-title"><i class="fa-solid fa-user"></i> Dados pessoais</div>
+    <div class="pub-form-group">{{ form_label(form.name) }}{{ form_widget(form.name) }}{{ form_errors(form.name) }}</div>
+    <div class="pub-grid-2">
+        <div class="pub-form-group">{{ form_label(form.email) }}{{ form_widget(form.email) }}{{ form_errors(form.email) }}</div>
+        <div class="pub-form-group">{{ form_label(form.phone) }}{{ form_widget(form.phone) }}{{ form_errors(form.phone) }}</div>
+    </div>
+    <div class="pub-grid-2">
+        <div class="pub-form-group">{{ form_label(form.birthDate) }}{{ form_widget(form.birthDate) }}{{ form_errors(form.birthDate) }}</div>
+        <div class="pub-form-group">{{ form_label(form.state) }}{{ form_widget(form.state) }}{{ form_errors(form.state) }}</div>
+    </div>
+    <div class="pub-form-group">{{ form_label(form.city) }}{{ form_widget(form.city) }}{{ form_errors(form.city) }}</div>
+</div>
+
+<div class="pub-card">
+    <div class="pub-card-title"><i class="fa-solid fa-link"></i> Links profissionais</div>
+    <div class="pub-form-group">{{ form_label(form.linkedinUrl) }}{{ form_widget(form.linkedinUrl) }}{{ form_errors(form.linkedinUrl) }}</div>
+    <div class="pub-form-group">{{ form_label(form.lattesUrl) }}{{ form_widget(form.lattesUrl) }}{{ form_errors(form.lattesUrl) }}</div>
+</div>
+
+<div class="pub-card">
+    <div class="pub-card-title"><i class="fa-solid fa-id-card"></i> Registro profissional</div>
+    <div class="pub-grid-2">
+        <div class="pub-form-group">{{ form_label(form.councilName) }}{{ form_widget(form.councilName) }}{{ form_errors(form.councilName) }}</div>
+        <div class="pub-form-group">{{ form_label(form.registrationNumber) }}{{ form_widget(form.registrationNumber) }}{{ form_errors(form.registrationNumber) }}</div>
+    </div>
+</div>
+
+<div class="pub-card">
+    <div class="pub-card-title"><i class="fa-solid fa-file-lines"></i> Resumo profissional</div>
+    <div class="pub-form-group">{{ form_label(form.professionalSummary) }}{{ form_widget(form.professionalSummary) }}{{ form_errors(form.professionalSummary) }}</div>
+    <div class="pub-form-group">{{ form_label(form.candidateMessage) }}{{ form_widget(form.candidateMessage) }}{{ form_errors(form.candidateMessage) }}</div>
+</div>
+
+<div class="pub-card">
+    <div class="pub-card-title"><i class="fa-solid fa-file-contract"></i> Tipo de contrato</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:.5rem">
+        {% for child in form.contractTypes %}
+            <label style="display:flex;align-items:center;gap:8px;padding:8px 12px;border:1.5px solid #e2e8f0;border-radius:8px;cursor:pointer;font-size:.875rem">
+                {{ form_widget(child, {attr: {style: 'accent-color:var(--pub-primary,#0044cc)'}}) }}
+                {{ form_label(child) }}
+            </label>
+        {% endfor %}
+    </div>
+</div>
+
+<div class="pub-card">
+    <label style="display:flex;align-items:center;gap:10px;cursor:pointer;font-weight:500">
+        {{ form_widget(form.immediateStart, {attr: {style: 'width:18px;height:18px;accent-color:var(--pub-primary,#0044cc)'}}) }}
+        {{ form_label(form.immediateStart) }}
+    </label>
+</div>
+
+<button type="submit" class="pub-btn-primary">
+    <i class="fa-solid fa-check"></i> Salvar dados pessoais
+</button>
+
+{{ form_end(form) }}
+{% endblock %}

@@ -1,0 +1,108 @@
+{% extends 'admin/base.html.twig' %}
+
+{% block title %}Cargos{% endblock %}
+
+{% block breadcrumbs %}
+    {% set breadcrumbs = [
+        { label: 'Dashboard', route: 'admin_dash' },
+        { label: 'Cargos', route: null }
+    ] %}
+    {{ include('admin/_partials/breadcrumbs.html.twig', { breadcrumbs: breadcrumbs }) }}
+{% endblock %}
+
+{% block body %}
+
+<div class="page-header">
+    <div>
+        <h1 class="page-title">
+            <i class="fa-solid fa-briefcase" style="margin-right:8px;color:var(--bm-accent)" aria-hidden="true"></i>
+            Cargos
+        </h1>
+        <p class="page-subtitle">Arraste para reordenar dentro de cada área. Cargos inativos não aparecem no formulário público.</p>
+    </div>
+    <div>
+        <a href="{{ path('admin_career_new') }}" class="btn-primary">
+            <i class="fa-solid fa-plus" aria-hidden="true"></i>
+            Novo Cargo
+        </a>
+    </div>
+</div>
+
+{% if areas is empty %}
+<div class="card">
+    <div class="card-body" style="text-align:center;padding:48px;opacity:.5">
+        <i class="fa-solid fa-sitemap" style="font-size:2rem;margin-bottom:12px;display:block"></i>
+        Nenhuma área de interesse cadastrada. <a href="{{ path('admin_area_of_interest_new') }}">Crie uma área primeiro.</a>
+    </div>
+</div>
+{% else %}
+    {% for area in areas %}
+    <div class="card" style="margin-bottom:20px">
+        <div class="card-body" style="padding:0">
+            <div style="padding:14px 20px;border-bottom:1px solid var(--bm-border);display:flex;align-items:center;justify-content:space-between">
+                <strong style="font-size:14px">
+                    <i class="fa-solid fa-sitemap" style="margin-right:6px;color:var(--bm-text-muted)" aria-hidden="true"></i>
+                    {{ area.title }}
+                </strong>
+                <span class="badge badge-blue">{{ area.careers|length }} cargo{% if area.careers|length != 1 %}s{% endif %}</span>
+            </div>
+            <ul class="sortable-careers" data-area="{{ area.id }}" style="list-style:none;margin:0;padding:0">
+                {% for career in area.careers %}
+                <li data-id="{{ career.id }}"
+                    style="display:flex;align-items:center;gap:12px;padding:12px 20px;border-bottom:1px solid var(--bm-border);cursor:grab">
+                    <i class="fa-solid fa-grip-vertical" style="color:var(--bm-text-muted);font-size:13px" aria-hidden="true"></i>
+                    <div style="flex:1">
+                        {{ career.title }}
+                    </div>
+                    <div>
+                        {% if career.isActive %}
+                            <span class="badge badge-green">Ativo</span>
+                        {% else %}
+                            <span class="badge badge-red">Inativo</span>
+                        {% endif %}
+                    </div>
+                    <div style="display:flex;gap:6px">
+                        <a href="{{ path('admin_career_edit', {id: career.id}) }}" class="btn-secondary" title="Editar">
+                            <i class="fa-solid fa-pen" aria-hidden="true"></i>
+                        </a>
+                        <form method="post" action="{{ path('admin_career_delete', {id: career.id}) }}"
+                              onsubmit="return confirm('Excluir este cargo?')">
+                            <input type="hidden" name="_token" value="{{ csrf_token('delete_career_' ~ career.id) }}">
+                            <button type="submit" class="btn-danger" title="Excluir">
+                                <i class="fa-solid fa-trash" aria-hidden="true"></i>
+                            </button>
+                        </form>
+                    </div>
+                </li>
+                {% else %}
+                <li style="padding:20px;text-align:center;opacity:.5;font-size:13px">Nenhum cargo nesta área.</li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+    {% endfor %}
+{% endif %}
+
+{% endblock %}
+
+{% block javascripts %}
+<script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
+<script>
+    document.querySelectorAll('.sortable-careers').forEach(list => {
+        Sortable.create(list, {
+            animation: 150,
+            handle: '.fa-grip-vertical',
+            onEnd: function() {
+                const ids = [...list.querySelectorAll('li')].map(el => el.dataset.id);
+                const body = new URLSearchParams();
+                ids.forEach(id => body.append('ids[]', id));
+                fetch('{{ path('admin_career_reorder') }}', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                    body: body.toString()
+                });
+            }
+        });
+    });
+</script>
+{% endblock %}

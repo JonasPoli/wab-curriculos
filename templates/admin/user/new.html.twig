@@ -1,0 +1,58 @@
+{% extends 'admin/base.html.twig' %}
+
+{% block title %}{{ title ?? 'Usuário' }}{% endblock %}
+
+{% block breadcrumbs %}
+    {% set breadcrumbs = [
+        { label: 'Dashboard', route: 'admin_dash' },
+        { label: 'Usuários', route: 'admin_user_index' },
+        { label: title ?? 'Usuário', route: null }
+    ] %}
+    {{ include('admin/_partials/breadcrumbs.html.twig', { breadcrumbs: breadcrumbs }) }}
+{% endblock %}
+
+{% block body %}
+
+{{ form_start(form, { attr: { novalidate: 'novalidate' } }) }}
+
+<div class="page-header">
+    <div>
+        <h1 class="page-title">
+            <i class="fa-solid fa-user-shield" style="margin-right:8px;color:var(--bm-accent)" aria-hidden="true"></i>
+            {{ title ?? 'Usuário' }}
+        </h1>
+    </div>
+    <div style="display:flex;gap:10px">
+        <a href="{{ path('admin_user_index') }}" class="btn-secondary">
+            <i class="fa-solid fa-arrow-left" aria-hidden="true"></i>
+            Voltar
+        </a>
+        <button type="submit" class="btn-primary">
+            <i class="fa-solid fa-check" aria-hidden="true"></i>
+            Salvar
+        </button>
+    </div>
+</div>
+
+<div style="max-width:640px">
+    <div class="card">
+        <div class="card-body" style="display:flex;flex-direction:column;gap:14px">
+            <div class="form-section-title"><i class="fa-solid fa-circle-info" aria-hidden="true"></i> Dados pessoais</div>
+            {{ form_row(form.name) }}
+            {{ form_row(form.username) }}
+            {{ form_row(form.email) }}
+
+            <div class="form-section-title" style="margin-top:8px"><i class="fa-solid fa-key" aria-hidden="true"></i> Acesso</div>
+            {{ form_row(form.workGroup) }}
+            {{ form_row(form.tenant) }}
+
+            <div class="form-section-title" style="margin-top:8px"><i class="fa-solid fa-lock" aria-hidden="true"></i> Senha</div>
+            {{ form_row(form.plainPassword.first) }}
+            {{ form_row(form.plainPassword.second) }}
+        </div>
+    </div>
+</div>
+
+{{ form_end(form) }}
+
+{% endblock %}

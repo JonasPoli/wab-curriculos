@@ -1,0 +1,41 @@
+{#
+    Breadcrumbs navigation component.
+
+    Usage — in a child template:
+    {% block breadcrumbs %}
+        {% set breadcrumbs = [
+            { label: 'Dashboard', route: 'admin_dash' },
+            { label: 'Usuários',  route: 'app_admin_user_index' },
+            { label: 'Editar',    route: null }
+        ] %}
+        {{ include('admin/_partials/breadcrumbs.html.twig', { breadcrumbs: breadcrumbs }) }}
+    {% endblock %}
+#}
+{% if breadcrumbs is defined and breadcrumbs|length > 0 %}
+<nav aria-label="Caminho de navegação (breadcrumbs)" class="mb-6">
+    <ol class="flex flex-wrap items-center gap-1 text-sm text-slate-500 dark:text-slate-400">
+        {% for crumb in breadcrumbs %}
+            {% set is_last = loop.last %}
+            <li class="flex items-center gap-1">
+                {% if not is_last and crumb.route is not null %}
+                    <a href="{{ path(crumb.route) }}"
+                       class="hover:text-primary dark:hover:text-primary-light transition-colors">
+                        {{ crumb.label }}
+                    </a>
+                {% else %}
+                    <span class="font-medium text-slate-700 dark:text-slate-200"
+                          {% if is_last %}aria-current="page"{% endif %}>
+                        {{ crumb.label }}
+                    </span>
+                {% endif %}
+
+                {% if not is_last %}
+                    <span aria-hidden="true" class="text-slate-300 dark:text-slate-600">
+                        <i class="fa-solid fa-chevron-right" style="font-size:0.65rem" aria-hidden="true"></i>
+                    </span>
+                {% endif %}
+            </li>
+        {% endfor %}
+    </ol>
+</nav>
+{% endif %}

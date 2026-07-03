@@ -1,0 +1,47 @@
+{% extends 'admin/base.html.twig' %}
+
+{% block title %}{{ title ?? 'Área de Interesse' }}{% endblock %}
+
+{% block breadcrumbs %}
+    {% set breadcrumbs = [
+        { label: 'Dashboard', route: 'admin_dash' },
+        { label: 'Áreas de Interesse', route: 'admin_area_of_interest_index' },
+        { label: title ?? 'Nova Área', route: null }
+    ] %}
+    {{ include('admin/_partials/breadcrumbs.html.twig', { breadcrumbs: breadcrumbs }) }}
+{% endblock %}
+
+{% block body %}
+
+{{ form_start(form, { attr: { novalidate: 'novalidate' } }) }}
+
+<div class="page-header">
+    <div>
+        <h1 class="page-title">
+            <i class="fa-solid fa-sitemap" style="margin-right:8px;color:var(--bm-accent)" aria-hidden="true"></i>
+            {{ title ?? 'Nova Área de Interesse' }}
+        </h1>
+    </div>
+    <div style="display:flex;gap:10px">
+        <a href="{{ path('admin_area_of_interest_index') }}" class="btn-secondary">
+            <i class="fa-solid fa-arrow-left" aria-hidden="true"></i>
+            Voltar
+        </a>
+        <button type="submit" class="btn-primary">
+            <i class="fa-solid fa-check" aria-hidden="true"></i>
+            Salvar
+        </button>
+    </div>
+</div>
+
+<div style="max-width:480px">
+    <div class="card">
+        <div class="card-body">
+            {{ form_row(form.title) }}
+        </div>
+    </div>
+</div>
+
+{{ form_end(form) }}
+
+{% endblock %}

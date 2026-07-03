@@ -1,0 +1,12 @@
+{% extends 'admin/area_of_interest/new.html.twig' %}
+
+{% block title %}Editar — {{ area.title }}{% endblock %}
+
+{% block breadcrumbs %}
+    {% set breadcrumbs = [
+        { label: 'Dashboard', route: 'admin_dash' },
+        { label: 'Áreas de Interesse', route: 'admin_area_of_interest_index' },
+        { label: area.title, route: null }
+    ] %}
+    {{ include('admin/_partials/breadcrumbs.html.twig', { breadcrumbs: breadcrumbs }) }}
+{% endblock %}

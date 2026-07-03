@@ -1,0 +1,47 @@
+{% extends 'pub/candidate/layout.html.twig' %}
+{% block title %}Formação Acadêmica{% endblock %}
+
+{% block content %}
+
+{% if candidate.academicBackgrounds|length > 0 %}
+<div class="pub-card" style="margin-bottom:1.5rem">
+    <div class="pub-card-title"><i class="fa-solid fa-graduation-cap"></i> Sua formação</div>
+    {% for ab in candidate.academicBackgrounds %}
+    <div style="padding:1rem 0;border-bottom:1px solid #f1f5f9;display:flex;justify-content:space-between;align-items:flex-start">
+        <div>
+            <div style="font-weight:700">{{ ab.degree }}</div>
+            <div style="color:#475569;font-size:.88rem">{{ ab.institution }}</div>
+            {% if ab.fieldOfStudy %}<div style="font-size:.8rem;color:#94a3b8">{{ ab.fieldOfStudy }}</div>{% endif %}
+            <div style="font-size:.78rem;color:#94a3b8;margin-top:3px">
+                {{ ab.startDate ? ab.startDate|date('Y') : '' }}
+                {% if ab.endDate %} — {{ ab.endDate|date('Y') }}{% endif %}
+            </div>
+        </div>
+        <form method="post" action="{{ path('pub_candidate_academic_delete', {id: ab.id}) }}" onsubmit="return confirm('Remover esta formação?')">
+            <input type="hidden" name="_token" value="{{ csrf_token('delete_ab_' ~ ab.id) }}">
+            <button type="submit" style="background:none;border:none;color:#dc2626;cursor:pointer;padding:4px 8px;border-radius:6px">
+                <i class="fa-solid fa-trash"></i>
+            </button>
+        </form>
+    </div>
+    {% endfor %}
+</div>
+{% endif %}
+
+<div class="pub-card">
+    <div class="pub-card-title"><i class="fa-solid fa-plus"></i> Adicionar formação</div>
+    {{ form_start(form, {attr: {novalidate: 'novalidate'}}) }}
+    <div class="pub-form-group">{{ form_label(form.institution) }}{{ form_widget(form.institution) }}{{ form_errors(form.institution) }}</div>
+    <div class="pub-grid-2">
+        <div class="pub-form-group">{{ form_label(form.degree) }}{{ form_widget(form.degree) }}{{ form_errors(form.degree) }}</div>
+        <div class="pub-form-group">{{ form_label(form.fieldOfStudy) }}{{ form_widget(form.fieldOfStudy) }}{{ form_errors(form.fieldOfStudy) }}</div>
+    </div>
+    <div class="pub-grid-2">
+        <div class="pub-form-group">{{ form_label(form.startDate) }}{{ form_widget(form.startDate) }}{{ form_errors(form.startDate) }}</div>
+        <div class="pub-form-group">{{ form_label(form.endDate) }}{{ form_widget(form.endDate) }}{{ form_errors(form.endDate) }}</div>
+    </div>
+    <button type="submit" class="pub-btn-primary"><i class="fa-solid fa-plus"></i> Adicionar</button>
+    {{ form_end(form) }}
+</div>
+
+{% endblock %}

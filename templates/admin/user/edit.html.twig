@@ -1,0 +1,12 @@
+{% extends 'admin/user/new.html.twig' %}
+
+{% block title %}Editar — {{ user.displayName }}{% endblock %}
+
+{% block breadcrumbs %}
+    {% set breadcrumbs = [
+        { label: 'Dashboard', route: 'admin_dash' },
+        { label: 'Usuários', route: 'admin_user_index' },
+        { label: user.displayName, route: null }
+    ] %}
+    {{ include('admin/_partials/breadcrumbs.html.twig', { breadcrumbs: breadcrumbs }) }}
+{% endblock %}

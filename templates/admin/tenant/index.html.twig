@@ -1,0 +1,115 @@
+{% extends 'admin/base.html.twig' %}
+
+{% block title %}Tenants{% endblock %}
+
+{% block breadcrumbs %}
+    {% set breadcrumbs = [
+        { label: 'Dashboard', route: 'admin_dash' },
+        { label: 'Tenants', route: null }
+    ] %}
+    {{ include('admin/_partials/breadcrumbs.html.twig', { breadcrumbs: breadcrumbs }) }}
+{% endblock %}
+
+{% block stylesheets %}
+    <link rel="stylesheet" href="https://cdn.datatables.net/2.0.8/css/dataTables.dataTables.min.css">
+{% endblock %}
+
+{% block body %}
+
+<div class="page-header">
+    <div>
+        <h1 class="page-title">
+            <i class="fa-solid fa-building" style="margin-right:8px;color:var(--bm-accent)" aria-hidden="true"></i>
+            Tenants
+        </h1>
+        <p class="page-subtitle">Gerencie os portais de candidatura de cada empresa.</p>
+    </div>
+    <div>
+        <a href="{{ path('admin_tenant_new') }}" class="btn-primary">
+            <i class="fa-solid fa-plus" aria-hidden="true"></i>
+            Novo Tenant
+        </a>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-body">
+        <table id="tenants-table" class="display nowrap" style="width:100%">
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Nome</th>
+                    <th>Domínio</th>
+                    <th>Tema</th>
+                    <th>Cores</th>
+                    <th>Ações</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for tenant in tenants %}
+                <tr>
+                    <td>{{ tenant.id }}</td>
+                    <td>
+                        {% if tenant.logo %}
+                            <img src="{{ asset('uploads/tenants/logo/' ~ tenant.logo) }}"
+                                 alt="{{ tenant.name }}"
+                                 style="height:28px;object-fit:contain;vertical-align:middle;margin-right:8px">
+                        {% endif %}
+                        <strong>{{ tenant.name }}</strong>
+                    </td>
+                    <td>
+                        <code>{{ tenant.domain }}</code>
+                    </td>
+                    <td>
+                        <span class="badge badge-blue">{{ tenant.activeTheme ?? 'moderno' }}</span>
+                    </td>
+                    <td>
+                        <span style="display:inline-flex;gap:4px;align-items:center">
+                            <span title="Primária" style="width:18px;height:18px;border-radius:4px;background:{{ tenant.primaryColor ?? '#0044cc' }};border:1px solid rgba(0,0,0,.2);display:inline-block"></span>
+                            <span title="Secundária" style="width:18px;height:18px;border-radius:4px;background:{{ tenant.secondaryColor ?? '#ffaa00' }};border:1px solid rgba(0,0,0,.2);display:inline-block"></span>
+                        </span>
+                    </td>
+                    <td>
+                        <div style="display:flex;gap:6px">
+                            <a href="{{ path('admin_tenant_impersonate', {id: tenant.id}) }}"
+                               target="_blank"
+                               class="btn-primary"
+                               title="Gerenciar este tenant em nova guia"
+                               style="background:linear-gradient(135deg,#7c3aed,#4f46e5);border-color:transparent">
+                                <i class="fa-solid fa-building-user" aria-hidden="true"></i>
+                                Gerenciar
+                            </a>
+                            <a href="{{ path('admin_tenant_edit', {id: tenant.id}) }}" class="btn-secondary" title="Editar">
+                                <i class="fa-solid fa-pen" aria-hidden="true"></i>
+                            </a>
+                            <form method="post" action="{{ path('admin_tenant_delete', {id: tenant.id}) }}"
+                                  onsubmit="return confirm('Excluir este tenant e todos os seus dados?')">
+                                <input type="hidden" name="_token" value="{{ csrf_token('delete_tenant_' ~ tenant.id) }}">
+                                <button type="submit" class="btn-danger" title="Excluir">
+                                    <i class="fa-solid fa-trash" aria-hidden="true"></i>
+                                </button>
+                            </form>
+                        </div>
+                    </td>
+                </tr>
+                {% else %}
+                <tr><td colspan="6" style="text-align:center;padding:40px;opacity:.5">Nenhum tenant cadastrado.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block javascripts %}
+<script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+<script src="https://cdn.datatables.net/2.0.8/js/dataTables.min.js"></script>
+<script>
+    new DataTable('#tenants-table', {
+        language: { url: 'https://cdn.datatables.net/plug-ins/2.0.8/i18n/pt-BR.json' },
+        pageLength: 25,
+        columnDefs: [{ orderable: false, targets: [4, 5] }]
+    });
+</script>
+{% endblock %}

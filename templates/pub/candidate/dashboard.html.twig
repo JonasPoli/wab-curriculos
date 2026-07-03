@@ -1,0 +1,79 @@
+{% extends 'pub/candidate/layout.html.twig' %}
+{% block title %}Minha Conta{% endblock %}
+
+{% block content %}
+
+<div class="pub-card" style="background:linear-gradient(135deg,var(--pub-primary,#0044cc),color-mix(in srgb,var(--pub-primary,#0044cc) 60%,#7c3aed));color:#fff;margin-bottom:1.5rem">
+    <div style="display:flex;align-items:center;gap:16px">
+        <div style="width:60px;height:60px;border-radius:50%;background:rgba(255,255,255,.2);display:flex;align-items:center;justify-content:center;font-size:1.5rem;font-weight:800;flex-shrink:0">
+            {{ candidate.name|first|upper }}
+        </div>
+        <div>
+            <div style="font-size:1.2rem;font-weight:700">Olá, {{ candidate.name|split(' ')|first }}!</div>
+            <div style="opacity:.85;font-size:.88rem;margin-top:2px">{{ candidate.email }}</div>
+        </div>
+    </div>
+</div>
+
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.5rem">
+    <a href="{{ path('pub_candidate_profile') }}" style="text-decoration:none">
+        <div class="pub-card" style="cursor:pointer;transition:transform .15s,box-shadow .15s;display:flex;align-items:center;gap:14px" onmouseover="this.style.transform='translateY(-2px)';this.style.boxShadow='0 8px 24px rgba(0,0,0,.1)'" onmouseout="this.style.transform='';this.style.boxShadow=''">
+            <div style="width:44px;height:44px;border-radius:10px;background:rgba(0,68,204,.1);display:flex;align-items:center;justify-content:center;flex-shrink:0">
+                <i class="fa-solid fa-user" style="color:var(--pub-primary,#0044cc)"></i>
+            </div>
+            <div>
+                <div style="font-weight:600;font-size:.88rem">Dados pessoais</div>
+                <div style="font-size:.78rem;color:#64748b;margin-top:2px">Editar perfil e contato</div>
+            </div>
+        </div>
+    </a>
+
+    <a href="{{ path('pub_candidate_experience') }}" style="text-decoration:none">
+        <div class="pub-card" style="cursor:pointer;transition:transform .15s,box-shadow .15s;display:flex;align-items:center;gap:14px" onmouseover="this.style.transform='translateY(-2px)';this.style.boxShadow='0 8px 24px rgba(0,0,0,.1)'" onmouseout="this.style.transform='';this.style.boxShadow=''">
+            <div style="width:44px;height:44px;border-radius:10px;background:rgba(124,58,237,.1);display:flex;align-items:center;justify-content:center;flex-shrink:0">
+                <i class="fa-solid fa-briefcase" style="color:#7c3aed"></i>
+            </div>
+            <div>
+                <div style="font-weight:600;font-size:.88rem">Experiências</div>
+                <div style="font-size:.78rem;color:#64748b;margin-top:2px">{{ candidate.workExperiences|length }} cadastrada(s)</div>
+            </div>
+        </div>
+    </a>
+
+    <a href="{{ path('pub_candidate_academic') }}" style="text-decoration:none">
+        <div class="pub-card" style="cursor:pointer;transition:transform .15s,box-shadow .15s;display:flex;align-items:center;gap:14px" onmouseover="this.style.transform='translateY(-2px)';this.style.boxShadow='0 8px 24px rgba(0,0,0,.1)'" onmouseout="this.style.transform='';this.style.boxShadow=''">
+            <div style="width:44px;height:44px;border-radius:10px;background:rgba(5,150,105,.1);display:flex;align-items:center;justify-content:center;flex-shrink:0">
+                <i class="fa-solid fa-graduation-cap" style="color:#059669"></i>
+            </div>
+            <div>
+                <div style="font-weight:600;font-size:.88rem">Formação acadêmica</div>
+                <div style="font-size:.78rem;color:#64748b;margin-top:2px">{{ candidate.academicBackgrounds|length }} cadastrada(s)</div>
+            </div>
+        </div>
+    </a>
+
+    <a href="{{ path('pub_candidate_availability') }}" style="text-decoration:none">
+        <div class="pub-card" style="cursor:pointer;transition:transform .15s,box-shadow .15s;display:flex;align-items:center;gap:14px" onmouseover="this.style.transform='translateY(-2px)';this.style.boxShadow='0 8px 24px rgba(0,0,0,.1)'" onmouseout="this.style.transform='';this.style.boxShadow=''">
+            <div style="width:44px;height:44px;border-radius:10px;background:rgba(217,119,6,.1);display:flex;align-items:center;justify-content:center;flex-shrink:0">
+                <i class="fa-solid fa-calendar-check" style="color:#d97706"></i>
+            </div>
+            <div>
+                <div style="font-weight:600;font-size:.88rem">Disponibilidade</div>
+                <div style="font-size:.78rem;color:#64748b;margin-top:2px">{{ candidate.careers|length }} cargo(s) de interesse</div>
+            </div>
+        </div>
+    </a>
+</div>
+
+{% if not candidate.professionalSummary and candidate.workExperiences|length == 0 %}
+<div class="pub-card" style="border:2px dashed #e2e8f0;background:#fafafa;text-align:center;padding:2rem">
+    <i class="fa-solid fa-circle-info fa-2x" style="color:var(--pub-primary,#0044cc);margin-bottom:.75rem;opacity:.6"></i>
+    <div style="font-weight:600;margin-bottom:.4rem">Complete seu currículo</div>
+    <p style="font-size:.875rem;color:#64748b;margin-bottom:1.25rem">Adicione suas experiências, formação e disponibilidade para aumentar suas chances.</p>
+    <a href="{{ path('pub_candidate_profile') }}" class="pub-btn-primary">
+        <i class="fa-solid fa-pencil"></i> Completar perfil
+    </a>
+</div>
+{% endif %}
+
+{% endblock %}

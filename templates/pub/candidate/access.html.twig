@@ -1,0 +1,18 @@
+{% extends 'pub/candidate/layout.html.twig' %}
+{% block title %}Dados de Acesso{% endblock %}
+
+{% block content %}
+{{ form_start(form, {attr: {novalidate: 'novalidate'}}) }}
+<div class="pub-card">
+    <div class="pub-card-title"><i class="fa-solid fa-lock"></i> Dados de acesso</div>
+    <div class="pub-form-group">{{ form_label(form.email) }}{{ form_widget(form.email) }}{{ form_errors(form.email) }}</div>
+    <div class="pub-form-group">
+        {{ form_label(form.newPassword.first) }}{{ form_widget(form.newPassword.first, {attr: {placeholder: 'Deixe em branco para não alterar'}}) }}{{ form_errors(form.newPassword.first) }}
+    </div>
+    <div class="pub-form-group">
+        {{ form_label(form.newPassword.second) }}{{ form_widget(form.newPassword.second) }}{{ form_errors(form.newPassword.second) }}
+    </div>
+    <button type="submit" class="pub-btn-primary"><i class="fa-solid fa-check"></i> Salvar</button>
+</div>
+{{ form_end(form) }}
+{% endblock %}

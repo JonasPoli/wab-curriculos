@@ -1,0 +1,820 @@
+{% extends 'admin/base.html.twig' %}
+
+{% block title %}Ícones — Web Awesome{% endblock %}
+
+{% block breadcrumbs %}
+    {% set breadcrumbs = [
+        { label: 'Dashboard', route: 'admin_dash' },
+        { label: 'Ícones', route: null }
+    ] %}
+    {{ include('admin/_partials/breadcrumbs.html.twig', { breadcrumbs: breadcrumbs }) }}
+{% endblock %}
+
+{% block stylesheets %}
+<style>
+    .icon-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(96px, 1fr));
+        gap: 6px;
+    }
+    .icon-card {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+        padding: 12px 6px;
+        border: 1.5px solid var(--bm-border);
+        border-radius: var(--radius-base);
+        cursor: pointer;
+        transition: all .15s;
+        background: var(--bm-card-bg);
+        min-height: 76px;
+    }
+    .icon-card:hover {
+        border-color: var(--bm-accent);
+        background: rgba(79,142,247,.07);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(79,142,247,.15);
+    }
+    .icon-card i { font-size: 22px; color: var(--bm-text); width: 22px; text-align: center; }
+    .icon-card:hover i { color: var(--bm-accent); }
+    .icon-name {
+        font-size: 10px;
+        color: var(--bm-text-muted);
+        word-break: break-word;
+        text-align: center;
+        line-height: 1.3;
+        max-width: 100%;
+    }
+    .icon-card:hover .icon-name { color: var(--bm-accent); }
+    .icon-card.hidden { display: none !important; }
+
+    .cat-title {
+        font-size: 11.5px;
+        font-weight: 700;
+        letter-spacing: .7px;
+        text-transform: uppercase;
+        color: var(--bm-text-muted);
+        margin: 0 0 10px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+    .cat-count {
+        background: var(--bm-border);
+        color: var(--bm-text-muted);
+        font-size: 10px;
+        padding: 1px 6px;
+        border-radius: 10px;
+    }
+    .cat-section { margin-bottom: 28px; }
+
+    .copy-toast {
+        position: fixed;
+        bottom: 24px;
+        left: 50%;
+        transform: translateX(-50%) translateY(16px);
+        background: #1e293b;
+        color: #e2e8f0;
+        padding: 9px 18px;
+        border-radius: 20px;
+        font-size: 13px;
+        font-weight: 600;
+        opacity: 0;
+        pointer-events: none;
+        transition: all .25s;
+        z-index: 9999;
+        box-shadow: 0 4px 16px rgba(0,0,0,.3);
+    }
+    .copy-toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+    .filter-bar { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin-bottom: 16px; }
+    .chip {
+        display: inline-flex; align-items: center; gap: 5px;
+        padding: 5px 14px; border-radius: 20px;
+        border: 1.5px solid var(--bm-border); background: transparent;
+        color: var(--bm-text-muted); font-size: 12.5px; font-weight: 500;
+        cursor: pointer; transition: all .15s;
+    }
+    .chip:hover, .chip.active {
+        border-color: var(--bm-accent);
+        background: rgba(79,142,247,.1);
+        color: var(--bm-accent);
+    }
+    .search-wrap { position: relative; }
+    .search-wrap i {
+        position: absolute;
+        top: 50%; left: 10px;
+        transform: translateY(-50%);
+        color: var(--bm-text-muted);
+        font-size: 13px;
+        pointer-events: none;
+    }
+    .search-input {
+        padding: 7px 12px 7px 32px;
+        border: 1.5px solid var(--bm-input-border);
+        border-radius: 20px;
+        background: var(--bm-input-bg);
+        color: var(--bm-text);
+        font-size: 13px; outline: none;
+        min-width: 220px;
+        transition: border-color .15s, box-shadow .15s;
+    }
+    .search-input:focus {
+        border-color: var(--bm-accent);
+        box-shadow: 0 0 0 3px rgba(79,142,247,.2);
+    }
+
+    /* Usage demos */
+    .code-box {
+        background: #0d1117;
+        border: 1px solid #21262d;
+        border-radius: var(--radius-base);
+        padding: 14px 16px;
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 12px;
+        color: #8b949e;
+        overflow-x: auto;
+        margin-top: 10px;
+    }
+    .code-box .kw  { color: #ff7b72; }
+    .code-box .at  { color: #79c0ff; }
+    .code-box .val { color: #a5d6ff; }
+    .code-box .str { color: #a8d5a2; }
+    .code-box .cm  { color: #6e7681; font-style: italic; }
+</style>
+{% endblock %}
+
+{% block body %}
+
+<div class="copy-toast" id="copy-toast" role="status" aria-live="polite">✓ Copiado!</div>
+
+{# ── Header ── #}
+<div class="page-header">
+    <div>
+        <h1 class="page-title">
+            <i class="fa-solid fa-palette" style="margin-right:8px;color:var(--bm-accent);font-size:20px" aria-hidden="true"></i>
+            Ícones — Web Awesome (FA6 Free)
+        </h1>
+        <p class="page-subtitle">
+            Ícones disponíveis no plano gratuito. Clique para copiar o código HTML.
+            Pesquise, filtre por variante e categoria.
+        </p>
+    </div>
+    <a href="https://fontawesome.com/icons?f=classic&s=solid&q=&o=r" target="_blank" rel="noopener" class="btn-secondary">
+        <i class="fa-solid fa-arrow-up-right-from-square" style="font-size:13px" aria-hidden="true"></i>
+        FA6 Free Docs
+    </a>
+</div>
+
+{# ── Como usar ── #}
+<div class="admin-card" style="margin-bottom:20px">
+    <div class="admin-card-title">
+        <i class="fa-solid fa-code" style="color:var(--bm-accent);font-size:15px" aria-hidden="true"></i>
+        Como usar
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:20px">
+
+        <div>
+            <p style="font-size:13px;color:var(--bm-text-muted);margin:0 0 6px">Sintaxe básica:</p>
+            <div class="code-box"><span class="kw">&lt;wa-icon</span>
+  <span class="at">family</span>=<span class="str">"classic"</span>
+  <span class="at">variant</span>=<span class="str">"solid"</span>   <span class="cm">{ solid | regular | light | thin | duotone }</span>
+  <span class="at">name</span>=<span class="str">"house"</span>
+  <span class="at">aria-hidden</span>=<span class="str">"true"</span>
+<span class="kw">&gt;&lt;/wa-icon&gt;</span></div>
+        </div>
+
+        <div>
+            <p style="font-size:13px;color:var(--bm-text-muted);margin:0 0 6px">Tamanhos (font-size):</p>
+            <div style="display:flex;align-items:flex-end;gap:16px;flex-wrap:wrap">
+                {% for size in [12, 16, 20, 28, 40] %}
+                <div style="display:flex;flex-direction:column;align-items:center;gap:5px">
+                    <i class="fa-solid fa-star" style="font-size:{{ size }}px;color:var(--bm-accent);display:block" aria-hidden="true"></i>
+                    <span style="font-size:10.5px;color:var(--bm-text-muted)">{{ size }}px</span>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <div>
+            <p style="font-size:13px;color:var(--bm-text-muted);margin:0 0 6px">Variantes (mesmo ícone):</p>
+            <div style="display:flex;align-items:center;gap:16px;flex-wrap:wrap">
+                {% for variant in ['thin','light','regular','solid','duotone'] %}
+                <div style="display:flex;flex-direction:column;align-items:center;gap:5px">
+                    <i class="fa-solid fa-bell" style="font-size:22px;color:var(--bm-text);display:block" aria-hidden="true"></i>
+                    <span style="font-size:10px;color:var(--bm-text-muted)">{{ variant }}</span>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <div>
+            <p style="font-size:13px;color:var(--bm-text-muted);margin:0 0 6px">Ícone em input (padrão correto):</p>
+            <div style="position:relative;max-width:220px">
+                <i class="fa-solid fa-magnifying-glass" aria-hidden="true" style="position:absolute;top:50%;left:11px;transform:translateY(-50%);color:var(--bm-text-muted);pointer-events:none;z-index:2;font-size:14px;display:block"></i>
+                <input type="text" class="wab-input" style="padding-left:36px" placeholder="Pesquisar...">
+            </div>
+            <div class="code-box"><span class="cm">&lt;!-- wa-icon diretamente no div pai --&gt;</span>
+<span class="kw">&lt;div</span> <span class="at">style</span>=<span class="str">"position:relative"</span><span class="kw">&gt;</span>
+  <span class="kw">&lt;wa-icon</span> <span class="at">name</span>=<span class="str">"magnifying-glass"</span>
+           <span class="at">style</span>=<span class="str">"position:absolute;top:50%;left:11px;
+                  transform:translateY(-50%);font-size:14px"</span><span class="kw">&gt;&lt;/wa-icon&gt;</span>
+  <span class="kw">&lt;input</span> <span class="at">style</span>=<span class="str">"padding-left:36px"</span><span class="kw">&gt;</span>
+<span class="kw">&lt;/div&gt;</span></div>
+        </div>
+
+    </div>
+</div>
+
+{# ── Biblioteca ── #}
+<div class="admin-card">
+    <div class="admin-card-title">
+        <i class="fa-solid fa-grid-2" style="color:var(--bm-accent);font-size:15px" aria-hidden="true"></i>
+        Biblioteca
+        <span style="font-size:12px;font-weight:400;color:var(--bm-text-muted);margin-left:auto">Clique → copia código</span>
+    </div>
+
+    <div class="filter-bar">
+        <div class="search-wrap">
+            <i class="fa-solid fa-magnifying-glass" style="position:absolute;top:50%;left:10px;transform:translateY(-50%);color:var(--bm-text-muted);font-size:13px;pointer-events:none;display:block" aria-hidden="true"></i>
+            <input type="text" id="icon-search" class="search-input"
+                   placeholder="Pesquisar ícone..." oninput="filterIcons()"
+                   aria-label="Pesquisar ícones">
+        </div>
+        <button class="chip active" onclick="setVariant('solid',this)">
+            <i class="fa-solid fa-star" style="font-size:13px;display:block" aria-hidden="true"></i> solid
+        </button>
+        <button class="chip" onclick="setVariant('regular',this)">
+            <i class="fa-regular fa-star" style="font-size:13px;display:block" aria-hidden="true"></i> regular
+        </button>
+        <span id="icon-count" style="font-size:12.5px;color:var(--bm-text-muted);margin-left:4px"></span>
+    </div>
+
+    {# Ícones renderizados por JS abaixo #}
+    <div id="icon-library"></div>
+</div>
+
+{% endblock %}
+
+
+{% block javascripts %}
+<script>
+// ── FA6 FREE — Lista curada por categoria ────────────────────────────────────
+// A página auto-detecta e remove os que não renderizarem
+const ICON_CATEGORIES = {
+
+'Interface Geral': [
+    'house','house-chimney','house-user','house-circle-check','house-circle-exclamation',
+    'gear','gears','sliders','bars','bars-progress','bars-staggered','xmark','check',
+    'check-double','plus','minus','question','exclamation','circle-check','circle-xmark',
+    'circle-info','circle-exclamation','circle-question','circle-plus','circle-minus',
+    'circle-dot','circle','triangle-exclamation',
+    'magnifying-glass','magnifying-glass-plus','magnifying-glass-minus',
+    'magnifying-glass-chart','magnifying-glass-location','magnifying-glass-arrow-right',
+    'bell','bell-slash','bell-concierge',
+    'bookmark','flag','flag-checkered','flag-usa','heart','heart-crack','heart-circle-check',
+    'star','star-half','star-half-stroke','thumbs-up','thumbs-down',
+    'ellipsis','ellipsis-vertical','grip','grip-lines','grip-vertical',
+    'list','list-ul','list-ol','list-check',
+    'filter','filter-circle-dollar','filter-circle-xmark',
+    'sort','arrow-up-wide-short','arrow-down-wide-short',
+    'table','table-list','table-columns','table-cells','table-cells-large',
+    'layer-group','object-group','object-ungroup',
+    'expand','compress','maximize','minimize',
+    'up-right-and-down-left-from-center','down-left-and-up-right-to-center',
+    'arrow-up','arrow-down','arrow-left','arrow-right',
+    'arrow-up-left','arrow-up-right','arrow-down-left','arrow-down-right',
+    'arrow-turn-down','arrow-turn-up',
+    'arrow-right-arrow-left','arrows-rotate','arrows-left-right','arrows-up-down',
+    'arrows-up-down-left-right','arrows-spin',
+    'chevron-up','chevron-down','chevron-left','chevron-right',
+    'angles-left','angles-right','angles-up','angles-down',
+    'angle-up','angle-down','angle-left','angle-right',
+    'rotate','rotate-left','rotate-right','repeat',
+    'copy','clipboard','clipboard-check','clipboard-list','clipboard-question','clipboard-user',
+    'eye','eye-slash','eye-dropper','eye-low-vision',
+    'lock','lock-open','unlock','shield','shield-halved','shield-check',
+    'shield-heart','shield-virus','key','key-skeleton','fingerprint',
+    'toggle-on','toggle-off','power-off','print',
+    'download','upload',
+    'trash','trash-can',
+    'pen','pen-to-square','pen-clip','pen-line','pen-ruler','pen-fancy','pen-nib',
+    'pencil','eraser','highlighter','marker',
+    'floppy-disk','inbox','share','share-nodes','share-from-square',
+    'reply','reply-all','forward','retweet',
+    'link','link-slash','paperclip','at',
+    'qrcode','barcode','tag','tags','ticket','ticket-simple',
+    'award','medal','certificate','crown','trophy','ribbon',
+    'wrench','screwdriver','screwdriver-wrench','toolbox','hammer',
+    'wand-magic','wand-magic-sparkles','wand-sparkles',
+    'ban','window-restore','window-maximize','window-minimize',
+    'clone','square-check','square','square-plus','square-minus','square-xmark','square-pen',
+],
+
+'Usuários e Pessoas': [
+    'user','users','user-plus','user-minus','user-check','user-xmark','user-slash',
+    'user-lock','user-tag','user-clock','user-gear','user-tie','user-secret',
+    'user-injured','user-large','user-large-slash',
+    'user-nurse','user-doctor','user-graduate','user-astronaut','user-ninja',
+    'user-shield','user-pen',
+    'users-gear','users-slash','users-between-lines','users-rectangle','users-viewfinder',
+    'person','person-walking','person-running','person-biking','person-skating',
+    'person-snowboarding','person-swimming','person-hiking','person-skiing',
+    'person-falling','person-booth','person-breastfeeding','person-burst',
+    'person-cane','person-chalkboard','person-circle-check','person-circle-exclamation',
+    'person-circle-minus','person-circle-plus','person-circle-question',
+    'person-circle-xmark','person-digging','person-dots-from-line',
+    'person-dress','person-half-dress','person-praying',
+    'person-rays','person-rifle','person-shelter','person-sign',
+    'person-through-window','person-walking-arrow-right','person-walking-luggage',
+    'person-walking-with-cane',
+    'people-arrows','people-carry-box','people-group','people-line',
+    'people-pulling','people-robbery','people-roof',
+    'circle-user','id-card','id-badge','address-book','address-card',
+    'child','child-reaching','children',
+    'baby','baby-carriage','person-pregnant',
+    'hands','hand','hand-back-fist','hand-dots','hand-fist','hand-heart','hand-holding',
+    'hand-holding-dollar','hand-holding-droplet','hand-holding-hand','hand-holding-heart',
+    'hand-holding-medical','hand-lizard','hand-middle-finger',
+    'hand-peace','hand-point-down','hand-point-left','hand-point-right',
+    'hand-point-up','hand-pointer','hand-scissors','hand-sparkles','hand-spock',
+    'handshake','handshake-angle','handshake-simple','handshake-simple-slash','handshake-slash',
+],
+
+'Comunicação': [
+    'envelope','envelope-open','envelope-circle-check','envelope-open-text',
+    'paper-plane','paper-plane-top',
+    'inbox','phone','phone-slash','phone-volume','phone-flip',
+    'mobile','mobile-screen','mobile-screen-button',
+    'comment','comments','comment-dots','comment-slash','comment-medical',
+    'comment-dollar','comment-lines','comment-minus','comment-plus','comment-question',
+    'comment-sms','comment-text','comment-xmark',
+    'comments-dollar','message',
+    'bullhorn','rss',
+    'share','share-nodes','share-from-square','reply','reply-all','retweet',
+    'link','link-slash','paperclip',
+    'satellite','satellite-dish','tower-broadcast','tower-cell','tower-observation',
+    'signal','wifi','wifi-slash',
+    'newspaper','book-open','book-open-reader',
+],
+
+'Arquivos e Armazenamento': [
+    'file','file-pdf','file-image','file-video','file-audio','file-code',
+    'file-zipper','file-export','file-import',
+    'file-arrow-up','file-arrow-down',
+    'file-circle-check','file-circle-exclamation','file-circle-minus',
+    'file-circle-plus','file-circle-question','file-circle-xmark',
+    'file-pen','file-signature','file-medical',
+    'file-chart-column','file-chart-pie','file-contract','file-csv',
+    'file-excel','file-invoice','file-invoice-dollar','file-lines',
+    'file-minus','file-plus','file-powerpoint','file-prescription',
+    'file-shield','file-word','file-text','file-magnifying-glass',
+    'folder','folder-open','folder-plus','folder-minus','folder-tree','folder-closed',
+    'folder-heart','folder-magnifying-glass','folder-medical','folder-user',
+    'box','box-open','box-archive','box-circle-check','box-open-full','box-taped',
+    'boxes-packing','boxes-stacked',
+    'database','server','hard-drive','floppy-disk','compact-disc',
+    'cloud','cloud-arrow-up','cloud-arrow-down','cloud-check','cloud-exclamation',
+    'cloud-minus','cloud-plus','cloud-question','cloud-slash','cloud-xmark',
+],
+
+'Mídia e Entretenimento': [
+    'image','images','image-portrait','image-slash',
+    'camera','camera-retro','camera-rotate',
+    'video','video-slash','video-plus',
+    'film','clapperboard','photo-film',
+    'music','headphones','headphones-simple','headset',
+    'microphone','microphone-slash','microphone-lines','microphone-lines-slash',
+    'volume-high','volume-low','volume-off','volume-xmark',
+    'speaker','record-vinyl',
+    'play','pause','stop','eject','circle-play','circle-pause','circle-stop',
+    'backward','forward','backward-step','forward-step',
+    'backward-fast','forward-fast','shuffle','repeat',
+    'tv','display','desktop',
+    'podcast','satellite-dish',
+    'ticket','ticket-simple',
+    'masks-theater',
+    'gamepad','dice','dice-d6','dice-d4','dice-d8','dice-d10','dice-d12','dice-d20',
+    'dice-one','dice-two','dice-three','dice-four','dice-five','dice-six',
+    'chess','chess-board','chess-king','chess-queen','chess-rook',
+    'chess-bishop','chess-knight','chess-pawn',
+],
+
+'Negócios e Finanças': [
+    'briefcase','briefcase-arrow-right','briefcase-clock','briefcase-medical',
+    'building','building-circle-check','building-circle-exclamation','building-circle-xmark',
+    'building-columns','building-flag','building-lock','building-ngo','building-shield',
+    'building-un','building-user','building-wheat',
+    'landmark','landmark-dome','landmark-flag',
+    'city','store','store-slash',
+    'cart-shopping','cart-plus','cart-arrow-down','cart-flatbed',
+    'basket-shopping','bag-shopping',
+    'receipt','money-bill','money-bill-1','money-bill-wave','money-bill-1-wave',
+    'money-bill-transfer','money-bill-trend-up','money-bills',
+    'coins','money-check','money-check-dollar',
+    'credit-card','wallet','piggy-bank','safe','vault',
+    'hand-holding-dollar','sack-dollar','sack',
+    'dollar-sign','euro-sign','sterling-sign','yen-sign','won-sign','ruble-sign',
+    'rupee-sign','franc-sign','baht-sign','cent-sign','colon-sign','dong-sign',
+    'guarani-sign','hryvnia-sign','indian-rupee-sign','kip-sign','lari-sign',
+    'naira-sign','peso-sign','shekel-sign','taka-sign','tenge-sign','tugrik-sign',
+    'percent','calculator','cash-register',
+    'chart-line','chart-bar','chart-pie','chart-simple','chart-column',
+    'chart-gantt','chart-mixed','chart-pie-simple','chart-scatter',
+    'arrow-trend-up','arrow-trend-down',
+    'scale-balanced','scale-unbalanced','scale-unbalanced-flip',
+    'barcode','qrcode','tag','tags','ticket',
+    'industry','warehouse','boxes-stacked','pallet',
+    'truck','truck-arrow-right','truck-fast','truck-field','truck-front','truck-medical',
+    'truck-monster','truck-moving','truck-pickup','truck-plane','truck-ramp-box',
+    'ship','ferry','train-subway','train','bus','bus-simple',
+    'car','car-side','car-rear','car-burst','car-battery','car-crash','car-garage',
+    'car-slash','car-tunnel','car-wash',
+],
+
+'Tecnologia e Desenvolvimento': [
+    'code','code-branch','code-commit','code-merge','code-compare',
+    'code-fork','code-pull-request',
+    'terminal','keyboard',
+    'desktop','laptop','laptop-code','laptop-file','laptop-medical',
+    'tablet','tablet-button','tablet-screen','tablet-screen-button',
+    'mobile','mobile-screen','mobile-screen-button',
+    'display','display-arrow-down','display-code','display-medical','display-slash',
+    'tv','print',
+    'microchip','microchip-ai','memory','server',
+    'database','hard-drive',
+    'plug','plug-circle-bolt','plug-circle-check','plug-circle-exclamation',
+    'plug-circle-minus','plug-circle-plus','plug-circle-xmark',
+    'battery-full','battery-three-quarters','battery-half',
+    'battery-quarter','battery-empty','battery-bolt','battery-low','battery-slash',
+    'wifi','wifi-slash',
+    'sitemap','diagram-project',
+    'robot','computer',
+    'bug','bug-slash','bugs','spider','spider-web',
+    'cloud','cloud-arrow-up','cloud-arrow-down',
+    'hashtag','square-root-variable','superscript','subscript','infinity',
+    'brackets-curly','brackets-round','brackets-square',
+],
+
+'Data e Tempo': [
+    'calendar','calendar-days','calendar-check','calendar-plus',
+    'calendar-minus','calendar-xmark','calendar-week','calendar-star',
+    'calendar-arrow-down','calendar-arrow-up','calendar-circle-exclamation',
+    'calendar-clock','calendar-day','calendar-exclamation','calendar-heart',
+    'calendar-image','calendar-lines','calendar-pen','calendar-range',
+    'clock','clock-rotate-left',
+    'stopwatch','stopwatch-20','timer',
+    'hourglass','hourglass-half','hourglass-start','hourglass-end',
+    'sun','moon','cloud-sun','cloud-moon','eclipse',
+    'snowflake','fire','fire-flame-curved','fire-flame-simple',
+    'bolt','bolt-lightning','flash',
+],
+
+'Localização e Viagem': [
+    'location-dot','location-dot-slash','location-pin','location-pin-slash',
+    'location-crosshairs','location-crosshairs-slash','location-arrow',
+    'map','map-location','map-location-dot','map-pin',
+    'compass','globe','globe-americas','globe-europe','globe-asia','globe-africa',
+    'earth-americas','earth-asia','earth-europe','earth-africa','earth-oceania',
+    'road','road-barrier','road-bridge','road-circle-check','road-lock',
+    'route','signs-post',
+    'house-chimney','hospital','school','church','mosque','synagogue',
+    'hotel','campground','tent','tents',
+    'plane','plane-departure','plane-arrival','plane-circle-check',
+    'plane-circle-exclamation','plane-circle-xmark','plane-engines','plane-lock',
+    'plane-slash','plane-up',
+    'helicopter',
+    'ship','ferry','anchor','anchor-circle-check','anchor-circle-xmark','anchor-lock',
+    'train','train-subway','train-tram','train-tunnel',
+    'bus','bus-simple','bus-school',
+    'car','car-side','car-bus','car-garage','car-rear','taxi',
+    'bicycle','motorcycle',
+    'truck','van-shuttle',
+    'rocket','satellite',
+    'gas-pump','gas-pump-slash','charging-station','car-battery',
+    'traffic-light',
+    'person-walking','person-running','person-biking','person-hiking',
+    'suitcase','suitcase-medical','suitcase-rolling','passport','backpack',
+],
+
+'Natureza e Ciência': [
+    'leaf','seedling','plant-wilt','solar-panel','tree','cactus','clover',
+    'wheat-awn','corn','cannabis','carrot','mushroom','paw','dog','cat',
+    'horse','cow','sheep','pig','rabbit','crow','dove',
+    'dragon','fish','fish-bones','fish-fins','frog','hippo','horse-head',
+    'kiwi-bird','lemon','locust','mosquito','mosquito-net',
+    'otter','shrimp','snail','spider','squirrel','turtle','worm','worms',
+    'atom','dna','bacterium','bacteria','biohazard','radiation',
+    'microscope','flask','flask-vial','vial','vials','mortar-pestle',
+    'pills','capsules','syringe','eye-dropper','magnet',
+    'thermometer','temperature-full','temperature-three-quarters',
+    'temperature-half','temperature-quarter','temperature-empty',
+    'temperature-arrow-up','temperature-arrow-down',
+    'weight-scale','weight-hanging',
+    'star','moon','sun','meteor','globe','earth-americas',
+    'recycle','wind','fan','tornado','hurricane',
+    'volcano','mountain','mountain-sun','water','droplet','droplet-slash',
+    'snowflake','snowman',
+],
+
+'Saúde e Medicina': [
+    'heart','heart-pulse','heart-crack','heart-circle-check','heart-circle-exclamation',
+    'heart-circle-minus','heart-circle-plus','heart-circle-xmark',
+    'stethoscope','hospital','hospital-user',
+    'hospital-circle-check','hospital-circle-exclamation','hospital-circle-xmark',
+    'bed-pulse','bed-front',
+    'syringe','pills','capsules','tablets','prescription-bottle','prescription-bottle-medical',
+    'kit-medical','bandage','hand-holding-medical','square-h',
+    'cross','staff-snake','rod-snake',
+    'brain','bone','tooth','lungs','lungs-virus','kidney','joint',
+    'eye','ear','wheelchair','wheelchair-move','crutch','crutches',
+    'person-walking-with-cane','universal-access',
+    'virus','virus-slash','viruses','head-side-virus','head-side-mask',
+    'head-side-cough','head-side-cough-slash',
+    'hand-sparkles','pump-soap','soap',
+    'shield-virus','user-nurse','user-doctor',
+    'thermometer','temperature-half','weight-scale',
+    'dna','microscope','flask','vial','vials','radiation','biohazard',
+    'skull','skull-crossbones',
+    'baby','baby-carriage','person-pregnant','person-breastfeeding',
+    'house-medical','house-medical-circle-check',
+    'house-medical-circle-xmark','house-medical-flag',
+    'mortar-pestle','ambulance','truck-medical','life-ring',
+],
+
+'Objetos e Itens': [
+    'key','key-skeleton',
+    'lock','lock-open','unlock','lock-keyhole','lock-keyhole-open',
+    'wrench','screwdriver','screwdriver-wrench','toolbox','hammer','axe',
+    'saw','shovel','ruler','ruler-combined','ruler-horizontal','ruler-vertical',
+    'scissors','pen-ruler','compass-drafting','paint-brush','brush','palette',
+    'spray-can','spray-can-sparkles',
+    'lightbulb','lightbulb-on','lightbulb-slash','lightbulb-exclamation',
+    'lightbulb-exclamation-on','lightbulb-gear',
+    'lamp-desk','lamp-floor','lamp-street',
+    'faucet','faucet-drip','shower','bath','toilet','toilet-paper',
+    'soap','pump-soap',
+    'couch','chair','bed','chair-office',
+    'door-closed','door-open',
+    'mug','mug-hot','mug-saucer',
+    'glass-water','glass-water-droplet','glass-champagne','wine-bottle','wine-glass',
+    'beer-mug','beer-mug-empty',
+    'fork','fork-knife','knife','plate-utensils','spoon','spork',
+    'bowl-food','bowl-hot',
+    'burger','pizza-slice','hot-dog','sandwich','taco','cookie','cake-candles',
+    'apple-whole',
+    'gift','gifts','ribbon',
+    'party-horn','balloon',
+    'trophy','medal','award','crown',
+    'snowman','ghost',
+    'baseball','basketball','football','soccer-ball','volleyball',
+    'hockey-puck','tennis-ball','golf-ball-tee','bowling-ball','futbol',
+    'dumbbell','weight-hanging',
+    'gamepad','dice',
+    'gun','sword','swords','axe',
+],
+
+'Educação': [
+    'book','books','book-open','book-open-cover','book-open-reader',
+    'book-atlas','book-bible','book-blank','book-bookmark',
+    'book-medical','book-quran','book-skull','book-sparkles','book-user',
+    'bookmark',
+    'graduation-cap','school','chalkboard','chalkboard-user',
+    'pencil','pen','pen-to-square','pen-clip','eraser','ruler','ruler-combined',
+    'calculator','abacus','atom','dna','microscope','flask',
+    'globe','globe-americas','earth-americas','map',
+    'building-columns','landmark',
+    'backpack','user-graduate','certificate','award','medal','trophy',
+    'mortar-pestle',
+    'language','font','align-left','align-center','align-right','align-justify',
+    'paragraph','heading','quote-left','quote-right',
+    'list-ul','list-ol','list-check',
+    'newspaper','scroll','memo',
+    'file-lines','file-pdf','file-word','file-excel','file-powerpoint',
+    'clipboard','clipboard-list','clipboard-check',
+    'apple-whole',
+],
+
+'Marcas (brands)': [
+    'github','github-alt','gitlab','bitbucket','git','git-alt',
+    'twitter','x-twitter',
+    'facebook','facebook-f','facebook-messenger',
+    'instagram','linkedin','linkedin-in',
+    'youtube','whatsapp','telegram',
+    'discord','slack','skype',
+    'tiktok','snapchat','pinterest','pinterest-p',
+    'reddit','reddit-alien','twitch',
+    'vimeo','vimeo-v',
+    'google','google-drive','google-play','google-pay',
+    'apple','apple-pay','app-store','app-store-ios',
+    'microsoft','windows','edge','android','amazon','amazon-pay',
+    'paypal','stripe','stripe-s',
+    'cc-stripe','cc-paypal','cc-visa','cc-mastercard',
+    'cc-amex','cc-discover','cc-apple-pay','cc-amazon-pay','cc-jcb',
+    'shopify','etsy','ebay',
+    'wordpress','wordpress-simple','drupal','joomla',
+    'php','laravel',
+    'js','node','node-js','react','vuejs','angular',
+    'css3','css3-alt','html5','sass','less',
+    'python','java','swift',
+    'npm','yarn','webpack',
+    'docker','aws','digital-ocean','cloudflare','heroku','linode',
+    'linux','ubuntu','centos','fedora','redhat','debian',
+    'chrome','firefox','safari','opera',
+    'atlassian','jira','confluence','trello',
+    'spotify','soundcloud','bandcamp',
+    'medium','medium-m','tumblr',
+    'deviantart','flickr','vk','qq','weixin',
+    'stack-overflow','stack-exchange','quora',
+    'codepen','bootstrap','figma',
+],
+
+};
+
+// ── Detectar ícones não renderizados via getComputedStyle ─────────────────────
+// ── FA6 Free Regular — lista completa dos ~157 ícones disponíveis ────────────
+// Fonte: https://fontawesome.com/search?o=r&f=classic&s=regular
+const FA6_REGULAR_FREE = new Set([
+    'address-book','address-card','bell','bell-slash','bookmark','building',
+    'calendar','calendar-check','calendar-days','calendar-minus','calendar-plus','calendar-xmark',
+    'chart-bar','circle','circle-check','circle-dot','circle-pause','circle-play',
+    'circle-question','circle-stop','circle-user','circle-xmark',
+    'clipboard','clock','clone','closed-captioning',
+    'comment','comment-dots','comments','compass','copy','copyright','credit-card',
+    'envelope','envelope-open','eye','eye-slash',
+    'face-angry','face-dizzy','face-flushed','face-frown','face-frown-open',
+    'face-grimace','face-grin','face-grin-beam','face-grin-beam-sweat',
+    'face-grin-hearts','face-grin-squint','face-grin-squint-tears',
+    'face-grin-stars','face-grin-tears','face-grin-tongue',
+    'face-grin-tongue-squint','face-grin-tongue-wink','face-grin-wide',
+    'face-grin-wink','face-hand-over-mouth','face-hand-peeking','face-hand-yawn',
+    'face-kiss','face-kiss-beam','face-kiss-wink-heart',
+    'face-laugh','face-laugh-beam','face-laugh-squint','face-laugh-wink',
+    'face-meh','face-meh-blank','face-raised-eyebrow','face-rolling-eyes',
+    'face-sad-cry','face-sad-tear','face-shush','face-sleep',
+    'face-smile','face-smile-beam','face-smile-wink','face-surprise','face-tired',
+    'file','file-audio','file-code','file-excel','file-image','file-lines',
+    'file-pdf','file-powerpoint','file-video','file-word','file-zipper',
+    'flag','floppy-disk','folder','folder-closed','folder-open',
+    'font-awesome','futbol','gem',
+    'hand','hand-back-fist','hand-lizard','hand-peace',
+    'hand-point-down','hand-point-left','hand-point-right','hand-point-up',
+    'hand-pointer','hand-scissors','hand-spock','handshake',
+    'heart','hospital','hourglass','hourglass-half',
+    'id-badge','id-card','image','images',
+    'keyboard','lemon','life-ring','lightbulb',
+    'map','message','moon','newspaper','note-sticky',
+    'object-group','object-ungroup','paper-plane','paste','pen-to-square',
+    'rectangle-list','rectangle-xmark','registered',
+    'share-from-square','snowflake','square',
+    'square-caret-down','square-caret-left','square-caret-right','square-caret-up',
+    'square-check','square-full','square-minus','square-plus',
+    'star','star-half','star-half-stroke','sun',
+    'thumbs-down','thumbs-up','trash-can',
+    'user','window-maximize','window-minimize','window-restore',
+    'money-bill-1',
+]);
+
+// ── Checa renderização ────────────────────────────────────────────────────────
+function checkRendered() {
+    document.querySelectorAll('.icon-card').forEach(card => {
+        const name = card.dataset.name;
+        const isBrands = card.querySelector('i.fa-brands') !== null;
+
+        let visible = true;
+        if (!isBrands && currentVariant === 'regular') {
+            visible = FA6_REGULAR_FREE.has(name);
+        }
+
+        card.dataset.norender = visible ? '' : '1';
+        if (!visible) {
+            card.style.display = 'none';
+        } else if (!card.classList.contains('search-hidden')) {
+            card.style.display = '';
+        }
+    });
+
+    document.querySelectorAll('.cat-section').forEach(sec => {
+        const visible = sec.querySelectorAll('.icon-card:not([style*="display: none"]):not([style*="display:none"])').length;
+        const cnt = sec.querySelector('.cat-count');
+        if (cnt) cnt.textContent = visible;
+        sec.style.display = visible === 0 ? 'none' : '';
+    });
+
+    updateCount();
+}
+
+let currentVariant = 'solid';
+const VARIANT_CLASSES = ['fa-solid', 'fa-regular', 'fa-light', 'fa-duotone', 'fa-thin'];
+
+function buildLibrary() {
+    const container = document.getElementById('icon-library');
+    container.innerHTML = '';
+
+    for (const [cat, names] of Object.entries(ICON_CATEGORIES)) {
+        const isBrands = cat.includes('brands');
+        const prefix   = isBrands ? 'fa-brands' : `fa-${currentVariant}`;
+
+        const section = document.createElement('div');
+        section.className = 'cat-section';
+
+        section.innerHTML = `
+            <div class="cat-title">
+                ${cat}
+                <span class="cat-count">…</span>
+            </div>
+            <div class="icon-grid"></div>
+        `;
+        container.appendChild(section);
+        const grid = section.querySelector('.icon-grid');
+
+        [...new Set(names)].forEach(name => {
+            const card = document.createElement('button');
+            card.type = 'button';
+            card.className = 'icon-card';
+            card.dataset.name = name;
+            card.title = name;
+            card.setAttribute('aria-label', `Copiar ícone ${name}`);
+            card.innerHTML = `<i class="${prefix} fa-${name}" aria-hidden="true"></i>
+                <span class="icon-name">${name}</span>`;
+            card.addEventListener('click', () => copyIcon(name, isBrands));
+            grid.appendChild(card);
+        });
+    }
+
+    // Conta inicial sem ocultar (Solid mostra tudo)
+    requestAnimationFrame(() => requestAnimationFrame(() => {
+        document.querySelectorAll('.cat-section').forEach(sec => {
+            const cnt = sec.querySelector('.cat-count');
+            if (cnt) cnt.textContent = sec.querySelectorAll('.icon-card').length;
+        });
+        updateCount();
+    }));
+}
+
+function setVariant(variant, btn) {
+    currentVariant = variant;
+    document.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
+    btn.classList.add('active');
+
+    // Mostra todos e troca a classe de variante
+    document.querySelectorAll('#icon-library .icon-card').forEach(card => {
+        delete card.dataset.norender;
+        if (!card.classList.contains('search-hidden')) card.style.display = '';
+
+        const el = card.querySelector('i');
+        if (el && !el.classList.contains('fa-brands')) {
+            VARIANT_CLASSES.forEach(v => el.classList.remove(v));
+            el.classList.add(`fa-${variant}`);
+        }
+    });
+
+    // Filtra usando a lista fixa (instantâneo, sem timing)
+    checkRendered();
+}
+
+function filterIcons() {
+    const q = document.getElementById('icon-search').value.toLowerCase().trim();
+    let shown = 0;
+    document.querySelectorAll('.icon-card').forEach(card => {
+        const matchSearch = !q || card.dataset.name.includes(q);
+        const matchVariant = card.dataset.norender !== '1';
+        card.classList.toggle('search-hidden', !matchSearch);
+        card.style.display = (matchSearch && matchVariant) ? '' : 'none';
+        if (matchSearch && matchVariant) shown++;
+    });
+    document.querySelectorAll('.cat-section').forEach(sec => {
+        const visible = sec.querySelectorAll('.icon-card:not([style*="display: none"]):not([style*="display:none"])').length;
+        sec.style.display = visible === 0 ? 'none' : '';
+        const cnt = sec.querySelector('.cat-count');
+        if (cnt) cnt.textContent = visible;
+    });
+    updateCount(shown);
+}
+
+function updateCount(shown) {
+    const total = document.querySelectorAll('.icon-card:not([style*="display: none"]):not([style*="display:none"])').length;
+    const el = document.getElementById('icon-count');
+    if (shown !== undefined && shown !== total) {
+        el.textContent = `${shown} de ${total} ícones`;
+    } else {
+        el.textContent = `${total} ícones — ${currentVariant === 'regular' ? 'FA6 Free Regular (~157 ícones)' : 'FA6 Free Solid'}`;
+    }
+}
+
+function copyIcon(name, isBrands) {
+    const prefix = isBrands ? 'fa-brands' : `fa-${currentVariant}`;
+    const code = `<i class="${prefix} fa-${name}" aria-hidden="true"></i>`;
+    navigator.clipboard.writeText(code).then(() => {
+        const t = document.getElementById('copy-toast');
+        t.textContent = `✓ ${name}`;
+        t.classList.add('show');
+        setTimeout(() => t.classList.remove('show'), 1800);
+    }).catch(() => prompt('Copie:', code));
+}
+
+document.addEventListener('DOMContentLoaded', buildLibrary);
+</script>
+{% endblock %}

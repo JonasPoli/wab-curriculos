@@ -1,0 +1,38 @@
+# Tarefas para Desenvolvimento: Portal Trabalhe Conosco Multi-Tenant
+
+- [x] Planejamento e Análise Inicial
+  - [x] Leitura do documento de requisitos original (`Solicitação para TI Trabalhe conosco.docx`)
+  - [x] Inspeção do sistema multi-tenant de referência (`wab-sites`)
+  - [x] Elaboração do Documento de Visão e Escopo
+  - [x] Elaboração do Documento de Especificação de Requisitos
+  - [x] Elaboração do Modelo de Banco de Dados e Entidades
+  - [x] Elaboração do Plano de Arquitetura e Infraestrutura
+  - [x] Elaboração do Plano de Implementação Técnico
+- [ ] Fase 1: Inicialização do Projeto Symfony 7
+  - [ ] Instalação e setup inicial do framework
+  - [ ] Configuração do banco de dados e variáveis de ambiente
+  - [ ] Criação dos diretórios estruturais
+- [ ] Fase 2: Implementação do Core Multi-Tenant
+  - [ ] Criação da `TenantAwareInterface` e do `TenantFilter`
+  - [ ] Implementação do `TenantContext` e do `TenantSubscriber`
+  - [ ] Setup da injeção de CSS customizado via `TenantExtension`
+- [ ] Fase 3: Criação das Entidades e Banco de Dados
+  - [ ] Criação das entidades `Tenant`, `User`, `Candidate`, `AreaOfInterest`, `LgpdLog`, `ExclusionRequest`
+  - [ ] Geração e execução das Migrations
+- [ ] Fase 4: Módulos Administrativos e CRUDs
+  - [ ] Implementação do Painel do SuperAdmin (`/superadmin`) e impersonificação
+  - [ ] Implementação do Painel do RH Local (`/admin`) com download seguro e filtros
+- [ ] Fase 5: Módulo Público e Formulário
+  - [ ] Criação da página pública com formulário inteligente e condicional
+  - [ ] Setup do upload de currículo seguro e bloqueios de segurança (.pdf, 10MB)
+  - [ ] Validações front-end (CSS Vanilla) e back-end (Symfony Assert)
+  - [ ] Implementação de termos e logs de consentimento LGPD
+- [ ] Fase 6: Integrações e Envio de E-mails
+  - [ ] Configuração de e-mails assíncronos (Symfony Messenger + Fila)
+  - [ ] Integração do Google reCAPTCHA v3
+- [ ] Fase 7: Fluxo de Exclusão de Dados (LGPD)
+  - [ ] Implementação do formulário de requisição e link seguro por e-mail
+  - [ ] Lógica de exclusão física permanente
+- [ ] Fase 8: Testes e Homologação
+  - [ ] Escrita e execução de testes automatizados (PHPUnit)
+  - [ ] Verificação manual com múltiplos domínios locais configurados no `/etc/hosts`

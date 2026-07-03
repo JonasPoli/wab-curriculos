@@ -1,0 +1,12 @@
+{% extends 'admin/career/new.html.twig' %}
+
+{% block title %}Editar — {{ career.title }}{% endblock %}
+
+{% block breadcrumbs %}
+    {% set breadcrumbs = [
+        { label: 'Dashboard', route: 'admin_dash' },
+        { label: 'Cargos', route: 'admin_career_index' },
+        { label: career.title, route: null }
+    ] %}
+    {{ include('admin/_partials/breadcrumbs.html.twig', { breadcrumbs: breadcrumbs }) }}
+{% endblock %}

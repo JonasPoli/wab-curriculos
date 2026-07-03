@@ -1,0 +1,51 @@
+{% set flash_config = {
+    'success': {
+        'icon': 'circle-check',
+        'classes': 'bg-emerald-50 border-emerald-200 text-emerald-800 dark:bg-emerald-900/20 dark:border-emerald-800 dark:text-emerald-300',
+        'icon_classes': 'text-emerald-500 dark:text-emerald-400',
+        'label': 'Sucesso'
+    },
+    'error': {
+        'icon': 'circle-exclamation',
+        'classes': 'bg-red-50 border-red-200 text-red-800 dark:bg-red-900/20 dark:border-red-800 dark:text-red-300',
+        'icon_classes': 'text-red-500 dark:text-red-400',
+        'label': 'Erro'
+    },
+    'warning': {
+        'icon': 'triangle-exclamation',
+        'classes': 'bg-amber-50 border-amber-200 text-amber-800 dark:bg-amber-900/20 dark:border-amber-800 dark:text-amber-300',
+        'icon_classes': 'text-amber-500 dark:text-amber-400',
+        'label': 'Atenção'
+    },
+    'info': {
+        'icon': 'circle-info',
+        'classes': 'bg-blue-50 border-blue-200 text-blue-800 dark:bg-blue-900/20 dark:border-blue-800 dark:text-blue-300',
+        'icon_classes': 'text-blue-500 dark:text-blue-400',
+        'label': 'Informação'
+    }
+} %}
+
+{% for type, messages in app.flashes(['success', 'error', 'warning', 'info']) %}
+    {% set cfg = flash_config[type] ?? flash_config['info'] %}
+    {% for message in messages %}
+        <div role="alert"
+             aria-live="polite"
+             aria-atomic="true"
+             class="flash-message flex items-start gap-3 px-4 py-3 mb-3 rounded-lg border text-sm {{ cfg.classes }}">
+
+            <span class="flex-shrink-0 mt-0.5" aria-hidden="true">
+                <i class="fa-solid fa-{{ cfg.icon }}" class="{{ cfg.icon_classes }}"></i>
+            </span>
+            <span class="sr-only">{{ cfg.label }}:</span>
+
+            <span class="flex-1">{{ message }}</span>
+
+            <button type="button"
+                    onclick="this.closest('.flash-message').remove()"
+                    class="flex-shrink-0 opacity-60 hover:opacity-100 transition-opacity"
+                    aria-label="Fechar notificação">
+                <i class="fa-solid fa-xmark" aria-hidden="true"></i>
+            </button>
+        </div>
+    {% endfor %}
+{% endfor %}

@@ -1,0 +1,835 @@
+{% extends 'admin/base.html.twig' %}
+
+{% block title %}Formulário de Exemplo{% endblock %}
+
+{% block breadcrumbs %}
+    {% set breadcrumbs = [
+        { label: 'Dashboard', route: 'admin_dash' },
+        { label: 'Exemplo', route: 'app_admin_exemplo_index' },
+        { label: 'Formulário', route: null }
+    ] %}
+    {{ include('admin/_partials/breadcrumbs.html.twig', { breadcrumbs: breadcrumbs }) }}
+{% endblock %}
+
+{% block stylesheets %}
+    {# Tom Select — select com pesquisa #}
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/css/tom-select.min.css">
+    {# Quill — editor HTML #}
+    <link rel="stylesheet" href="https://cdn.quilljs.com/1.3.7/quill.snow.css">
+    <style>
+        /* ── Section dividers ─── */
+        .form-section {
+            margin-bottom: 32px;
+        }
+        .form-section-title {
+            font-size: 13px;
+            font-weight: 700;
+            letter-spacing: .4px;
+            text-transform: uppercase;
+            color: var(--bm-text-muted);
+            padding-bottom: 10px;
+            border-bottom: 1px solid var(--bm-border);
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .form-section-title wa-icon { opacity: .6; }
+        .form-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; }
+        .form-grid .full { grid-column: 1 / -1; }
+        @media (max-width: 640px) { .form-grid { grid-template-columns: 1fr; } }
+
+        /* ── Input group (icon left) ─── */
+        .input-group {
+            position: relative;
+        }
+        .input-icon {
+            position: absolute;
+            top: 0; bottom: 0; left: 11px;
+            display: flex;
+            align-items: center;
+            color: var(--bm-text-muted);
+            pointer-events: none;
+            z-index: 2;
+            font-size: 14px;
+        }
+        .input-icon wa-icon { display: block; width: 16px; height: 16px; }
+        .input-group .wab-input { padding-left: 36px; }
+
+        /* ── Password with toggle ─── */
+        .input-eye-btn {
+            position: absolute;
+            top: 0; bottom: 0; right: 10px;
+            display: flex; align-items: center;
+            background: none; border: none;
+            color: var(--bm-text-muted);
+            cursor: pointer;
+            z-index: 2;
+            padding: 0;
+            transition: color .15s;
+        }
+        .input-eye-btn:hover { color: var(--bm-accent); }
+
+        /* ── Currency input ─── */
+        .currency-prefix {
+            display: flex;
+            align-items: center;
+            border: 1.5px solid var(--bm-input-border);
+            border-right: none;
+            border-radius: var(--radius-base) 0 0 var(--radius-base);
+            padding: 0 10px;
+            background: var(--bm-bg);
+            color: var(--bm-text-muted);
+            font-size: 13px;
+            font-weight: 600;
+            white-space: nowrap;
+        }
+        .currency-input-wrap { display: flex; }
+        .currency-input-wrap .wab-input {
+            border-radius: 0 var(--radius-base) var(--radius-base) 0;
+            border-left: none;
+            flex: 1;
+        }
+
+        /* ── Tom Select overrides (dark + light) ─── */
+        .ts-wrapper { position: relative; }
+        .ts-wrapper .ts-control {
+            background: var(--bm-input-bg) !important;
+            border: 1.5px solid var(--bm-input-border) !important;
+            border-radius: var(--radius-base) !important;
+            color: var(--bm-text) !important;
+            padding: 8px 13px !important;
+            font-size: 13.5px !important;
+            box-shadow: none !important;
+            min-height: auto !important;
+        }
+        .ts-wrapper.focus .ts-control {
+            border-color: var(--bm-accent) !important;
+            box-shadow: 0 0 0 3px rgba(79,142,247,.2) !important;
+        }
+        .ts-wrapper .ts-control .item { color: var(--bm-text) !important; }
+        .ts-wrapper .ts-control input {
+            color: var(--bm-text) !important;
+            background: transparent !important;
+        }
+        .ts-wrapper .ts-control input::placeholder { color: var(--bm-text-muted) !important; }
+        .ts-dropdown {
+            background: var(--bm-card-bg) !important;
+            border: 1px solid var(--bm-border) !important;
+            border-radius: var(--radius-base) !important;
+            box-shadow: var(--bm-shadow-lg) !important;
+            color: var(--bm-text) !important;
+        }
+        .ts-dropdown .option {
+            color: var(--bm-text) !important;
+            background: transparent !important;
+            padding: 8px 12px !important;
+        }
+        .ts-dropdown .option:hover,
+        .ts-dropdown .option.active {
+            background: rgba(79,142,247,.12) !important;
+            color: var(--bm-accent) !important;
+        }
+        /* Multi-select tag pills */
+        .ts-wrapper.multi .ts-control .item {
+            background: rgba(79,142,247,.15) !important;
+            border: 1px solid rgba(79,142,247,.3) !important;
+            color: var(--bm-accent) !important;
+            border-radius: 6px !important;
+        }
+
+        /* ── Quill editor ─── */
+        .ql-toolbar.ql-snow {
+            background: var(--bm-bg);
+            border: 1.5px solid var(--bm-input-border) !important;
+            border-bottom: 1px solid var(--bm-border) !important;
+            border-radius: var(--radius-base) var(--radius-base) 0 0;
+        }
+        .ql-container.ql-snow {
+            border: 1.5px solid var(--bm-input-border) !important;
+            border-top: none !important;
+            border-radius: 0 0 var(--radius-base) var(--radius-base);
+            background: var(--bm-input-bg);
+            color: var(--bm-text);
+            font-size: 13.5px;
+            min-height: 160px;
+        }
+        .ql-editor.ql-blank::before { color: var(--bm-text-muted); font-style: normal; }
+
+        /* ── Range slider ─── */
+        .wab-range {
+            width: 100%;
+            accent-color: var(--bm-accent);
+        }
+
+        /* ── Radio/Checkbox group ─── */
+        .radio-group, .check-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        .radio-card, .check-card {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 9px 14px;
+            border: 1.5px solid var(--bm-input-border);
+            border-radius: var(--radius-base);
+            cursor: pointer;
+            font-size: 13px;
+            color: var(--bm-text);
+            transition: all .15s;
+            user-select: none;
+        }
+        .radio-card:hover, .check-card:hover {
+            border-color: var(--bm-accent);
+            background: rgba(79,142,247,.05);
+        }
+        .radio-card input, .check-card input { accent-color: var(--bm-accent); }
+
+        /* ── Drag & drop upload ─── */
+        .upload-zone {
+            border: 2px dashed var(--bm-input-border);
+            border-radius: var(--radius-lg);
+            padding: 32px 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: all .2s;
+            color: var(--bm-text-muted);
+        }
+        .upload-zone:hover, .upload-zone.drag-over {
+            border-color: var(--bm-accent);
+            background: rgba(79,142,247,.04);
+            color: var(--bm-accent);
+        }
+        .upload-zone-icon { font-size: 36px; margin-bottom: 10px; opacity: .5; }
+        .upload-zone input[type="file"] { display: none; }
+
+        /* ── Toggle row ─── */
+        .toggle-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px 14px;
+            border: 1.5px solid var(--bm-input-border);
+            border-radius: var(--radius-base);
+            margin-bottom: 10px;
+        }
+        .toggle-label { font-size: 13.5px; color: var(--bm-text); font-weight: 500; }
+        .toggle-desc  { font-size: 12px; color: var(--bm-text-muted); margin-top: 2px; }
+
+        /* ── Annotation chips ─── */
+        .field-tip {
+            display: inline-block;
+            font-size: 10.5px;
+            padding: 2px 7px;
+            border-radius: 20px;
+            background: rgba(79,142,247,.1);
+            color: var(--bm-accent);
+            font-weight: 600;
+            margin-left: 6px;
+            vertical-align: middle;
+        }
+
+        /* ── Color picker row ─── */
+        .color-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .color-swatch {
+            width: 40px; height: 40px;
+            border-radius: var(--radius-base);
+            border: 1.5px solid var(--bm-input-border);
+            cursor: pointer;
+            overflow: hidden;
+            padding: 0;
+        }
+        .color-swatch input[type="color"] {
+            width: 150%;
+            height: 150%;
+            margin: -25%;
+            border: none;
+            cursor: pointer;
+        }
+    </style>
+{% endblock %}
+
+{% block body %}
+
+{# ── Page Header ──────────────────────────────────────────────────────────── #}
+<div class="page-header">
+    <div>
+        <h1 class="page-title">
+            <i class="fa-regular fa-file-lines" style="margin-right:8px;color:var(--bm-accent)" aria-hidden="true"></i>
+            Formulário de Exemplo
+        </h1>
+        <p class="page-subtitle">Demonstração de todos os tipos de input que um desenvolvedor de área administrativa precisa.</p>
+    </div>
+    <a href="{{ path('app_admin_exemplo_index') }}" class="btn-secondary">
+        <i class="fa-solid fa-arrow-left" aria-hidden="true"></i>
+        Voltar à listagem
+    </a>
+</div>
+
+<div style="display:grid;grid-template-columns:1fr 340px;gap:20px;align-items:start">
+
+{# ── Left column — form ───────────────────────────────────────────────────── #}
+<form id="exemplo-form" novalidate>
+
+    {# ═══════════════════════════════════
+       SEÇÃO 1 — Inputs de Texto
+    ═══════════════════════════════════ #}
+    <div class="admin-card form-section">
+        <div class="form-section-title">
+            <i class="fa-solid fa-keyboard" aria-hidden="true"></i>
+            Entradas de Texto
+        </div>
+        <div class="form-grid">
+
+            {# Text simples #}
+            <div class="wab-field">
+                <label class="wab-label" for="ex-name">
+                    Nome completo
+                    <span class="field-tip">text</span>
+                </label>
+                <div style="position:relative">
+                    <i class="fa-solid fa-user" aria-hidden="true" style="position:absolute;top:50%;left:11px;transform:translateY(-50%);color:var(--bm-text-muted);pointer-events:none;z-index:2;font-size:14px"></i>
+                    <input type="text" id="ex-name" name="name" class="wab-input"
+                           style="padding-left:36px"
+                           placeholder="João da Silva" autocomplete="name">
+                </div>
+            </div>
+
+            {# E-mail #}
+            <div class="wab-field">
+                <label class="wab-label" for="ex-email">
+                    E-mail
+                    <span class="field-tip">email</span>
+                </label>
+                <div style="position:relative">
+                    <i class="fa-solid fa-envelope" aria-hidden="true" style="position:absolute;top:50%;left:11px;transform:translateY(-50%);color:var(--bm-text-muted);pointer-events:none;z-index:2;font-size:14px"></i>
+                    <input type="email" id="ex-email" name="email" class="wab-input"
+                           style="padding-left:36px"
+                           placeholder="joao@exemplo.com" autocomplete="email">
+                </div>
+            </div>
+
+            {# Senha com show/hide #}
+            <div class="wab-field">
+                <label class="wab-label" for="ex-pass">
+                    Senha
+                    <span class="field-tip">password + toggle</span>
+                </label>
+                <div style="position:relative">
+                    <i class="fa-solid fa-lock" aria-hidden="true" style="position:absolute;top:50%;left:11px;transform:translateY(-50%);color:var(--bm-text-muted);pointer-events:none;z-index:2;font-size:14px"></i>
+                    <input type="password" id="ex-pass" name="password" class="wab-input"
+                           style="padding-left:36px;padding-right:40px"
+                           placeholder="••••••••" autocomplete="new-password">
+                    <button type="button"
+                            style="position:absolute;top:0;bottom:0;right:10px;display:flex;align-items:center;background:none;border:none;cursor:pointer;color:var(--bm-text-muted);padding:0;z-index:2"
+                            onclick="const i=document.getElementById('ex-pass');const h=i.type==='password';i.type=h?'text':'password';document.getElementById('ex-pass-eye').setAttribute('name',h?'eye-slash':'eye')"
+                            aria-label="Mostrar ou ocultar senha">
+                        <i class="fa-regular fa-eye"id="ex-pass-eye" aria-hidden="true"></i>
+                    </button>
+                </div>
+                <p class="wab-hint">Mínimo de 8 caracteres.</p>
+            </div>
+
+            {# Telefone #}
+            <div class="wab-field">
+                <label class="wab-label" for="ex-phone">
+                    Telefone
+                    <span class="field-tip">tel + mask</span>
+                </label>
+                <div style="position:relative">
+                    <i class="fa-solid fa-phone" aria-hidden="true" style="position:absolute;top:50%;left:11px;transform:translateY(-50%);color:var(--bm-text-muted);pointer-events:none;z-index:2;font-size:14px"></i>
+                    <input type="tel" id="ex-phone" name="phone" class="wab-input"
+                           style="padding-left:36px"
+                           placeholder="(11) 9 9999-9999" maxlength="16"
+                           oninput="this.value=this.value.replace(/\D/g,'').replace(/^(\d{2})(\d)/,'($1) $2').replace(/(\d{4,5})(\d{4})$/,'$1-$2')">
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    {# ═══════════════════════════════════
+       SEÇÃO 2 — Datas e Horários
+    ═══════════════════════════════════ #}
+    <div class="admin-card form-section">
+        <div class="form-section-title">
+            <i class="fa-solid fa-calendar" aria-hidden="true"></i>
+            Datas e Horários
+        </div>
+        <div class="form-grid">
+
+            <div class="wab-field">
+                <label class="wab-label" for="ex-date">
+                    Data
+                    <span class="field-tip">date</span>
+                </label>
+                <input type="date" id="ex-date" name="date" class="wab-input"
+                       value="{{ 'now'|date('Y-m-d') }}">
+            </div>
+
+            <div class="wab-field">
+                <label class="wab-label" for="ex-time">
+                    Horário
+                    <span class="field-tip">time</span>
+                </label>
+                <input type="time" id="ex-time" name="time" class="wab-input" value="08:00">
+            </div>
+
+            <div class="wab-field">
+                <label class="wab-label" for="ex-datetime">
+                    Data e hora
+                    <span class="field-tip">datetime-local</span>
+                </label>
+                <input type="datetime-local" id="ex-datetime" name="datetime" class="wab-input">
+            </div>
+
+            <div class="wab-field">
+                <label class="wab-label" for="ex-month">
+                    Mês de referência
+                    <span class="field-tip">month</span>
+                </label>
+                <input type="month" id="ex-month" name="month" class="wab-input"
+                       value="{{ 'now'|date('Y-m') }}">
+            </div>
+
+        </div>
+    </div>
+
+    {# ═══════════════════════════════════
+       SEÇÃO 3 — Valores Monetários e Números
+    ═══════════════════════════════════ #}
+    <div class="admin-card form-section">
+        <div class="form-section-title">
+            <i class="fa-solid fa-money-bill" aria-hidden="true"></i>
+            Valores e Números
+        </div>
+        <div class="form-grid">
+
+            {# Moeda BRL #}
+            <div class="wab-field">
+                <label class="wab-label" for="ex-money">
+                    Valor em R$
+                    <span class="field-tip">currency mask</span>
+                </label>
+                <div class="currency-input-wrap">
+                    <span class="currency-prefix" aria-hidden="true">R$</span>
+                    <input type="text" id="ex-money" name="money" class="wab-input"
+                           placeholder="0,00" inputmode="numeric"
+                           oninput="const v=this.value.replace(/\D/g,'');this.value=(v/100).toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2})">
+                </div>
+            </div>
+
+            {# Porcentagem #}
+            <div class="wab-field">
+                <label class="wab-label" for="ex-percent">
+                    Porcentagem
+                    <span class="field-tip">number</span>
+                </label>
+                <div class="currency-input-wrap">
+                    <input type="number" id="ex-percent" name="percent" class="wab-input"
+                           style="border-radius:var(--radius-base) 0 0 var(--radius-base);border-right:none"
+                           placeholder="0" min="0" max="100" step="0.1">
+                    <span class="currency-prefix" style="border-left:none;border-right:1.5px solid var(--bm-input-border);border-radius:0 var(--radius-base) var(--radius-base) 0">%</span>
+                </div>
+            </div>
+
+            {# Range slider #}
+            <div class="wab-field full">
+                <label class="wab-label" for="ex-range">
+                    Nível de confiança:
+                    <strong id="range-display" style="color:var(--bm-accent)">50</strong>%
+                    <span class="field-tip">range</span>
+                </label>
+                <input type="range" id="ex-range" name="range" class="wab-range"
+                       min="0" max="100" value="50" step="1"
+                       oninput="document.getElementById('range-display').textContent=this.value">
+                <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--bm-text-muted);margin-top:4px">
+                    <span>0%</span><span>50%</span><span>100%</span>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    {# ═══════════════════════════════════
+       SEÇÃO 4 — Seleção
+    ═══════════════════════════════════ #}
+    <div class="admin-card form-section">
+        <div class="form-section-title">
+            <i class="fa-solid fa-list-check" aria-hidden="true"></i>
+            Seleção
+        </div>
+        <div class="form-grid">
+
+            {# Select simples #}
+            <div class="wab-field">
+                <label class="wab-label" for="ex-select">
+                    Estado
+                    <span class="field-tip">select</span>
+                </label>
+                <select id="ex-select" name="state" class="wab-input">
+                    <option value="">Selecione...</option>
+                    <option>São Paulo</option>
+                    <option>Rio de Janeiro</option>
+                    <option>Minas Gerais</option>
+                    <option>Bahia</option>
+                    <option>Rio Grande do Sul</option>
+                    <option>Paraná</option>
+                </select>
+            </div>
+
+            {# Tom Select com pesquisa #}
+            <div class="wab-field">
+                <label class="wab-label" for="ex-tom">
+                    Categoria
+                    <span class="field-tip">tom-select (pesquisa)</span>
+                </label>
+                <select id="ex-tom" name="category" class="wab-input">
+                    <option value="">Pesquisar categoria...</option>
+                    <option value="tech">Tecnologia</option>
+                    <option value="design">Design</option>
+                    <option value="marketing">Marketing</option>
+                    <option value="finance">Financeiro</option>
+                    <option value="hr">Recursos Humanos</option>
+                    <option value="legal">Jurídico</option>
+                    <option value="ops">Operações</option>
+                    <option value="support">Suporte</option>
+                </select>
+            </div>
+
+            {# Tom Select múltiplo #}
+            <div class="wab-field full">
+                <label class="wab-label" for="ex-multi">
+                    Tags
+                    <span class="field-tip">tom-select múltiplo</span>
+                </label>
+                <select id="ex-multi" name="tags[]" multiple class="wab-input"
+                        placeholder="Adicionar tags...">
+                    <option value="urgente">🔴 Urgente</option>
+                    <option value="revisao">🔵 Revisão</option>
+                    <option value="aprovado">🟢 Aprovado</option>
+                    <option value="rascunho">🟡 Rascunho</option>
+                    <option value="arquivado">⚪ Arquivado</option>
+                    <option value="novo">🟣 Novo</option>
+                </select>
+            </div>
+
+        </div>
+
+        {# Radios estilizados #}
+        <div class="wab-field" style="margin-top:8px">
+            <span class="wab-label">
+                Prioridade
+                <span class="field-tip">radio cards</span>
+            </span>
+            <div class="radio-group" role="radiogroup" aria-label="Prioridade">
+                <label class="radio-card">
+                    <input type="radio" name="priority" value="low"> Baixa
+                </label>
+                <label class="radio-card">
+                    <input type="radio" name="priority" value="medium" checked> Média
+                </label>
+                <label class="radio-card">
+                    <input type="radio" name="priority" value="high"> Alta
+                </label>
+                <label class="radio-card">
+                    <input type="radio" name="priority" value="critical"> Crítica
+                </label>
+            </div>
+        </div>
+
+        {# Checkboxes estilizados #}
+        <div class="wab-field" style="margin-top:8px">
+            <span class="wab-label">
+                Notificações
+                <span class="field-tip">checkbox cards</span>
+            </span>
+            <div class="check-group">
+                <label class="check-card">
+                    <input type="checkbox" name="notify[]" value="email" checked>
+                    <i class="fa-regular fa-envelope" aria-hidden="true"></i>
+                    E-mail
+                </label>
+                <label class="check-card">
+                    <input type="checkbox" name="notify[]" value="sms">
+                    <i class="fa-solid fa-mobile" aria-hidden="true"></i>
+                    SMS
+                </label>
+                <label class="check-card">
+                    <input type="checkbox" name="notify[]" value="push">
+                    <i class="fa-regular fa-bell" aria-hidden="true"></i>
+                    Push
+                </label>
+                <label class="check-card">
+                    <input type="checkbox" name="notify[]" value="slack">
+                    <i class="fa-regular fa-comment" aria-hidden="true"></i>
+                    Slack
+                </label>
+            </div>
+        </div>
+
+    </div>
+
+    {# ═══════════════════════════════════
+       SEÇÃO 5 — Editor HTML & Textarea
+    ═══════════════════════════════════ #}
+    <div class="admin-card form-section">
+        <div class="form-section-title">
+            <i class="fa-solid fa-file-code" aria-hidden="true"></i>
+            Conteúdo Rico
+        </div>
+
+        <div class="wab-field">
+            <label class="wab-label" for="ex-textarea">
+                Observações simples
+                <span class="field-tip">textarea</span>
+            </label>
+            <textarea id="ex-textarea" name="notes" class="wab-input"
+                      rows="3" placeholder="Escreva suas observações aqui..."></textarea>
+        </div>
+
+        <div class="wab-field">
+            <label class="wab-label">
+                Descrição completa
+                <span class="field-tip">Quill HTML editor</span>
+            </label>
+            <div id="quill-editor" style="min-height:180px"></div>
+            <input type="hidden" name="description" id="ex-description">
+            <p class="wab-hint">Editor com suporte a negrito, itálico, listas, links e mais.</p>
+        </div>
+
+    </div>
+
+    {# ═══════════════════════════════════
+       SEÇÃO 6 — Arquivo e Cor
+    ═══════════════════════════════════ #}
+    <div class="admin-card form-section">
+        <div class="form-section-title">
+            <i class="fa-solid fa-image" aria-hidden="true"></i>
+            Arquivo e Cor
+        </div>
+        <div class="form-grid">
+
+            {# Drag & Drop upload #}
+            <div class="wab-field full">
+                <label class="wab-label">
+                    Imagem ou documento
+                    <span class="field-tip">file drag &amp; drop</span>
+                </label>
+                <div class="upload-zone" id="drop-zone"
+                     onclick="document.getElementById('ex-file').click()"
+                     role="button"
+                     tabindex="0"
+                     aria-label="Clique ou arraste um arquivo para fazer upload">
+                    <div class="upload-zone-icon" aria-hidden="true">
+                        <i class="fa-solid fa-cloud-arrow-up" aria-hidden="true"></i>
+                    </div>
+                    <p style="font-size:14px;font-weight:600;margin:0 0 4px">
+                        Arraste e solte aqui, ou <span style="color:var(--bm-accent)">clique para selecionar</span>
+                    </p>
+                    <p style="font-size:12px;margin:0" id="file-info">PNG, JPG, PDF — máx. 10 MB</p>
+                    <input type="file" id="ex-file" name="file"
+                           accept=".png,.jpg,.jpeg,.pdf"
+                           onchange="document.getElementById('file-info').textContent=this.files[0]?.name ?? 'PNG, JPG, PDF — máx. 10 MB'">
+                </div>
+            </div>
+
+            {# Color picker #}
+            <div class="wab-field">
+                <label class="wab-label" for="ex-color">
+                    Cor da marca
+                    <span class="field-tip">color picker</span>
+                </label>
+                <div class="color-row">
+                    <div class="color-swatch">
+                        <input type="color" id="ex-color" name="color" value="#4f8ef7"
+                               oninput="document.getElementById('color-hex').value=this.value">
+                    </div>
+                    <input type="text" id="color-hex" class="wab-input" value="#4f8ef7"
+                           style="font-family:'JetBrains Mono',monospace;max-width:120px"
+                           oninput="if(this.value.match(/^#[0-9a-fA-F]{6}$/))document.getElementById('ex-color').value=this.value">
+                    <span style="font-size:12.5px;color:var(--bm-text-muted)">HEX</span>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    {# ═══════════════════════════════════
+       SEÇÃO 7 — Toggles e Configurações
+    ═══════════════════════════════════ #}
+    <div class="admin-card form-section">
+        <div class="form-section-title">
+            <i class="fa-solid fa-toggle-on" aria-hidden="true"></i>
+            Toggles e Configurações
+        </div>
+
+        <div class="toggle-row">
+            <div>
+                <div class="toggle-label">Perfil público</div>
+                <div class="toggle-desc">Permite que outros usuários vejam seu perfil</div>
+            </div>
+            <label class="wab-toggle" aria-label="Ativar perfil público">
+                <input type="checkbox" name="public_profile" checked>
+                <span class="wab-toggle-slider"></span>
+            </label>
+        </div>
+
+        <div class="toggle-row">
+            <div>
+                <div class="toggle-label">Receber newsletter</div>
+                <div class="toggle-desc">Envio quinzenal com novidades e conteúdos</div>
+            </div>
+            <label class="wab-toggle" aria-label="Ativar recebimento de newsletter">
+                <input type="checkbox" name="newsletter">
+                <span class="wab-toggle-slider"></span>
+            </label>
+        </div>
+
+        <div class="toggle-row">
+            <div>
+                <div class="toggle-label">Autenticação em dois fatores</div>
+                <div class="toggle-desc">Protege sua conta com 2FA via app autenticador</div>
+            </div>
+            <label class="wab-toggle" aria-label="Ativar autenticação em dois fatores">
+                <input type="checkbox" name="two_factor">
+                <span class="wab-toggle-slider"></span>
+            </label>
+        </div>
+
+    </div>
+
+    {# ── Actions ──────────────────────────────────────────────────────── #}
+    <div style="display:flex;gap:12px;justify-content:flex-end;padding-bottom:20px">
+        <button type="reset" class="btn-secondary">
+            <i class="fa-solid fa-rotate-left" aria-hidden="true"></i>
+            Limpar
+        </button>
+        <button type="submit" class="btn-primary" id="submit-btn">
+            <i class="fa-solid fa-floppy-disk" aria-hidden="true"></i>
+            Salvar registro
+        </button>
+    </div>
+
+</form>
+
+{# ── Right column — sidebar de ajuda ─────────────────────────────────────── #}
+<div>
+    <div class="admin-card" style="position:sticky;top:80px">
+        <div class="admin-card-title">
+            <i class="fa-regular fa-circle-question" style="color:var(--bm-accent)" aria-hidden="true"></i>
+            Guia de Inputs
+        </div>
+        <div style="font-size:13px;color:var(--bm-text-muted);line-height:1.7">
+            <p style="margin:0 0 12px">Esta página demonstra os padrões de input para uso em áreas administrativas WAB.</p>
+
+            <div style="margin-bottom:16px">
+                <div style="font-weight:700;color:var(--bm-text);font-size:12px;margin-bottom:6px">✅ Implementados</div>
+                <ul style="padding-left:16px;margin:0;font-size:12.5px">
+                    <li>Texto, e-mail, senha (show/hide)</li>
+                    <li>Telefone com máscara JS</li>
+                    <li>Data, hora, datetime, mês</li>
+                    <li>Moeda (R$) e porcentagem</li>
+                    <li>Range slider interativo</li>
+                    <li>Select simples e com pesquisa</li>
+                    <li>Tom Select múltiplo (tags)</li>
+                    <li>Radio cards e checkbox cards</li>
+                    <li>Editor HTML (Quill)</li>
+                    <li>Upload drag &amp; drop</li>
+                    <li>Color picker + HEX input</li>
+                    <li>Toggle switches</li>
+                </ul>
+            </div>
+
+            <div style="background:rgba(79,142,247,.08);border:1px solid rgba(79,142,247,.2);border-radius:var(--radius-base);padding:10px 12px;font-size:12px">
+                <strong style="color:var(--bm-accent)">💡 Dica</strong><br>
+                Todas as classes <code style="font-family:monospace;font-size:11px;background:rgba(0,0,0,.1);padding:1px 4px;border-radius:4px">.wab-input</code>, <code style="font-family:monospace;font-size:11px;background:rgba(0,0,0,.1);padding:1px 4px;border-radius:4px">.wab-label</code> e <code style="font-family:monospace;font-size:11px;background:rgba(0,0,0,.1);padding:1px 4px;border-radius:4px">.wab-field</code> são aplicadas automaticamente pelo Form Theme do Symfony.
+            </div>
+        </div>
+    </div>
+</div>
+
+</div>{# end grid #}
+
+{% endblock %}
+
+{% block javascripts %}
+    {# Tom Select #}
+    <script src="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/js/tom-select.complete.min.js"></script>
+    {# Quill #}
+    <script src="https://cdn.quilljs.com/1.3.7/quill.min.js"></script>
+
+    <script>
+    // ── Tom Select — single com pesquisa ──────────────────────────────────────
+    new TomSelect('#ex-tom', {
+        placeholder: 'Pesquisar categoria...',
+        maxItems: 1,
+    });
+
+    // ── Tom Select — múltiplo (tags) ──────────────────────────────────────────
+    new TomSelect('#ex-multi', {
+        placeholder: 'Adicionar tags...',
+        plugins: ['remove_button'],
+        maxItems: null,
+        create: false,
+    });
+
+    // ── Quill Editor ──────────────────────────────────────────────────────────
+    const quill = new Quill('#quill-editor', {
+        theme: 'snow',
+        placeholder: 'Escreva a descrição completa aqui...',
+        modules: {
+            toolbar: [
+                [{ header: [2, 3, false] }],
+                ['bold', 'italic', 'underline', 'strike'],
+                ['blockquote', 'code-block'],
+                [{ list: 'ordered' }, { list: 'bullet' }],
+                ['link', 'image'],
+                ['clean'],
+            ],
+        },
+    });
+
+    quill.on('text-change', function () {
+        document.getElementById('ex-description').value = quill.root.innerHTML;
+    });
+
+    // ── Drag & drop upload ────────────────────────────────────────────────────
+    const dropZone = document.getElementById('drop-zone');
+    dropZone.addEventListener('dragover',  e => { e.preventDefault(); dropZone.classList.add('drag-over'); });
+    dropZone.addEventListener('dragleave', () => dropZone.classList.remove('drag-over'));
+    dropZone.addEventListener('drop', e => {
+        e.preventDefault();
+        dropZone.classList.remove('drag-over');
+        const file = e.dataTransfer.files[0];
+        if (file) document.getElementById('file-info').textContent = file.name;
+    });
+
+    // ── Form submit demo ──────────────────────────────────────────────────────
+    document.getElementById('exemplo-form').addEventListener('submit', function(e) {
+        e.preventDefault();
+        const btn = document.getElementById('submit-btn');
+        btn.innerHTML = '<i class="fa-solid fa-circle-notch" style="animation:spin 1s linear infinite" aria-hidden="true"></i> Salvando...';
+        btn.disabled = true;
+        setTimeout(() => {
+            btn.innerHTML = '<i class="fa-solid fa-check" aria-hidden="true"></i> Salvo com sucesso!';
+            btn.style.background = 'var(--bm-success)';
+            setTimeout(() => {
+                btn.innerHTML = '<i class="fa-solid fa-floppy-disk" aria-hidden="true"></i> Salvar registro';
+                btn.style.background = '';
+                btn.disabled = false;
+            }, 2500);
+        }, 1200);
+    });
+    </script>
+
+    <style>
+        @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+    </style>
+{% endblock %}

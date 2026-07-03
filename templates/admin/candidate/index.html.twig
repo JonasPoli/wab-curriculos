@@ -1,0 +1,375 @@
+{% extends 'admin/base.html.twig' %}
+
+{% block title %}Candidatos{% endblock %}
+
+{% block breadcrumbs %}
+    {% set breadcrumbs = [
+        { label: 'Dashboard', route: 'admin_dash' },
+        { label: 'Candidatos', route: null }
+    ] %}
+    {{ include('admin/_partials/breadcrumbs.html.twig', { breadcrumbs: breadcrumbs }) }}
+{% endblock %}
+
+{% block stylesheets %}
+    <link rel="stylesheet" href="https://cdn.datatables.net/2.0.8/css/dataTables.dataTables.min.css">
+    <link rel="stylesheet" href="https://cdn.datatables.net/buttons/3.0.2/css/buttons.dataTables.min.css">
+    <style>
+        .filter-panel {
+            background: var(--bm-surface);
+            border: 1px solid var(--bm-border);
+            border-radius: 12px;
+            margin-bottom: 1.5rem;
+            overflow: hidden;
+        }
+        .filter-panel-header {
+            padding: .9rem 1.25rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            cursor: pointer;
+            user-select: none;
+            gap: 12px;
+        }
+        .filter-panel-header:hover { background: var(--bm-surface-hover); }
+        .filter-panel-title {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 600;
+            font-size: .875rem;
+            color: var(--bm-text);
+        }
+        .filter-badge {
+            background: var(--bm-accent);
+            color: #fff;
+            border-radius: 999px;
+            padding: 2px 9px;
+            font-size: .72rem;
+            font-weight: 700;
+        }
+        .filter-panel-body {
+            padding: 1.25rem;
+            border-top: 1px solid var(--bm-border);
+            display: none;
+        }
+        .filter-panel-body.open { display: block; }
+        .filter-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: .75rem;
+            margin-bottom: 1rem;
+        }
+        .filter-grid .filter-full { grid-column: 1 / -1; }
+        .filter-input, .filter-select {
+            width: 100%;
+            padding: 8px 12px;
+            border: 1.5px solid var(--bm-border);
+            border-radius: 8px;
+            font-size: .82rem;
+            font-family: inherit;
+            color: var(--bm-text);
+            background: var(--bm-bg);
+            outline: none;
+            transition: border-color .15s;
+        }
+        .filter-input:focus, .filter-select:focus {
+            border-color: var(--bm-accent);
+            box-shadow: 0 0 0 3px rgba(var(--bm-accent-rgb, 99,102,241), .12);
+        }
+        .filter-actions {
+            display: flex;
+            align-items: center;
+            gap: .5rem;
+            padding-top: .75rem;
+            border-top: 1px solid var(--bm-border);
+        }
+        .filter-count-tag {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 12px;
+            border-radius: 999px;
+            font-size: .78rem;
+            font-weight: 600;
+            background: color-mix(in srgb, var(--bm-accent) 12%, transparent);
+            color: var(--bm-accent);
+        }
+        .result-summary {
+            font-size: .82rem;
+            color: var(--bm-text-muted);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+        .result-summary strong { color: var(--bm-text); }
+
+        /* Availability dots */
+        .avail-grid {
+            display: inline-flex;
+            gap: 3px;
+        }
+        .avail-dot {
+            width: 8px; height: 8px;
+            border-radius: 50%;
+            background: #e2e8f0;
+        }
+        .avail-dot.on { background: #22c55e; }
+    </style>
+{% endblock %}
+
+{% block body %}
+
+<div class="page-header">
+    <div>
+        <h1 class="page-title">
+            <i class="fa-solid fa-users" style="margin-right:8px;color:var(--bm-accent)" aria-hidden="true"></i>
+            Candidatos
+        </h1>
+        <p class="page-subtitle result-summary">
+            {% if activeFilters > 0 %}
+                <span class="filter-count-tag">
+                    <i class="fa-solid fa-filter"></i>
+                    {{ activeFilters }} filtro{% if activeFilters > 1 %}s{% endif %} ativo{% if activeFilters > 1 %}s{% endif %}
+                </span>
+                <strong>{{ candidates|length }}</strong> resultado{% if candidates|length != 1 %}s{% endif %}
+                de <strong>{{ totalAll }}</strong> no total
+                · <a href="{{ path('admin_candidate_index') }}" style="color:var(--bm-accent)">Limpar filtros</a>
+            {% else %}
+                <strong>{{ candidates|length }}</strong> candidato{% if candidates|length != 1 %}s{% endif %} cadastrado{% if candidates|length != 1 %}s{% endif %}
+            {% endif %}
+        </p>
+    </div>
+</div>
+
+{# ── Painel de Filtros ────────────────────────────────────────────────────── #}
+{{ form_start(filterForm, {
+    attr: { id: 'filter-form', novalidate: 'novalidate' },
+    action: path('admin_candidate_index'),
+    method: 'GET'
+}) }}
+<div class="filter-panel">
+    <div class="filter-panel-header" id="filter-toggle">
+        <div class="filter-panel-title">
+            <i class="fa-solid fa-sliders" style="color:var(--bm-accent)"></i>
+            Filtros e Busca
+            {% if activeFilters > 0 %}
+                <span class="filter-badge">{{ activeFilters }} ativo{% if activeFilters > 1 %}s{% endif %}</span>
+            {% endif %}
+        </div>
+        <i class="fa-solid fa-chevron-down" id="filter-chevron" style="color:var(--bm-text-muted);font-size:.8rem;transition:transform .2s"></i>
+    </div>
+
+    <div class="filter-panel-body {% if activeFilters > 0 %}open{% endif %}" id="filter-body">
+
+        <div class="filter-grid">
+            {# Busca textual #}
+            <div class="filter-full">
+                {{ form_widget(filterForm.q, {attr: {class: 'filter-input'}}) }}
+            </div>
+
+            {# Área de interesse #}
+            <div>
+                {{ form_widget(filterForm.area, {attr: {class: 'filter-select'}}) }}
+            </div>
+
+            {# Cargo #}
+            <div>
+                {{ form_widget(filterForm.career, {attr: {class: 'filter-select'}}) }}
+            </div>
+
+            {# Estado #}
+            <div>
+                {{ form_widget(filterForm.state, {attr: {class: 'filter-select'}}) }}
+            </div>
+
+            {# Tipo de contrato #}
+            <div>
+                {{ form_widget(filterForm.contractType, {attr: {class: 'filter-select', size: 1}}) }}
+            </div>
+
+            {# Início imediato #}
+            <div>
+                {{ form_widget(filterForm.immediateStart, {attr: {class: 'filter-select'}}) }}
+            </div>
+
+            {# PDF #}
+            <div>
+                {{ form_widget(filterForm.hasResume, {attr: {class: 'filter-select'}}) }}
+            </div>
+
+            {# Datas #}
+            <div>
+                {{ form_widget(filterForm.dateFrom, {attr: {class: 'filter-input', type: 'date'}}) }}
+            </div>
+            <div>
+                {{ form_widget(filterForm.dateTo, {attr: {class: 'filter-input', type: 'date'}}) }}
+            </div>
+        </div>
+
+        <div class="filter-actions">
+            <button type="submit" class="btn-primary">
+                <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
+                Buscar
+            </button>
+            {% if activeFilters > 0 %}
+            <a href="{{ path('admin_candidate_index') }}" class="btn-secondary">
+                <i class="fa-solid fa-xmark" aria-hidden="true"></i>
+                Limpar filtros
+            </a>
+            {% endif %}
+        </div>
+
+    </div>
+</div>
+{{ form_end(filterForm) }}
+
+{# ── Tabela ───────────────────────────────────────────────────────────────── #}
+<div class="card">
+    <div class="card-body">
+        <table id="candidates-table" class="display nowrap" style="width:100%">
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Nome</th>
+                    <th>Localização</th>
+                    <th>Contato</th>
+                    <th>Cargos de interesse</th>
+                    <th>Disponibilidade</th>
+                    <th>Contrato</th>
+                    <th>PDF</th>
+                    <th>Cadastrado em</th>
+                    <th>Ações</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for candidate in candidates %}
+                <tr>
+                    <td>{{ candidate.id }}</td>
+                    <td>
+                        <div style="display:flex;align-items:center;gap:10px">
+                            <div style="width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,var(--bm-accent),#7c3aed);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:.85rem;flex-shrink:0">
+                                {{ candidate.name|first|upper }}
+                            </div>
+                            <div>
+                                <strong style="font-size:.875rem">{{ candidate.name }}</strong>
+                                {% if candidate.immediateStart %}
+                                    <span class="badge" style="background:#dcfce7;color:#15803d;margin-left:4px;font-size:.65rem">Início imediato</span>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </td>
+                    <td>
+                        <span style="font-size:.85rem">{{ candidate.city }}/{{ candidate.state }}</span>
+                    </td>
+                    <td>
+                        <div style="font-size:.82rem;line-height:1.5">
+                            <a href="mailto:{{ candidate.email }}" style="color:var(--bm-accent);text-decoration:none">{{ candidate.email }}</a><br>
+                            <span style="color:var(--bm-text-muted)">{{ candidate.phone }}</span>
+                        </div>
+                    </td>
+                    <td>
+                        {% if candidate.careers|length > 0 %}
+                            {% for career in candidate.careers|slice(0, 2) %}
+                                <span class="badge badge-blue" style="margin-right:2px;margin-bottom:2px;font-size:.7rem">{{ career.title }}</span>
+                            {% endfor %}
+                            {% if candidate.careers|length > 2 %}
+                                <span class="badge" style="background:rgba(100,116,139,.15);color:var(--bm-text-muted);font-size:.7rem">+{{ candidate.careers|length - 2 }}</span>
+                            {% endif %}
+                        {% else %}
+                            <span style="font-size:.75rem;opacity:.4">—</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        {# Grade de disponibilidade: Seg–Sex, Manhã/Tarde #}
+                        {% set grid = candidate.availabilityGrid %}
+                        <div class="avail-grid" title="Disponibilidade semanal">
+                            {% for day, slots in grid %}
+                                <div class="avail-dot {{ slots.morning ? 'on' : '' }}" title="{{ day }} manhã"></div>
+                                <div class="avail-dot {{ slots.afternoon ? 'on' : '' }}" title="{{ day }} tarde"></div>
+                            {% endfor %}
+                        </div>
+                    </td>
+                    <td>
+                        {% if candidate.contractTypes %}
+                            {% for ct in candidate.contractTypes %}
+                                <span class="badge" style="background:var(--bm-border);color:var(--bm-text);margin-right:2px;font-size:.68rem;text-transform:uppercase">{{ ct }}</span>
+                            {% endfor %}
+                        {% else %}
+                            <span style="opacity:.4;font-size:.75rem">—</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if candidate.resumeFilename %}
+                            <a href="{{ path('admin_candidate_download_resume', {id: candidate.id}) }}"
+                               class="btn-secondary" title="Baixar currículo PDF" target="_blank" style="font-size:.78rem;padding:4px 10px">
+                                <i class="fa-solid fa-file-pdf" aria-hidden="true"></i> PDF
+                            </a>
+                        {% else %}
+                            <span style="opacity:.35;font-size:.75rem">Sem arquivo</span>
+                        {% endif %}
+                    </td>
+                    <td>{{ candidate.createdAt ? candidate.createdAt|date('d/m/Y') : '—' }}</td>
+                    <td>
+                        <a href="{{ path('admin_candidate_show', {id: candidate.id}) }}" class="btn-secondary" title="Ver detalhes" style="padding:5px 10px">
+                            <i class="fa-solid fa-eye" aria-hidden="true"></i>
+                        </a>
+                    </td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="10" style="text-align:center;padding:64px 32px">
+                        <i class="fa-solid fa-users-slash" style="font-size:2.5rem;opacity:.2;display:block;margin-bottom:1rem"></i>
+                        {% if activeFilters > 0 %}
+                            Nenhum candidato encontrado com os filtros aplicados.
+                            <br><a href="{{ path('admin_candidate_index') }}" style="color:var(--bm-accent);margin-top:.5rem;display:inline-block">Limpar filtros</a>
+                        {% else %}
+                            Nenhum candidato cadastrado ainda.
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block javascripts %}
+<script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+<script src="https://cdn.datatables.net/2.0.8/js/dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/buttons/3.0.2/js/dataTables.buttons.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+<script src="https://cdn.datatables.net/buttons/3.0.2/js/buttons.html5.min.js"></script>
+<script>
+    new DataTable('#candidates-table', {
+        language: { url: 'https://cdn.datatables.net/plug-ins/2.0.8/i18n/pt-BR.json' },
+        pageLength: 25,
+        order: [[8, 'desc']],
+        layout: {
+            topStart: {
+                buttons: [
+                    { extend: 'excelHtml5', text: '<i class="fa-solid fa-file-excel"></i> Exportar Excel', className: 'btn-secondary' }
+                ]
+            }
+        },
+        columnDefs: [{ orderable: false, targets: [4, 5, 6, 7, 9] }]
+    });
+
+    // Toggle do painel de filtros
+    const toggle = document.getElementById('filter-toggle');
+    const body   = document.getElementById('filter-body');
+    const chev   = document.getElementById('filter-chevron');
+
+    toggle.addEventListener('click', () => {
+        body.classList.toggle('open');
+        chev.style.transform = body.classList.contains('open') ? 'rotate(180deg)' : '';
+    });
+
+    // Auto-submit em selects de filtro
+    document.querySelectorAll('#filter-form select').forEach(sel => {
+        sel.addEventListener('change', () => document.getElementById('filter-form').submit());
+    });
+</script>
+{% endblock %}

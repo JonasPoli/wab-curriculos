@@ -1,0 +1,234 @@
+{% extends 'admin/base.html.twig' %}
+
+{% block title %}Página de Exemplo{% endblock %}
+
+{% block breadcrumbs %}
+    {% set breadcrumbs = [
+        { label: 'Dashboard', route: 'admin_dash' },
+        { label: 'Exemplo — DataTable', route: null }
+    ] %}
+    {{ include('admin/_partials/breadcrumbs.html.twig', { breadcrumbs: breadcrumbs }) }}
+{% endblock %}
+
+{% block stylesheets %}
+    {# DataTables #}
+    <link rel="stylesheet" href="https://cdn.datatables.net/2.0.8/css/dataTables.dataTables.min.css">
+    <link rel="stylesheet" href="https://cdn.datatables.net/buttons/3.0.2/css/buttons.dataTables.min.css">
+{% endblock %}
+
+{% block body %}
+
+{# ── Page Header ──────────────────────────────────────────────────────────── #}
+<div class="page-header">
+    <div>
+        <h1 class="page-title">
+            <i class="fa-solid fa-rectangle-list" style="margin-right:8px;color:var(--bm-accent)" aria-hidden="true"></i>
+            Página de Exemplo
+        </h1>
+        <p class="page-subtitle">DataTable com pesquisa, ordenação, paginação e exportação. Dados fictícios para demonstração.</p>
+    </div>
+    <div style="display:flex;gap:10px;align-items:center">
+        <a href="{{ path('app_admin_exemplo_form') }}" class="btn-primary">
+            <i class="fa-solid fa-file-lines" aria-hidden="true"></i>
+            Ver Formulário de Exemplo
+        </a>
+    </div>
+</div>
+
+{# ── Stats ─────────────────────────────────────────────────────────────────── #}
+<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:14px;margin-bottom:24px">
+    {% set total   = records|length %}
+    {% set ativos  = records|filter(r => r.status == 'Ativo')|length %}
+    {% set inativos= records|filter(r => r.status == 'Inativo')|length %}
+    {% set total_balance = records|map(r => r.balance)|reduce((a, b) => a + b, 0) %}
+
+    <div class="stat-card">
+        <div class="stat-card-icon" style="background:rgba(79,142,247,.1);color:var(--bm-accent)">
+            <i class="fa-solid fa-users" aria-hidden="true"></i>
+        </div>
+        <div>
+            <div class="stat-card-value" style="color:var(--bm-accent)">{{ total }}</div>
+            <div class="stat-card-label">Total de registros</div>
+        </div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-card-icon" style="background:rgba(16,185,129,.1);color:var(--bm-success)">
+            <i class="fa-solid fa-circle-check" aria-hidden="true"></i>
+        </div>
+        <div>
+            <div class="stat-card-value" style="color:var(--bm-success)">{{ ativos }}</div>
+            <div class="stat-card-label">Ativos</div>
+        </div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-card-icon" style="background:rgba(239,68,68,.1);color:var(--bm-danger)">
+            <i class="fa-solid fa-circle-xmark" aria-hidden="true"></i>
+        </div>
+        <div>
+            <div class="stat-card-value" style="color:var(--bm-danger)">{{ inativos }}</div>
+            <div class="stat-card-label">Inativos</div>
+        </div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-card-icon" style="background:rgba(168,85,247,.1);color:#a855f7">
+            <i class="fa-solid fa-sack-dollar" aria-hidden="true"></i>
+        </div>
+        <div>
+            <div class="stat-card-value" style="color:#a855f7;font-size:18px">R$ {{ (total_balance)|number_format(0, ',', '.') }}</div>
+            <div class="stat-card-label">Saldo total</div>
+        </div>
+    </div>
+</div>
+
+{# ── DataTable ─────────────────────────────────────────────────────────────── #}
+<div class="admin-card">
+    <div style="overflow-x:auto">
+        <table id="exemplo-table" class="admin-table" aria-label="Tabela de exemplo com registros fictícios">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Nome</th>
+                    <th>E-mail</th>
+                    <th>Cidade</th>
+                    <th>Perfil</th>
+                    <th>Status</th>
+                    <th>Saldo</th>
+                    <th>Cadastro</th>
+                    <th>Ações</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for r in records %}
+                <tr>
+                    <td style="color:var(--bm-text-muted);font-size:12px;font-family:'JetBrains Mono',monospace">#{{ r.id }}</td>
+                    <td>
+                        <div style="display:flex;align-items:center;gap:10px">
+                            <div class="user-avatar" aria-hidden="true">{{ r.name|first }}</div>
+                            <span style="font-weight:500">{{ r.name }}</span>
+                        </div>
+                    </td>
+                    <td style="color:var(--bm-text-muted)">{{ r.email }}</td>
+                    <td>{{ r.city }}</td>
+                    <td>
+                        <span class="badge badge-accent">{{ r.role }}</span>
+                    </td>
+                    <td>
+                        {% if r.status == 'Ativo' %}
+                            <span class="badge badge-success">
+                                <span class="status-dot dot-ativo" aria-hidden="true"></span>
+                                Ativo
+                            </span>
+                        {% elseif r.status == 'Inativo' %}
+                            <span class="badge badge-danger">
+                                <span class="status-dot dot-inativo" aria-hidden="true"></span>
+                                Inativo
+                            </span>
+                        {% else %}
+                            <span class="badge badge-warning">
+                                <span class="status-dot dot-pendente" aria-hidden="true"></span>
+                                Pendente
+                            </span>
+                        {% endif %}
+                    </td>
+                    <td style="font-family:'JetBrains Mono',monospace;font-size:13px;font-weight:600">
+                        R$ {{ r.balance|number_format(2, ',', '.') }}
+                    </td>
+                    <td style="color:var(--bm-text-muted);font-size:12.5px">
+                        {{ r.joinedAt|date('d/m/Y') }}
+                    </td>
+                    <td>
+                        <div style="display:flex;gap:6px">
+                            <button type="button"
+                                    class="btn-secondary"
+                                    style="padding:4px 10px;font-size:12px"
+                                    title="Editar registro {{ r.id }}"
+                                    aria-label="Editar {{ r.name }}">
+                                <i class="fa-solid fa-pen" aria-hidden="true"></i>
+                            </button>
+                            <button type="button"
+                                    class="btn-danger"
+                                    style="padding:4px 10px;font-size:12px"
+                                    title="Excluir registro {{ r.id }}"
+                                    aria-label="Excluir {{ r.name }}">
+                                <i class="fa-solid fa-trash" aria-hidden="true"></i>
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block javascripts %}
+    {# jQuery (requisito do DataTables) #}
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    {# DataTables core #}
+    <script src="https://cdn.datatables.net/2.0.8/js/dataTables.min.js"></script>
+    {# Buttons plugin (export CSV, Excel, PDF, Print, Copy) #}
+    <script src="https://cdn.datatables.net/buttons/3.0.2/js/dataTables.buttons.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/pdfmake.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/vfs_fonts.js"></script>
+    <script src="https://cdn.datatables.net/buttons/3.0.2/js/buttons.html5.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/3.0.2/js/buttons.print.min.js"></script>
+
+    <script>
+    $(document).ready(function () {
+        $('#exemplo-table').DataTable({
+            language: {
+                url: 'https://cdn.datatables.net/plug-ins/2.0.8/i18n/pt-BR.json',
+            },
+            pageLength: 10,
+            lengthMenu: [[5, 10, 25, -1], [5, 10, 25, 'Todos']],
+            order: [[0, 'asc']],
+            layout: {
+                top1: 'buttons',
+                //topStart: 'length',
+                topEnd: 'search',
+                bottomStart: 'info',
+                bottomEnd: 'paging',
+            },
+            buttons: [
+                {
+                    extend: 'copyHtml5',
+                    text: '<i class="fa-solid fa-copy" aria-hidden="true"></i> Copiar',
+                    titleAttr: 'Copiar para área de transferência',
+                    exportOptions: { columns: ':not(:last-child)' },
+                },
+                {
+                    extend: 'csvHtml5',
+                    text: '<i class="fa-solid fa-file-csv" aria-hidden="true"></i> CSV',
+                    titleAttr: 'Exportar como CSV',
+                    exportOptions: { columns: ':not(:last-child)' },
+                },
+                {
+                    extend: 'excelHtml5',
+                    text: '<i class="fa-solid fa-file-excel" aria-hidden="true"></i> Excel',
+                    titleAttr: 'Exportar como Excel',
+                    exportOptions: { columns: ':not(:last-child)' },
+                },
+                {
+                    extend: 'pdfHtml5',
+                    text: '<i class="fa-solid fa-file-pdf" aria-hidden="true"></i> PDF',
+                    titleAttr: 'Exportar como PDF',
+                    exportOptions: { columns: ':not(:last-child)' },
+                },
+                {
+                    extend: 'print',
+                    text: '<i class="fa-solid fa-print" aria-hidden="true"></i> Imprimir',
+                    titleAttr: 'Imprimir tabela',
+                    exportOptions: { columns: ':not(:last-child)' },
+                },
+            ],
+            columnDefs: [
+                { orderable: false, targets: -1 },         // Coluna Ações não ordenável
+                { searchable: false, targets: [6, 7, 8] }, // Saldo, Data e Ações não pesquisáveis
+            ],
+        });
+    });
+    </script>
+{% endblock %}

@@ -1,0 +1,65 @@
+{% extends 'admin/base.html.twig' %}
+
+{% block title %}f{% endblock %}
+
+{% block body %}
+
+<div class="page-header">
+    <div>
+        <h1 class="page-title">
+            <i class="fa-solid fa-rectangle-list" style="margin-right:8px;color:var(--bm-accent)" aria-hidden="true"></i>
+            Página de Exemplo
+        </h1>
+        <p class="page-subtitle">subtitle.</p>
+    </div>
+    <div>
+        <a href="" class="btn-primary">
+            <i class="fa-solid fa-plus" aria-hidden="true"></i>
+            Adicionar
+        </a>
+    </div>
+</div>
+
+    <div class="admin-card">
+        <table class="admin-table">
+            <thead>
+                <tr>
+                    <th>Id</th>
+                    <th>Nome</th>
+                    <th>Idade</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>1</td>
+                    <td>Exemplo 1</td>
+                    <td>25</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+{% endblock %}
+
+{% block stylesheets %}
+    <link rel="stylesheet" href="https://cdn.datatables.net/2.0.8/css/dataTables.dataTables.min.css">
+    <link rel="stylesheet" href="https://cdn.datatables.net/buttons/3.0.2/css/buttons.dataTables.min.css">
+{% endblock %}
+
+{% block javascripts %}
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="https://cdn.datatables.net/2.0.8/js/dataTables.min.js"></script>
+
+    <script>
+        $(document).ready(function () {
+        $('.admin-table').DataTable({
+            language: {
+                url: 'https://cdn.datatables.net/plug-ins/2.0.8/i18n/pt-BR.json',
+            },
+            pageLength: 10,
+            lengthMenu: [[5, 10, 25, -1], [5, 10, 25, 'Todos']],
+            order: [[0, 'asc']],
+        });
+    });
+    </script>
+{% endblock %}
