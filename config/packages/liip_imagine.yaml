@@ -16,3 +16,8 @@ liip_imagine:
             quality: 100
             filters:
                 thumbnail: { size: [400, 500], mode: inset }
+        tenant_logo:
+            quality: 85
+            format: webp
+            filters:
+                thumbnail: { size: [250, 80], mode: inset }
