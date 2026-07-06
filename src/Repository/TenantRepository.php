@@ -18,6 +18,23 @@ class TenantRepository extends ServiceEntityRepository
 
     public function findByDomain(string $domain): ?Tenant
     {
-        return $this->findOneBy(['domain' => $domain]);
+        $cleanDomain = preg_replace('/^(https?:\/\/)?(www\.)?/', '', strtolower($domain));
+        $cleanDomain = rtrim($cleanDomain, '/');
+
+        $tenants = $this->createQueryBuilder('t')
+            ->where('t.domain LIKE :domain')
+            ->setParameter('domain', '%' . $cleanDomain . '%')
+            ->getQuery()
+            ->getResult();
+
+        foreach ($tenants as $tenant) {
+            $dbDomain = preg_replace('/^(https?:\/\/)?(www\.)?/', '', strtolower($tenant->getDomain()));
+            $dbDomain = rtrim($dbDomain, '/');
+            if ($dbDomain === $cleanDomain) {
+                return $tenant;
+            }
+        }
+
+        return null;
     }
 }

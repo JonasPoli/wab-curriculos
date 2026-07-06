@@ -1,6 +1,6 @@
 {% extends 'pub/base.html.twig' %}
 
-{% set _t = tenant is defined and tenant ? tenant : null %}
+{% set _t = (tenant is defined and tenant) ? tenant : current_tenant() %}
 
 {% block title %}{{ _t ? _t.seoTitle|default('Trabalhe Conosco') : 'Trabalhe Conosco' }}{% endblock %}
 {% block meta_description %}{{ _t ? _t.seoDescription|default('Cadastre seu currículo e faça parte do nosso time.') : 'Cadastre seu currículo e faça parte do nosso time.' }}{% endblock %}
