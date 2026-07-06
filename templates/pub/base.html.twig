@@ -1,6 +1,6 @@
 {% set tenant = (tenant is defined and tenant) ? tenant : current_tenant() %}
 <!DOCTYPE html>
-<html lang="pt-BR" data-theme="light">
+<html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -9,13 +9,24 @@
     {% if tenant is defined and tenant and tenant.favicon %}
         <link rel="icon" type="image/x-icon" href="/uploads/tenants/favicon/{{ tenant.favicon }}">
     {% endif %}
+    <script>
+        (function() {
+            const saved = localStorage.getItem('pub-theme');
+            const system = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+            document.documentElement.setAttribute('data-theme', saved || system);
+        })();
+    </script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
     <link rel="preload" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@600;700;800&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'">
     <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@600;700;800&display=swap"></noscript>
-    <link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
-    <noscript><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"></noscript>
+    <link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/fontawesome.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/solid.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <noscript>
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/fontawesome.min.css">
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/solid.min.css">
+    </noscript>
 
     <style>
         @font-face {
@@ -29,7 +40,7 @@
         :root {
             --p:   {{ (tenant is defined and tenant and tenant.primaryColor)   ? tenant.primaryColor   : '#4f46e5' }};
             --s:   {{ (tenant is defined and tenant and tenant.secondaryColor)  ? tenant.secondaryColor : '#f59e0b' }};
-            --p-dark: color-mix(in srgb, var(--p), #000 25%);
+            --p-dark: color-mix(in srgb, var(--p), #000 45%);
         }
         [data-theme="light"] {
             --bg:        #f4f6fb;
@@ -54,7 +65,7 @@
             --muted:     #8b949e;
             --header-bg: rgba(22,27,34,0.9);
             --logo-filter: brightness(0) invert(1);
-            --p-dark: color-mix(in srgb, var(--p), #fff 20%);
+            --p-dark: color-mix(in srgb, var(--p), #fff 25%);
         }
 
         /* ── Base ─────────────────────────────────────────────────────────── */
@@ -766,24 +777,24 @@
 
         <nav class="pub-nav">
             {% if app.user %}
-                <a href="{{ path('pub_candidate_dashboard') }}" class="{{ app.request.get('_route') == 'pub_candidate_dashboard' ? 'nav-active' : '' }}">
+                <a href="{{ path('pub_candidate_dashboard') }}" class="{{ app.request.get('_route') == 'pub_candidate_dashboard' ? 'nav-active' : '' }}" aria-label="Início">
                     <i class="fa-solid fa-house"></i><span>Início</span>
                 </a>
-                <a href="{{ path('pub_candidate_profile') }}" class="{{ app.request.get('_route') starts with 'pub_candidate_profile' ? 'nav-active' : '' }}">
+                <a href="{{ path('pub_candidate_profile') }}" class="{{ app.request.get('_route') starts with 'pub_candidate_profile' ? 'nav-active' : '' }}" aria-label="Meu Perfil">
                     <i class="fa-solid fa-user"></i><span>Meu Perfil</span>
                 </a>
-                <a href="{{ path('pub_candidate_logout') }}" style="color:var(--muted)">
+                <a href="{{ path('pub_candidate_logout') }}" style="color:var(--muted)" aria-label="Sair">
                     <i class="fa-solid fa-right-from-bracket"></i><span>Sair</span>
                 </a>
             {% else %}
-                <a href="{{ path('pub_candidate_login') }}">
+                <a href="{{ path('pub_candidate_login') }}" aria-label="Entrar">
                     <i class="fa-solid fa-right-to-bracket"></i><span>Entrar</span>
                 </a>
-                <a href="{{ path('pub_candidate_register') }}" class="nav-cta">
+                <a href="{{ path('pub_candidate_register') }}" class="nav-cta" aria-label="Cadastre-se">
                     <i class="fa-solid fa-user-plus"></i><span>Cadastre-se</span>
                 </a>
             {% endif %}
-            <button class="theme-toggle" onclick="toggleTheme()" title="Alternar tema" type="button">
+            <button class="theme-toggle" onclick="toggleTheme()" title="Alternar tema" type="button" aria-label="Alternar tema">
                 <i class="fa-solid fa-moon" id="theme-icon"></i>
             </button>
         </nav>
@@ -837,7 +848,10 @@
 
     function applyTheme(theme) {
         document.documentElement.setAttribute('data-theme', theme);
-        document.getElementById('theme-icon').className = theme === 'dark' ? 'fa-solid fa-sun' : 'fa-solid fa-moon';
+        const icon = document.getElementById('theme-icon');
+        if (icon) {
+            icon.className = theme === 'dark' ? 'fa-solid fa-sun' : 'fa-solid fa-moon';
+        }
         localStorage.setItem(THEME_KEY, theme);
     }
 
@@ -846,10 +860,13 @@
         applyTheme(current === 'dark' ? 'light' : 'dark');
     }
 
-    // Init
-    const saved = localStorage.getItem(THEME_KEY);
-    const system = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
-    applyTheme(saved || system);
+    document.addEventListener('DOMContentLoaded', () => {
+        const current = document.documentElement.getAttribute('data-theme') || 'light';
+        const icon = document.getElementById('theme-icon');
+        if (icon) {
+            icon.className = current === 'dark' ? 'fa-solid fa-sun' : 'fa-solid fa-moon';
+        }
+    });
 
     // Scroll Reveal
     const revealObserver = new IntersectionObserver((entries) => {

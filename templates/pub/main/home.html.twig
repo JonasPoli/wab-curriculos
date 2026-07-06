@@ -135,7 +135,7 @@
         gap: 10px;
         padding: 16px 40px;
         background: #fff;
-        color: var(--p-dark);
+        color: color-mix(in srgb, var(--p), #000 65%);
         font-weight: 700;
         font-size: 1rem;
         border-radius: 14px;
@@ -221,7 +221,7 @@
         font-weight: 700;
         text-transform: uppercase;
         letter-spacing: .1em;
-        color: var(--p);
+        color: var(--p-dark);
         margin-bottom: .75rem;
     }
     .section-title {
@@ -467,9 +467,11 @@
 {% block body %}
 
 {# ── Hero with Background Image ──────────────────────────────────────────── #}
-<section class="hero">
     <div class="hero-bg">
-        <img src="{{ asset('images/cadastro.webp') }}" alt="" loading="eager" fetchpriority="high" width="1452" height="941">
+        <picture>
+            <source srcset="{{ asset('images/cadastro-mobile.webp') }}" media="(max-width: 768px)">
+            <img src="{{ asset('images/cadastro.webp') }}" alt="" loading="eager" fetchpriority="high" width="1600" height="900">
+        </picture>
     </div>
     <div class="hero-overlay"></div>
     <div class="hero-grid-pattern"></div>
