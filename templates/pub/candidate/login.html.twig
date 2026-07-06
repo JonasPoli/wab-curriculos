@@ -8,7 +8,9 @@
         {# ── Painel esquerdo ─────────────────────────────────────────────── #}
         <div class="auth-panel-left">
             <div class="auth-panel-left-content">
-                {% if tenant.logo %}
+                {% if tenant.darkLogo %}
+                    <img src="/uploads/tenants/dark-logo/{{ tenant.darkLogo }}" alt="{{ tenant.name }}" class="auth-panel-logo" style="filter:none">
+                {% elseif tenant.logo %}
                     <img src="/uploads/tenants/logo/{{ tenant.logo }}" alt="{{ tenant.name }}" class="auth-panel-logo">
                 {% else %}
                     <div style="font-family:'Plus Jakarta Sans',sans-serif;font-size:1.3rem;font-weight:800;margin-bottom:1.5rem;opacity:.9">

@@ -5,6 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}Trabalhe Conosco{% endblock %}{% if tenant is defined and tenant %} · {{ tenant.name }}{% endif %}</title>
     <meta name="description" content="{% block meta_description %}Cadastre seu currículo e faça parte do nosso time.{% endblock %}">
+    {% if tenant is defined and tenant and tenant.favicon %}
+        <link rel="icon" type="image/x-icon" href="/uploads/tenants/favicon/{{ tenant.favicon }}">
+    {% endif %}
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@600;700;800&display=swap" rel="stylesheet">
@@ -732,7 +735,7 @@
             {% if tenant is defined and tenant and tenant.logo %}
                 <img src="/uploads/tenants/logo/{{ tenant.logo }}" alt="{{ tenant.name }}" class="pub-logo-light">
                 {% if tenant.darkLogo %}
-                    <img src="/uploads/tenants/logo/{{ tenant.darkLogo }}" alt="{{ tenant.name }}" class="pub-logo-dark">
+                    <img src="/uploads/tenants/dark-logo/{{ tenant.darkLogo }}" alt="{{ tenant.name }}" class="pub-logo-dark">
                 {% endif %}
             {% else %}
                 <i class="fa-solid fa-briefcase" style="color:var(--p);font-size:1.2rem"></i>
