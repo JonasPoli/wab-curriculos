@@ -71,7 +71,7 @@ class ResetPasswordController extends AbstractController
                     ;
                     $this->mailer->send($emailMessage);
                 } catch (\Exception $e) {
-                    // Silently fail — security: don't reveal if email exists
+                    error_log('Mailer Error (Admin Reset Password): ' . $e->getMessage());
                 }
             }
 

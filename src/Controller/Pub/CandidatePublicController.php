@@ -107,7 +107,9 @@ class CandidatePublicController extends AbstractController
                         'dashboardUrl' => $dashboardUrl,
                     ]);
                 $mailer->send($welcomeEmail);
-            } catch (\Throwable) {}
+            } catch (\Throwable $e) {
+                error_log('Mailer Error (Candidate Welcome Email): ' . $e->getMessage());
+            }
 
             $security->login($candidate, 'security.authenticator.form_login.candidate');
 
@@ -170,7 +172,9 @@ class CandidatePublicController extends AbstractController
                             'expiresAt' => $expiresAt,
                         ]);
                     $mailer->send($emailMessage);
-                } catch (\Throwable) {}
+                } catch (\Throwable $e) {
+                    error_log('Mailer Error (Candidate Reset Password): ' . $e->getMessage());
+                }
             }
 
             $this->addFlash('success', 'Se este e-mail estiver cadastrado, você receberá um link de recuperação em breve.');
