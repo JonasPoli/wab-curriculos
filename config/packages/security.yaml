@@ -57,6 +57,8 @@ security:
         - { path: ^/trabalhe-conosco/esqueci-a-senha, roles: PUBLIC_ACCESS }
         - { path: ^/trabalhe-conosco/redefinir-senha, roles: PUBLIC_ACCESS }
         - { path: ^/trabalhe-conosco/conta-excluida, roles: PUBLIC_ACCESS }
+        - { path: ^/trabalhe-conosco/termos, roles: PUBLIC_ACCESS }
+        - { path: ^/trabalhe-conosco/privacidade, roles: PUBLIC_ACCESS }
         - { path: ^/trabalhe-conosco, roles: ROLE_CANDIDATE }
         - { path: ^/esqueci-a-senha, roles: PUBLIC_ACCESS }
         - { path: ^/redefinir-senha, roles: PUBLIC_ACCESS }
