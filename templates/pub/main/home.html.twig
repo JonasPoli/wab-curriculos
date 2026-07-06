@@ -83,15 +83,23 @@
         border: 1px solid rgba(255,255,255,.15);
     }
     .hero-badge-dot {
+        position: relative;
         width: 7px; height: 7px;
         border-radius: 50%;
         background: #34d399;
-        box-shadow: 0 0 8px #34d399;
-        animation: pulse-dot 2s ease-in-out infinite;
     }
-    @keyframes pulse-dot {
-        0%, 100% { box-shadow: 0 0 4px #34d399; }
-        50% { box-shadow: 0 0 14px #34d399, 0 0 28px rgba(52,211,153,.3); }
+    .hero-badge-dot::after {
+        content: '';
+        position: absolute;
+        inset: -4px;
+        border-radius: 50%;
+        border: 2px solid #34d399;
+        opacity: 1;
+        animation: pulse-ring 2s cubic-bezier(.215, .610, .355, 1) infinite;
+    }
+    @keyframes pulse-ring {
+        0% { transform: scale(.3); opacity: 1; }
+        80%, 100% { transform: scale(2); opacity: 0; }
     }
     .hero h1 {
         font-family: 'Plus Jakarta Sans', sans-serif;
@@ -127,7 +135,7 @@
         gap: 10px;
         padding: 16px 40px;
         background: #fff;
-        color: var(--p);
+        color: var(--p-dark);
         font-weight: 700;
         font-size: 1rem;
         border-radius: 14px;
@@ -461,7 +469,7 @@
 {# ── Hero with Background Image ──────────────────────────────────────────── #}
 <section class="hero">
     <div class="hero-bg">
-        <img src="{{ asset('images/cadastro.png') }}" alt="" loading="eager">
+        <img src="{{ asset('images/cadastro.webp') }}" alt="" loading="eager" fetchpriority="high" width="1452" height="941">
     </div>
     <div class="hero-overlay"></div>
     <div class="hero-grid-pattern"></div>
@@ -569,7 +577,7 @@
 {# ── Split Section: Currículo ─────────────────────────────────────────── #}
 <section class="split-section" style="border-top:1px solid var(--border);border-bottom:1px solid var(--border)">
     <div class="split-image reveal-left">
-        <img src="{{ asset('images/curriculo01.png') }}" alt="Pessoa preenchendo currículo" loading="lazy">
+        <img src="{{ asset('images/curriculo01.webp') }}" alt="Pessoa preenchendo currículo" loading="lazy" width="900" height="506">
     </div>
     <div class="split-content">
         <div class="section-eyebrow reveal reveal-delay-1">
@@ -635,7 +643,7 @@
 {# ── Split Section: Seleção (reversed) ────────────────────────────────── #}
 <section class="split-section reverse" style="border-bottom:1px solid var(--border)">
     <div class="split-image reveal-right">
-        <img src="{{ asset('images/selecão.png') }}" alt="Recrutadora analisando currículos" loading="lazy">
+        <img src="{{ asset('images/selecao.webp') }}" alt="Recrutadora analisando currículos" loading="lazy" width="900" height="506">
     </div>
     <div class="split-content">
         <div class="section-eyebrow reveal reveal-delay-1">

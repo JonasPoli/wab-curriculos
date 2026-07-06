@@ -11,14 +11,25 @@
     {% endif %}
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@600;700;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
+    <link rel="preload" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@600;700;800&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@600;700;800&display=swap"></noscript>
+    <link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <noscript><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"></noscript>
 
     <style>
+        @font-face {
+            font-family: 'Font Awesome 6 Free';
+            font-style: normal;
+            font-weight: 900;
+            font-display: swap;
+            src: url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/webfonts/fa-solid-900.woff2') format('woff2');
+        }
         /* ── CSS Variables – injetadas pelo tenant ────────────────────────── */
         :root {
             --p:   {{ (tenant is defined and tenant and tenant.primaryColor)   ? tenant.primaryColor   : '#4f46e5' }};
             --s:   {{ (tenant is defined and tenant and tenant.secondaryColor)  ? tenant.secondaryColor : '#f59e0b' }};
+            --p-dark: color-mix(in srgb, var(--p), #000 25%);
         }
         [data-theme="light"] {
             --bg:        #f4f6fb;
@@ -27,7 +38,7 @@
             --border:    #e2e8f0;
             --text:      #0f172a;
             --text2:     #334155;
-            --muted:     #64748b;
+            --muted:     #475569;
             --header-bg: rgba(255,255,255,0.85);
             --logo-filter: none;
         }
@@ -43,6 +54,7 @@
             --muted:     #8b949e;
             --header-bg: rgba(22,27,34,0.9);
             --logo-filter: brightness(0) invert(1);
+            --p-dark: color-mix(in srgb, var(--p), #fff 20%);
         }
 
         /* ── Base ─────────────────────────────────────────────────────────── */
@@ -91,6 +103,7 @@
         }
         .pub-brand img {
             height: 36px;
+            width: auto;
             object-fit: contain;
         }
         .pub-logo-dark { display: none; }
@@ -116,11 +129,11 @@
         .pub-nav a:hover { background: var(--surface2); color: var(--text); }
         .pub-nav .nav-active { color: var(--text); background: var(--surface2); }
         .pub-nav .nav-cta {
-            background: var(--p);
+            background: var(--p-dark);
             color: #fff !important;
             font-weight: 600;
         }
-        .pub-nav .nav-cta:hover { opacity: .88; background: var(--p); }
+        .pub-nav .nav-cta:hover { opacity: .88; background: var(--p-dark); }
 
         /* Theme toggle */
         .theme-toggle {
@@ -740,9 +753,9 @@
     <div class="pub-header-inner">
         <a href="{{ path('pub_home') }}" class="pub-brand">
             {% if tenant is defined and tenant and tenant.logo %}
-                <img src="/uploads/tenants/logo/{{ tenant.logo }}" alt="{{ tenant.name }}" class="pub-logo-light">
+                <img src="/uploads/tenants/logo/{{ tenant.logo }}" alt="{{ tenant.name }}" class="pub-logo-light" width="150" height="36">
                 {% if tenant.darkLogo %}
-                    <img src="/uploads/tenants/dark-logo/{{ tenant.darkLogo }}" alt="{{ tenant.name }}" class="pub-logo-dark">
+                    <img src="/uploads/tenants/dark-logo/{{ tenant.darkLogo }}" alt="{{ tenant.name }}" class="pub-logo-dark" width="150" height="36">
                 {% endif %}
             {% else %}
                 <i class="fa-solid fa-briefcase" style="color:var(--p);font-size:1.2rem"></i>
@@ -812,7 +825,7 @@
     <a href="{{ path('pub_candidate_delete_account') }}">Excluir minha conta</a>
     {% endif %}
     <span class="dot">·</span>
-    <span>Powered by <a href="https://wab.com.br" target="_blank" rel="noopener" style="color:var(--p)">WAB</a></span>
+    <span>Powered by <a href="https://wab.com.br" target="_blank" rel="noopener" style="color:var(--p-dark);text-decoration:underline;font-weight:600">WAB</a></span>
 </footer>
 
 {{ importmap('app') }}
