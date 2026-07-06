@@ -88,6 +88,21 @@ class Tenant
     #[ORM\Column(type: Types::TEXT, nullable: true)]
     private ?string $privacyPolicyHtml = null;
 
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $heroTitle = null;
+
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $heroSubtitle = null;
+
+    #[ORM\Column(type: Types::TEXT, nullable: true)]
+    private ?string $heroDescription = null;
+
+    #[ORM\Column(length: 100, nullable: true)]
+    private ?string $ctaText = null;
+
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $ctaSubtext = null;
+
     #[ORM\Column(type: Types::DATETIME_MUTABLE, nullable: true)]
     private ?\DateTime $updatedAt = null;
 
@@ -357,6 +372,21 @@ class Tenant
         $this->privacyPolicyHtml = $privacyPolicyHtml;
         return $this;
     }
+
+    public function getHeroTitle(): ?string { return $this->heroTitle; }
+    public function setHeroTitle(?string $heroTitle): static { $this->heroTitle = $heroTitle; return $this; }
+
+    public function getHeroSubtitle(): ?string { return $this->heroSubtitle; }
+    public function setHeroSubtitle(?string $heroSubtitle): static { $this->heroSubtitle = $heroSubtitle; return $this; }
+
+    public function getHeroDescription(): ?string { return $this->heroDescription; }
+    public function setHeroDescription(?string $heroDescription): static { $this->heroDescription = $heroDescription; return $this; }
+
+    public function getCtaText(): ?string { return $this->ctaText; }
+    public function setCtaText(?string $ctaText): static { $this->ctaText = $ctaText; return $this; }
+
+    public function getCtaSubtext(): ?string { return $this->ctaSubtext; }
+    public function setCtaSubtext(?string $ctaSubtext): static { $this->ctaSubtext = $ctaSubtext; return $this; }
 
     public function getUpdatedAt(): ?\DateTime
     {

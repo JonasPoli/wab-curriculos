@@ -1,7 +1,704 @@
 {% extends 'pub/base.html.twig' %}
 
+{% set _t = tenant is defined and tenant ? tenant : null %}
+
+{% block title %}{{ _t ? _t.seoTitle|default('Trabalhe Conosco') : 'Trabalhe Conosco' }}{% endblock %}
+{% block meta_description %}{{ _t ? _t.seoDescription|default('Cadastre seu currículo e faça parte do nosso time.') : 'Cadastre seu currículo e faça parte do nosso time.' }}{% endblock %}
+
+{% block stylesheets %}
+<style>
+    .hero {
+        position: relative;
+        overflow: hidden;
+        min-height: 92vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    .hero-bg {
+        position: absolute;
+        inset: 0;
+        z-index: 0;
+    }
+    .hero-bg img {
+        width: 100%; height: 100%;
+        object-fit: cover;
+        display: block;
+    }
+    .hero-overlay {
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(160deg, rgba(0,0,0,.72) 0%, color-mix(in srgb, var(--p) 55%, rgba(0,0,0,.8)) 100%);
+        z-index: 1;
+    }
+    .hero-grid-pattern {
+        position: absolute;
+        inset: 0; z-index: 2;
+        background-image:
+            linear-gradient(rgba(255,255,255,.04) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(255,255,255,.04) 1px, transparent 1px);
+        background-size: 60px 60px;
+        mask-image: radial-gradient(ellipse 80% 60% at 50% 40%, black, transparent);
+    }
+    .hero-particles {
+        position: absolute;
+        inset: 0; z-index: 2;
+        overflow: hidden;
+    }
+    .hero-particle {
+        position: absolute;
+        width: 4px; height: 4px;
+        border-radius: 50%;
+        background: rgba(255,255,255,.15);
+        animation: particle-float linear infinite;
+    }
+    @keyframes particle-float {
+        0% { transform: translateY(100vh) rotate(0deg); opacity: 0; }
+        10% { opacity: 1; }
+        90% { opacity: 1; }
+        100% { transform: translateY(-10vh) rotate(720deg); opacity: 0; }
+    }
+    .hero-inner {
+        position: relative;
+        z-index: 3;
+        max-width: 800px;
+        margin: 0 auto;
+        text-align: center;
+        padding: 6rem 1.5rem 5rem;
+        color: #fff;
+    }
+    .hero-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 8px 20px;
+        border-radius: 999px;
+        background: rgba(255,255,255,.1);
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+        font-size: .8rem;
+        font-weight: 600;
+        margin-bottom: 2rem;
+        letter-spacing: .02em;
+        border: 1px solid rgba(255,255,255,.15);
+    }
+    .hero-badge-dot {
+        width: 7px; height: 7px;
+        border-radius: 50%;
+        background: #34d399;
+        box-shadow: 0 0 8px #34d399;
+        animation: pulse-dot 2s ease-in-out infinite;
+    }
+    @keyframes pulse-dot {
+        0%, 100% { box-shadow: 0 0 4px #34d399; }
+        50% { box-shadow: 0 0 14px #34d399, 0 0 28px rgba(52,211,153,.3); }
+    }
+    .hero h1 {
+        font-family: 'Plus Jakarta Sans', sans-serif;
+        font-size: clamp(2.2rem, 5.5vw, 3.5rem);
+        font-weight: 800;
+        line-height: 1.1;
+        margin-bottom: 1.5rem;
+        letter-spacing: -.03em;
+    }
+    .hero-highlight {
+        background: linear-gradient(135deg, var(--s), #fff);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }
+    .hero p {
+        font-size: 1.15rem;
+        line-height: 1.7;
+        opacity: .85;
+        max-width: 620px;
+        margin: 0 auto 2.5rem;
+    }
+    .hero-actions {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 1rem;
+        flex-wrap: wrap;
+    }
+    .hero-cta {
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        padding: 16px 40px;
+        background: #fff;
+        color: var(--p);
+        font-weight: 700;
+        font-size: 1rem;
+        border-radius: 14px;
+        text-decoration: none;
+        transition: all .3s cubic-bezier(.16,1,.3,1);
+        box-shadow: 0 8px 30px rgba(0,0,0,.25), 0 0 0 1px rgba(255,255,255,.1);
+    }
+    .hero-cta:hover {
+        transform: translateY(-4px) scale(1.03);
+        box-shadow: 0 20px 56px rgba(0,0,0,.35), 0 0 60px rgba(255,255,255,.1);
+    }
+    .hero-cta-secondary {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 15px 32px;
+        background: rgba(255,255,255,.08);
+        border: 1.5px solid rgba(255,255,255,.2);
+        color: #fff;
+        font-weight: 600;
+        font-size: .92rem;
+        border-radius: 14px;
+        text-decoration: none;
+        transition: all .3s cubic-bezier(.16,1,.3,1);
+        backdrop-filter: blur(6px);
+    }
+    .hero-cta-secondary:hover {
+        background: rgba(255,255,255,.18);
+        border-color: rgba(255,255,255,.4);
+        transform: translateY(-3px);
+        box-shadow: 0 12px 36px rgba(0,0,0,.2);
+    }
+    .hero-stats {
+        display: flex;
+        justify-content: center;
+        gap: 3rem;
+        margin-top: 3.5rem;
+        padding-top: 2.5rem;
+        border-top: 1px solid rgba(255,255,255,.1);
+    }
+    .hero-stat { text-align: center; }
+    .hero-stat-value {
+        font-family: 'Plus Jakarta Sans', sans-serif;
+        font-size: 1.7rem;
+        font-weight: 800;
+        line-height: 1;
+        margin-bottom: .3rem;
+    }
+    .hero-stat-label {
+        font-size: .78rem;
+        opacity: .6;
+        font-weight: 500;
+    }
+    .hero-scroll-hint {
+        position: absolute;
+        bottom: 2rem;
+        left: 50%;
+        transform: translateX(-50%);
+        z-index: 3;
+        color: rgba(255,255,255,.5);
+        font-size: .75rem;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 6px;
+        animation: bounce-hint 2s ease-in-out infinite;
+    }
+    @keyframes bounce-hint {
+        0%, 100% { transform: translateX(-50%) translateY(0); }
+        50% { transform: translateX(-50%) translateY(8px); }
+    }
+
+    .section {
+        max-width: 1100px;
+        margin: 0 auto;
+        padding: 5rem 1.5rem;
+    }
+    .section-eyebrow {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        font-size: .72rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: .1em;
+        color: var(--p);
+        margin-bottom: .75rem;
+    }
+    .section-title {
+        font-family: 'Plus Jakarta Sans', sans-serif;
+        font-size: 1.8rem;
+        font-weight: 800;
+        text-align: center;
+        margin-bottom: .5rem;
+        color: var(--text);
+        letter-spacing: -.02em;
+    }
+    .section-subtitle {
+        text-align: center;
+        font-size: .92rem;
+        color: var(--muted);
+        margin-bottom: 3rem;
+        max-width: 560px;
+        margin-left: auto;
+        margin-right: auto;
+        line-height: 1.65;
+    }
+
+    .features-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 1.25rem;
+    }
+    .feature-card {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 16px;
+        padding: 2rem;
+        position: relative;
+        overflow: hidden;
+        cursor: default;
+    }
+    .feature-card::before {
+        content: '';
+        position: absolute;
+        top: 0; left: 0; right: 0;
+        height: 3px;
+        background: var(--card-accent, var(--p));
+        transform: scaleX(0);
+        transform-origin: left;
+        transition: transform .4s cubic-bezier(.16,1,.3,1);
+    }
+    .feature-card:hover::before { transform: scaleX(1); }
+    .feature-icon {
+        width: 52px; height: 52px;
+        border-radius: 14px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.2rem;
+        margin-bottom: 1.25rem;
+        transition: transform .4s cubic-bezier(.16,1,.3,1);
+    }
+    .feature-card:hover .feature-icon {
+        transform: scale(1.15) rotate(5deg);
+    }
+    .feature-card h3 {
+        font-weight: 700;
+        font-size: 1rem;
+        margin-bottom: .5rem;
+        color: var(--text);
+    }
+    .feature-card p {
+        font-size: .86rem;
+        color: var(--muted);
+        line-height: 1.65;
+    }
+
+    .steps-section {
+        background: var(--surface);
+        border-top: 1px solid var(--border);
+        border-bottom: 1px solid var(--border);
+    }
+    .steps-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 2rem;
+        position: relative;
+    }
+    .steps-grid::before {
+        content: '';
+        position: absolute;
+        top: 32px;
+        left: 15%; right: 15%;
+        height: 2px;
+        background: linear-gradient(to right, transparent, var(--border), transparent);
+    }
+    .step-card {
+        text-align: center;
+        padding: 0 1rem;
+        position: relative;
+        cursor: default;
+    }
+    .step-number {
+        width: 56px; height: 56px;
+        border-radius: 50%;
+        background: var(--bg);
+        border: 2px solid var(--border);
+        color: var(--p);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-family: 'Plus Jakarta Sans', sans-serif;
+        font-size: 1.3rem;
+        font-weight: 800;
+        margin: 0 auto 1.25rem;
+        position: relative; z-index: 1;
+        transition: all .35s cubic-bezier(.16,1,.3,1);
+    }
+    .step-card:hover .step-number {
+        background: var(--p);
+        color: #fff;
+        border-color: var(--p);
+        transform: scale(1.15);
+        box-shadow: 0 8px 28px color-mix(in srgb, var(--p) 40%, transparent);
+    }
+    .step-card h3 {
+        font-weight: 700;
+        font-size: .95rem;
+        margin-bottom: .5rem;
+        color: var(--text);
+    }
+    .step-card p {
+        font-size: .84rem;
+        color: var(--muted);
+        line-height: 1.65;
+    }
+
+    .cta-section {
+        position: relative;
+        overflow: hidden;
+        background: linear-gradient(135deg, color-mix(in srgb, var(--p) 10%, var(--bg)), color-mix(in srgb, var(--p) 3%, var(--bg)));
+        border-top: 1px solid var(--border);
+        border-bottom: 1px solid var(--border);
+    }
+    .cta-inner {
+        max-width: 700px;
+        margin: 0 auto;
+        text-align: center;
+        padding: 5rem 1.5rem;
+        position: relative; z-index: 1;
+    }
+    .cta-inner h2 {
+        font-family: 'Plus Jakarta Sans', sans-serif;
+        font-size: 1.6rem;
+        font-weight: 800;
+        margin-bottom: .75rem;
+        color: var(--text);
+        letter-spacing: -.02em;
+    }
+    .cta-inner p {
+        font-size: .92rem;
+        color: var(--muted);
+        margin-bottom: 2rem;
+        line-height: 1.65;
+    }
+    .cta-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        padding: 16px 40px;
+        background: var(--p);
+        color: #fff;
+        font-weight: 700;
+        font-size: 1rem;
+        border-radius: 14px;
+        text-decoration: none;
+        transition: all .3s cubic-bezier(.16,1,.3,1);
+        border: none;
+        box-shadow: 0 6px 24px color-mix(in srgb, var(--p) 35%, transparent);
+    }
+    .cta-btn:hover {
+        transform: translateY(-4px) scale(1.03);
+        box-shadow: 0 16px 48px color-mix(in srgb, var(--p) 50%, transparent);
+    }
+
+    .info-section {
+        max-width: 1100px;
+        margin: 0 auto;
+        padding: 3rem 1.5rem;
+    }
+    .info-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+        gap: 1rem;
+    }
+    .info-item {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        padding: 1.25rem;
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 14px;
+        transition: all .35s cubic-bezier(.16,1,.3,1);
+        position: relative;
+        overflow: hidden;
+    }
+    .info-item::after {
+        content: '';
+        position: absolute;
+        bottom: 0; left: 0;
+        width: 0; height: 3px;
+        background: var(--p);
+        transition: width .4s cubic-bezier(.16,1,.3,1);
+    }
+    .info-item:hover::after { width: 100%; }
+    .info-item:hover {
+        border-color: color-mix(in srgb, var(--p) 35%, transparent);
+        box-shadow: 0 8px 24px rgba(0,0,0,.08);
+        transform: translateY(-3px);
+    }
+    .info-icon {
+        width: 40px; height: 40px;
+        border-radius: 10px;
+        background: color-mix(in srgb, var(--p) 10%, transparent);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+        transition: transform .35s cubic-bezier(.16,1,.3,1);
+    }
+    .info-item:hover .info-icon {
+        transform: scale(1.12) rotate(5deg);
+    }
+    .info-icon i { color: var(--p); font-size: .95rem; }
+    .info-item span { font-size: .88rem; color: var(--text2); }
+
+    @media (max-width: 700px) {
+        .steps-grid { grid-template-columns: 1fr; }
+        .steps-grid::before { display: none; }
+        .hero { min-height: 80vh; }
+        .hero-stats { gap: 1.5rem; flex-wrap: wrap; }
+        .hero-actions { flex-direction: column; }
+    }
+</style>
+{% endblock %}
+
 {% block body %}
 
-home
+{# ── Hero with Background Image ──────────────────────────────────────────── #}
+<section class="hero">
+    <div class="hero-bg">
+        <img src="{{ asset('images/cadastro.png') }}" alt="" loading="eager">
+    </div>
+    <div class="hero-overlay"></div>
+    <div class="hero-grid-pattern"></div>
+    <div class="hero-particles">
+        <div class="hero-particle" style="left:10%;width:3px;height:3px;animation-duration:12s;animation-delay:0s"></div>
+        <div class="hero-particle" style="left:25%;width:5px;height:5px;animation-duration:18s;animation-delay:2s"></div>
+        <div class="hero-particle" style="left:45%;width:3px;height:3px;animation-duration:14s;animation-delay:4s"></div>
+        <div class="hero-particle" style="left:65%;width:4px;height:4px;animation-duration:16s;animation-delay:1s"></div>
+        <div class="hero-particle" style="left:80%;width:3px;height:3px;animation-duration:20s;animation-delay:3s"></div>
+        <div class="hero-particle" style="left:92%;width:5px;height:5px;animation-duration:15s;animation-delay:5s"></div>
+    </div>
+    <div class="hero-inner">
+        <div class="reveal reveal-delay-1">
+            <div class="hero-badge">
+                <span class="hero-badge-dot"></span>
+                {% if _t %}{{ _t.name }}{% else %}Trabalhe Conosco{% endif %} — Vagas Abertas
+            </div>
+        </div>
+        <h1 class="reveal reveal-delay-2">{{ _t and _t.heroTitle ? _t.heroTitle : 'Faça parte do nosso <span class="hero-highlight">time de talentos</span>' }}</h1>
+        <p class="reveal reveal-delay-3">{{ _t and _t.heroSubtitle ? _t.heroSubtitle : 'Cadastre seu currículo e venha construir uma carreira de sucesso. Estamos sempre em busca de profissionais que fazem a diferença.' }}</p>
+        <div class="hero-actions reveal reveal-delay-4">
+            <a href="{{ path('pub_candidate_register') }}" class="hero-cta">
+                <i class="fa-solid fa-arrow-right"></i>
+                {{ _t and _t.ctaText ? _t.ctaText : 'Cadastre seu currículo' }}
+            </a>
+            <a href="{{ path('pub_candidate_login') }}" class="hero-cta-secondary">
+                <i class="fa-solid fa-right-to-bracket"></i>
+                Já tenho cadastro
+            </a>
+        </div>
+        {% if _t %}
+        <div class="hero-stats reveal reveal-delay-5">
+            <div class="hero-stat">
+                <div class="hero-stat-value">100%</div>
+                <div class="hero-stat-label">Gratuito</div>
+            </div>
+            <div class="hero-stat">
+                <div class="hero-stat-value">LGPD</div>
+                <div class="hero-stat-label">Dados protegidos</div>
+            </div>
+            <div class="hero-stat">
+                <div class="hero-stat-value">5 min</div>
+                <div class="hero-stat-label">Tempo de cadastro</div>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+    <div class="hero-scroll-hint">
+        <span>Role para baixo</span>
+        <i class="fa-solid fa-chevron-down"></i>
+    </div>
+</section>
+
+{# ── About Section ───────────────────────────────────────────────────────── #}
+{% if _t and _t.heroDescription %}
+<section class="section">
+    <div style="text-align:center" class="reveal">
+        <div class="section-eyebrow">
+            <i class="fa-solid fa-building"></i>
+            Sobre {{ _t.name }}
+        </div>
+    </div>
+    <h2 class="section-title reveal reveal-delay-1">Conheça nossa história</h2>
+    <div class="reveal reveal-delay-2" style="max-width:700px;margin:0 auto;font-size:.92rem;color:var(--text2);line-height:1.75;text-align:center">
+        {{ _t.heroDescription|nl2br }}
+    </div>
+</section>
+{% endif %}
+
+{# ── Features Section ────────────────────────────────────────────────────── #}
+<section class="section">
+    <div style="text-align:center" class="reveal">
+        <div class="section-eyebrow">
+            <i class="fa-solid fa-star"></i>
+            Diferenciais
+        </div>
+    </div>
+    <h2 class="section-title reveal reveal-delay-1">Por que trabalhar conosco?</h2>
+    <p class="section-subtitle reveal reveal-delay-2">Valorizamos quem se dedica e busca crescimento. Confira os diferenciais de fazer parte da nossa equipe.</p>
+    <div class="features-grid">
+        <div class="feature-card hover-lift hover-glow hover-icon-bounce reveal reveal-delay-1" style="--card-accent:#0891b2">
+            <div class="feature-icon" style="background:rgba(8,145,178,.1);color:#0891b2">
+                <i class="fa-solid fa-chart-line"></i>
+            </div>
+            <h3>Crescimento profissional</h3>
+            <p>Investimos no desenvolvimento dos nossos colaboradores com treinamentos e oportunidades reais de ascensão na carreira.</p>
+        </div>
+        <div class="feature-card hover-lift hover-glow hover-icon-bounce reveal reveal-delay-2" style="--card-accent:#059669">
+            <div class="feature-icon" style="background:rgba(5,150,105,.1);color:#059669">
+                <i class="fa-solid fa-shield-halved"></i>
+            </div>
+            <h3>Ambiente seguro e ético</h3>
+            <p>Seus dados são protegidos conforme a LGPD. Trabalhamos com total transparência e responsabilidade em todas as etapas.</p>
+        </div>
+        <div class="feature-card hover-lift hover-glow hover-icon-bounce reveal reveal-delay-3" style="--card-accent:#9333ea">
+            <div class="feature-icon" style="background:rgba(147,51,234,.1);color:#9333ea">
+                <i class="fa-solid fa-handshake"></i>
+            </div>
+            <h3>Respeito e valorização</h3>
+            <p>Acreditamos que cada profissional traz contribuições únicas. Aqui você é reconhecido pelo seu trabalho e dedicação.</p>
+        </div>
+    </div>
+</section>
+
+{# ── Split Section: Currículo ─────────────────────────────────────────── #}
+<section class="split-section" style="border-top:1px solid var(--border);border-bottom:1px solid var(--border)">
+    <div class="split-image reveal-left">
+        <img src="{{ asset('images/curriculo01.png') }}" alt="Pessoa preenchendo currículo" loading="lazy">
+    </div>
+    <div class="split-content">
+        <div class="section-eyebrow reveal reveal-delay-1">
+            <i class="fa-solid fa-file-lines"></i>
+            Cadastro simples
+        </div>
+        <h2 class="reveal reveal-delay-2">Complete seu cadastro em poucos minutos</h2>
+        <p class="reveal reveal-delay-3">Nosso sistema foi pensado para ser simples e objetivo. Preencha suas informações e deixe que a gente cuida do resto.</p>
+        <div class="split-features">
+            <div class="split-feature reveal reveal-delay-3">
+                <i class="fa-solid fa-circle-check"></i>
+                <span>Dados pessoais e de contato</span>
+            </div>
+            <div class="split-feature reveal reveal-delay-4">
+                <i class="fa-solid fa-circle-check"></i>
+                <span>Experiências profissionais</span>
+            </div>
+            <div class="split-feature reveal reveal-delay-5">
+                <i class="fa-solid fa-circle-check"></i>
+                <span>Formação acadêmica e disponibilidade</span>
+            </div>
+        </div>
+        <div class="reveal reveal-delay-6">
+            <a href="{{ path('pub_candidate_register') }}" class="cta-btn">
+                <i class="fa-solid fa-arrow-right"></i>
+                Começar agora
+            </a>
+        </div>
+    </div>
+</section>
+
+{# ── Steps Section ────────────────────────────────────────────────────── #}
+<section class="steps-section">
+    <div style="max-width:1100px;margin:0 auto;padding:5rem 1.5rem">
+        <div style="text-align:center" class="reveal">
+            <div class="section-eyebrow">
+                <i class="fa-solid fa-route"></i>
+                Passo a passo
+            </div>
+        </div>
+        <h2 class="section-title reveal reveal-delay-1">Como funciona</h2>
+        <p class="section-subtitle reveal reveal-delay-2">Em três passos simples você cadastra seu currículo e entra para o nosso banco de talentos.</p>
+        <div class="steps-grid">
+            <div class="step-card reveal reveal-delay-1">
+                <div class="step-number">1</div>
+                <h3>Crie sua conta</h3>
+                <p>Informe seus dados básicos e crie uma senha segura para acessar sua área pessoal.</p>
+            </div>
+            <div class="step-card reveal reveal-delay-2">
+                <div class="step-number">2</div>
+                <h3>Complete seu perfil</h3>
+                <p>Adicione experiências profissionais, formação acadêmica, disponibilidade e seu currículo em PDF.</p>
+            </div>
+            <div class="step-card reveal reveal-delay-3">
+                <div class="step-number">3</div>
+                <h3>Aguarde o contato</h3>
+                <p>Nosso time de recrutamento avaliará seu perfil e entrará em contato quando houver vagas compatíveis.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+{# ── Split Section: Seleção (reversed) ────────────────────────────────── #}
+<section class="split-section reverse" style="border-bottom:1px solid var(--border)">
+    <div class="split-image reveal-right">
+        <img src="{{ asset('images/selecão.png') }}" alt="Recrutadora analisando currículos" loading="lazy">
+    </div>
+    <div class="split-content">
+        <div class="section-eyebrow reveal reveal-delay-1">
+            <i class="fa-solid fa-magnifying-glass"></i>
+            Processo seletivo
+        </div>
+        <h2 class="reveal reveal-delay-2">Seu currículo nas mãos certas</h2>
+        <p class="reveal reveal-delay-3">Nossa equipe de recrutamento analisa cada perfil com atenção. Buscamos o melhor encaixe entre candidatos e oportunidades.</p>
+        <div class="split-features">
+            <div class="split-feature reveal reveal-delay-3">
+                <i class="fa-solid fa-eye"></i>
+                <span>Análise individualizada do seu perfil</span>
+            </div>
+            <div class="split-feature reveal reveal-delay-4">
+                <i class="fa-solid fa-bell"></i>
+                <span>Notificação quando surgir uma vaga compatível</span>
+            </div>
+            <div class="split-feature reveal reveal-delay-5">
+                <i class="fa-solid fa-lock"></i>
+                <span>Seus dados protegidos pela LGPD</span>
+            </div>
+        </div>
+    </div>
+</section>
+
+{# ── CTA Section ──────────────────────────────────────────────────────── #}
+<div class="cta-section">
+    <div class="cta-inner">
+        <h2 class="reveal">Pronto para dar o próximo passo na sua carreira?</h2>
+        <p class="reveal reveal-delay-1">Cadastre-se agora e faça parte do nosso banco de talentos. O processo é rápido, gratuito e seus dados estão protegidos pela LGPD.</p>
+        <div class="reveal reveal-delay-2">
+            <a href="{{ path('pub_candidate_register') }}" class="cta-btn">
+                <i class="fa-solid fa-user-plus"></i>
+                Cadastre-se gratuitamente
+            </a>
+        </div>
+    </div>
+</div>
+
+{# ── Contact Info ─────────────────────────────────────────────────────── #}
+{% if _t and (_t.contactEmail or _t.phone or _t.address) %}
+<div class="info-section">
+    <div class="info-grid">
+        {% if _t.contactEmail %}
+        <div class="info-item reveal reveal-delay-1">
+            <div class="info-icon"><i class="fa-solid fa-envelope"></i></div>
+            <span>{{ _t.contactEmail }}</span>
+        </div>
+        {% endif %}
+        {% if _t.phone %}
+        <div class="info-item reveal reveal-delay-2">
+            <div class="info-icon"><i class="fa-solid fa-phone"></i></div>
+            <span>{{ _t.phone }}</span>
+        </div>
+        {% endif %}
+        {% if _t.address %}
+        <div class="info-item reveal reveal-delay-3">
+            <div class="info-icon"><i class="fa-solid fa-location-dot"></i></div>
+            <span>{{ _t.address }}</span>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endif %}
 
 {% endblock %}

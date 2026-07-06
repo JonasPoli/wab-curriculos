@@ -20,7 +20,7 @@ class WorkExperiencePublicType extends AbstractType
             ->add('position', TextType::class, ['label' => 'Cargo'])
             ->add('startDate', DateType::class, ['label' => 'Data de início', 'widget' => 'single_text'])
             ->add('endDate', DateType::class, ['label' => 'Data de término', 'widget' => 'single_text', 'required' => false])
-            ->add('current', CheckboxType::class, ['label' => 'Trabalho aqui atualmente', 'required' => false])
+            ->add('currentJob', CheckboxType::class, ['label' => 'Trabalho aqui atualmente', 'required' => false])
             ->add('description', TextareaType::class, ['label' => 'Descrição das atividades', 'required' => false, 'attr' => ['rows' => 3]]);
     }
 

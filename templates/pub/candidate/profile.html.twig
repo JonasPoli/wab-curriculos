@@ -4,62 +4,188 @@
 {% block content %}
 {{ form_start(form, {attr: {novalidate: 'novalidate'}}) }}
 
-<div class="pub-card">
-    <div class="pub-card-title"><i class="fa-solid fa-user"></i> Dados pessoais</div>
-    <div class="pub-form-group">{{ form_label(form.name) }}{{ form_widget(form.name) }}{{ form_errors(form.name) }}</div>
-    <div class="pub-grid-2">
-        <div class="pub-form-group">{{ form_label(form.email) }}{{ form_widget(form.email) }}{{ form_errors(form.email) }}</div>
-        <div class="pub-form-group">{{ form_label(form.phone) }}{{ form_widget(form.phone) }}{{ form_errors(form.phone) }}</div>
+<div class="card" style="margin-bottom:1.25rem">
+    <div class="card-title"><i class="fa-solid fa-user" style="color:var(--p)"></i> Dados pessoais</div>
+    <div class="form-group">
+        <label class="form-label">{{ form_label(form.name) }}</label>
+        {{ form_widget(form.name, {attr: {class: 'form-control'}}) }}
+        {{ form_errors(form.name) }}
     </div>
-    <div class="pub-grid-2">
-        <div class="pub-form-group">{{ form_label(form.birthDate) }}{{ form_widget(form.birthDate) }}{{ form_errors(form.birthDate) }}</div>
-        <div class="pub-form-group">{{ form_label(form.state) }}{{ form_widget(form.state) }}{{ form_errors(form.state) }}</div>
+    <div class="form-row">
+        <div class="form-group">
+            <label class="form-label">E-mail</label>
+            {{ form_widget(form.email, {attr: {class: 'form-control'}}) }}
+            {{ form_errors(form.email) }}
+        </div>
+        <div class="form-group">
+            <label class="form-label">Telefone</label>
+            {{ form_widget(form.phone, {attr: {class: 'form-control'}}) }}
+            {{ form_errors(form.phone) }}
+        </div>
     </div>
-    <div class="pub-form-group">{{ form_label(form.city) }}{{ form_widget(form.city) }}{{ form_errors(form.city) }}</div>
-</div>
-
-<div class="pub-card">
-    <div class="pub-card-title"><i class="fa-solid fa-link"></i> Links profissionais</div>
-    <div class="pub-form-group">{{ form_label(form.linkedinUrl) }}{{ form_widget(form.linkedinUrl) }}{{ form_errors(form.linkedinUrl) }}</div>
-    <div class="pub-form-group">{{ form_label(form.lattesUrl) }}{{ form_widget(form.lattesUrl) }}{{ form_errors(form.lattesUrl) }}</div>
-</div>
-
-<div class="pub-card">
-    <div class="pub-card-title"><i class="fa-solid fa-id-card"></i> Registro profissional</div>
-    <div class="pub-grid-2">
-        <div class="pub-form-group">{{ form_label(form.councilName) }}{{ form_widget(form.councilName) }}{{ form_errors(form.councilName) }}</div>
-        <div class="pub-form-group">{{ form_label(form.registrationNumber) }}{{ form_widget(form.registrationNumber) }}{{ form_errors(form.registrationNumber) }}</div>
+    <div class="form-row">
+        <div class="form-group">
+            <label class="form-label">Data de nascimento</label>
+            {{ form_widget(form.birthDate, {attr: {class: 'form-control'}}) }}
+            {{ form_errors(form.birthDate) }}
+        </div>
+        <div class="form-group">
+            <label class="form-label">Estado (UF)</label>
+            {{ form_widget(form.state, {attr: {class: 'form-control', maxlength: 2}}) }}
+            {{ form_errors(form.state) }}
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="form-label">Cidade</label>
+        {{ form_widget(form.city, {attr: {class: 'form-control'}}) }}
+        {{ form_errors(form.city) }}
     </div>
 </div>
 
-<div class="pub-card">
-    <div class="pub-card-title"><i class="fa-solid fa-file-lines"></i> Resumo profissional</div>
-    <div class="pub-form-group">{{ form_label(form.professionalSummary) }}{{ form_widget(form.professionalSummary) }}{{ form_errors(form.professionalSummary) }}</div>
-    <div class="pub-form-group">{{ form_label(form.candidateMessage) }}{{ form_widget(form.candidateMessage) }}{{ form_errors(form.candidateMessage) }}</div>
+<div class="card" style="margin-bottom:1.25rem">
+    <div class="card-title"><i class="fa-solid fa-link" style="color:var(--p)"></i> Links profissionais</div>
+    <div class="form-group">
+        <label class="form-label">LinkedIn</label>
+        {{ form_widget(form.linkedinUrl, {attr: {class: 'form-control', placeholder: 'https://linkedin.com/in/seu-perfil'}}) }}
+        {{ form_errors(form.linkedinUrl) }}
+    </div>
+    <div class="form-group">
+        <label class="form-label">Lattes</label>
+        {{ form_widget(form.lattesUrl, {attr: {class: 'form-control', placeholder: 'http://lattes.cnpq.br/...'}}) }}
+        {{ form_errors(form.lattesUrl) }}
+    </div>
 </div>
 
-<div class="pub-card">
-    <div class="pub-card-title"><i class="fa-solid fa-file-contract"></i> Tipo de contrato</div>
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:.5rem">
+<div class="card" style="margin-bottom:1.25rem">
+    <div class="card-title"><i class="fa-solid fa-id-card" style="color:var(--p)"></i> Registro profissional</div>
+    <div class="form-row">
+        <div class="form-group">
+            <label class="form-label">Conselho</label>
+            {{ form_widget(form.councilName, {attr: {class: 'form-control', placeholder: 'Ex: COREN-SP, CRM-RJ'}}) }}
+            {{ form_errors(form.councilName) }}
+        </div>
+        <div class="form-group">
+            <label class="form-label">Numero de registro</label>
+            {{ form_widget(form.registrationNumber, {attr: {class: 'form-control'}}) }}
+            {{ form_errors(form.registrationNumber) }}
+        </div>
+    </div>
+</div>
+
+<div class="card" style="margin-bottom:1.25rem">
+    <div class="card-title"><i class="fa-solid fa-file-lines" style="color:var(--p)"></i> Resumo profissional</div>
+    <div class="form-group">
+        <label class="form-label">Resumo</label>
+        {{ form_widget(form.professionalSummary, {attr: {class: 'form-control', rows: 4, style: 'resize:vertical'}}) }}
+        {{ form_errors(form.professionalSummary) }}
+    </div>
+    <div class="form-group">
+        <label class="form-label">Mensagem ao recrutador</label>
+        {{ form_widget(form.candidateMessage, {attr: {class: 'form-control', rows: 3, style: 'resize:vertical'}}) }}
+        {{ form_errors(form.candidateMessage) }}
+    </div>
+</div>
+
+<div class="card" style="margin-bottom:1.25rem">
+    <div class="card-title"><i class="fa-solid fa-file-contract" style="color:var(--p)"></i> Tipo de contrato</div>
+    <div class="check-grid">
         {% for child in form.contractTypes %}
-            <label style="display:flex;align-items:center;gap:8px;padding:8px 12px;border:1.5px solid #e2e8f0;border-radius:8px;cursor:pointer;font-size:.875rem">
-                {{ form_widget(child, {attr: {style: 'accent-color:var(--pub-primary,#0044cc)'}}) }}
+            <label class="check-item">
+                {{ form_widget(child) }}
                 {{ form_label(child) }}
             </label>
         {% endfor %}
     </div>
 </div>
 
-<div class="pub-card">
-    <label style="display:flex;align-items:center;gap:10px;cursor:pointer;font-weight:500">
-        {{ form_widget(form.immediateStart, {attr: {style: 'width:18px;height:18px;accent-color:var(--pub-primary,#0044cc)'}}) }}
-        {{ form_label(form.immediateStart) }}
+<div class="card" style="margin-bottom:1.25rem">
+    <label class="check-item" style="border:none;padding:0">
+        {{ form_widget(form.immediateStart, {attr: {style: 'accent-color:var(--p)'}}) }}
+        Disponivel para inicio imediato
     </label>
 </div>
 
-<button type="submit" class="pub-btn-primary">
+<div class="card" style="margin-bottom:1.25rem">
+    <div class="card-title"><i class="fa-solid fa-file-pdf" style="color:var(--p)"></i> Curriculo em PDF</div>
+
+    {% if candidate.resumeFilename %}
+    <div style="display:flex;align-items:center;gap:12px;padding:12px 16px;background:color-mix(in srgb, var(--p) 6%, transparent);border:1.5px solid color-mix(in srgb, var(--p) 20%, transparent);border-radius:10px;margin-bottom:1rem">
+        <div style="width:40px;height:40px;border-radius:10px;background:color-mix(in srgb, var(--p) 12%, transparent);display:flex;align-items:center;justify-content:center;flex-shrink:0">
+            <i class="fa-solid fa-file-pdf" style="color:var(--p);font-size:1.1rem"></i>
+        </div>
+        <div style="flex:1;min-width:0">
+            <div style="font-size:.84rem;font-weight:600;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ candidate.resumeFilename }}</div>
+            <div style="font-size:.72rem;color:var(--muted)">Arquivo atual</div>
+        </div>
+        <span class="badge badge-success"><i class="fa-solid fa-check" style="font-size:.6rem"></i> Enviado</span>
+        <a href="{{ path('pub_candidate_resume_download') }}" class="btn btn-sm btn-secondary" style="margin-left:6px;text-decoration:none">
+            <i class="fa-solid fa-download"></i> Baixar
+        </a>
+    </div>
+    {% endif %}
+
+    <label id="dropzone" for="{{ form.resumeFile.vars.id }}" style="display:flex;flex-direction:column;align-items:center;gap:10px;padding:2rem 1.5rem;border:2px dashed var(--border);border-radius:12px;cursor:pointer;text-align:center;transition:all .2s;background:var(--surface2)">
+        <div style="width:52px;height:52px;border-radius:14px;background:color-mix(in srgb, var(--p) 10%, transparent);display:flex;align-items:center;justify-content:center">
+            <i class="fa-solid fa-cloud-arrow-up" style="color:var(--p);font-size:1.3rem"></i>
+        </div>
+        <div>
+            <div style="font-size:.88rem;font-weight:600;color:var(--text)" id="dropzone-text">
+                {% if candidate.resumeFilename %}Substituir curriculo{% else %}Enviar curriculo{% endif %}
+            </div>
+            <div style="font-size:.76rem;color:var(--muted);margin-top:2px">Arraste o PDF aqui ou clique para selecionar (max. 5 MB)</div>
+        </div>
+        <div id="dropzone-file" style="display:none;font-size:.82rem;font-weight:600;color:var(--p);margin-top:.25rem"></div>
+    </label>
+    <div style="display:none">{{ form_widget(form.resumeFile) }}</div>
+    {{ form_errors(form.resumeFile) }}
+</div>
+
+<button type="submit" class="btn btn-primary btn-full btn-lg">
     <i class="fa-solid fa-check"></i> Salvar dados pessoais
 </button>
 
 {{ form_end(form) }}
+
+{% block javascripts %}
+<script>
+(function() {
+    const input = document.getElementById('{{ form.resumeFile.vars.id }}');
+    const zone = document.getElementById('dropzone');
+    const fileLabel = document.getElementById('dropzone-file');
+    const text = document.getElementById('dropzone-text');
+
+    function showFile(name) {
+        fileLabel.textContent = name;
+        fileLabel.style.display = 'block';
+        text.textContent = 'Arquivo selecionado';
+        zone.style.borderColor = 'var(--p)';
+        zone.style.background = 'color-mix(in srgb, var(--p) 6%, transparent)';
+    }
+
+    input.addEventListener('change', function() {
+        if (this.files.length) showFile(this.files[0].name);
+    });
+
+    zone.addEventListener('dragover', function(e) {
+        e.preventDefault();
+        this.style.borderColor = 'var(--p)';
+        this.style.background = 'color-mix(in srgb, var(--p) 8%, transparent)';
+    });
+    zone.addEventListener('dragleave', function() {
+        if (!input.files.length) {
+            this.style.borderColor = 'var(--border)';
+            this.style.background = 'var(--surface2)';
+        }
+    });
+    zone.addEventListener('drop', function(e) {
+        e.preventDefault();
+        const file = e.dataTransfer.files[0];
+        if (file && file.type === 'application/pdf') {
+            input.files = e.dataTransfer.files;
+            showFile(file.name);
+        }
+    });
+})();
+</script>
+{% endblock %}
 {% endblock %}

@@ -11,13 +11,15 @@ use Symfony\Bridge\Twig\Mime\TemplatedEmail;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 use Symfony\Component\Mailer\MailerInterface;
 
+use App\Service\TenantContext;
+
 class MainController extends AbstractController
 {
     #[Route('/', name: 'pub_home')]
-    public function home(): Response
+    public function home(TenantContext $tenantContext): Response
     {
         return $this->render('pub/main/home.html.twig', [
-
+            'tenant' => $tenantContext->getTenant(),
         ]);
     }
 

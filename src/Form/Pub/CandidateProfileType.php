@@ -4,13 +4,16 @@ namespace App\Form\Pub;
 
 use App\Entity\Candidate;
 use Symfony\Component\Form\AbstractType;
+use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\DateType;
+use Symfony\Component\Form\Extension\Core\Type\FileType;
 use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\Extension\Core\Type\UrlType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
+use Symfony\Component\Validator\Constraints\File;
 
 class CandidateProfileType extends AbstractType
 {
@@ -47,16 +50,28 @@ class CandidateProfileType extends AbstractType
                 'multiple' => true,
                 'expanded' => true,
                 'choices'  => [
-                    'CLT'          => 'clt',
-                    'PJ'           => 'pj',
-                    'Freelancer'   => 'freelancer',
-                    'Temporário'   => 'temporario',
-                    'Estágio'      => 'estagio',
+                    'CLT'        => 'CLT',
+                    'PJ'         => 'PJ',
+                    'Estágio'    => 'Estágio',
+                    'Temporário' => 'Temporário',
+                    'Voluntário' => 'Voluntário',
                 ],
             ])
-            ->add('immediateStart', \Symfony\Component\Form\Extension\Core\Type\CheckboxType::class, [
+            ->add('immediateStart', CheckboxType::class, [
                 'label'    => 'Disponível para início imediato',
                 'required' => false,
+            ])
+            ->add('resumeFile', FileType::class, [
+                'label'    => 'Currículo em PDF',
+                'mapped'   => false,
+                'required' => false,
+                'constraints' => [
+                    new File([
+                        'maxSize'   => '5M',
+                        'mimeTypes' => ['application/pdf'],
+                        'mimeTypesMessage' => 'Envie um arquivo PDF válido (máx. 5 MB).',
+                    ]),
+                ],
             ]);
     }
 

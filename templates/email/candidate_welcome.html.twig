@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>Bem-vindo</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { background-color: #f1f5f9; font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; -webkit-text-size-adjust: 100%; }
+    </style>
+</head>
+<body>
+
+<table width="100%" cellpadding="0" cellspacing="0" border="0"
+       style="background-color:#f1f5f9; padding: 40px 16px;">
+    <tr>
+        <td align="center">
+
+            <table width="100%" cellpadding="0" cellspacing="0" border="0"
+                   style="max-width:520px; background-color:#ffffff; border:1px solid #e2e8f0; border-radius:16px; overflow:hidden;">
+
+                <tr>
+                    <td style="background: {{ tenant is defined and tenant and tenant.primaryColor ? tenant.primaryColor : '#4f46e5' }}; padding: 36px 40px 44px; text-align:center;">
+
+                        {% if tenant is defined and tenant and tenant.logo %}
+                            <img src="{{ absolute_url('/uploads/tenants/logo/' ~ tenant.logo) }}"
+                                 height="36" alt="{{ tenant.name }}"
+                                 style="filter:brightness(0) invert(1); display:inline-block; margin-bottom:20px;">
+                        {% endif %}
+
+                        <div style="display:inline-flex; align-items:center; justify-content:center; width:56px; height:56px; background:rgba(255,255,255,.15); border-radius:14px; margin-bottom:18px;">
+                            <img src="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6/svgs/solid/user-check.svg"
+                                 width="24" height="24" alt=""
+                                 style="filter:brightness(0) invert(1); display:block;">
+                        </div>
+
+                        <h1 style="color:#ffffff; font-size:22px; font-weight:700; margin:0 0 6px; letter-spacing:-0.3px;">
+                            Cadastro realizado
+                        </h1>
+                        <p style="color:rgba(255,255,255,.75); font-size:13px; margin:0;">
+                            {% if tenant is defined and tenant %}{{ tenant.name }}{% else %}Trabalhe Conosco{% endif %}
+                        </p>
+                    </td>
+                </tr>
+
+                <tr>
+                    <td style="padding: 32px 40px;">
+
+                        <p style="color:#1e293b; font-size:15px; line-height:1.65; margin-bottom:18px;">
+                            Ola, <strong>{{ candidate.name|split(' ')|first }}</strong>!
+                        </p>
+
+                        <p style="color:#64748b; font-size:14px; line-height:1.65; margin-bottom:24px;">
+                            Seu cadastro foi realizado com sucesso. Agora voce faz parte do nosso banco de talentos.
+                            Para aumentar suas chances, complete seu perfil com experiencias, formacao e curriculo em PDF.
+                        </p>
+
+                        <table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-bottom:24px;">
+                            <tr>
+                                <td align="center">
+                                    <a href="{{ dashboardUrl }}"
+                                       target="_blank"
+                                       style="display:inline-block; background: {{ tenant is defined and tenant and tenant.primaryColor ? tenant.primaryColor : '#4f46e5' }}; color:#ffffff; font-size:15px; font-weight:600; text-decoration:none; padding:13px 32px; border-radius:10px;">
+                                        Acessar minha conta
+                                    </a>
+                                </td>
+                            </tr>
+                        </table>
+
+                        <div style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:10px; padding:16px; margin-bottom:24px;">
+                            <p style="color:#1e293b; font-size:13px; font-weight:600; margin-bottom:10px;">Proximos passos:</p>
+                            <table cellpadding="0" cellspacing="0" border="0" style="width:100%">
+                                <tr>
+                                    <td style="padding:6px 0;color:#64748b;font-size:13px;line-height:1.5;">
+                                        <strong style="color:#1e293b;">1.</strong> Adicione suas experiencias profissionais
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td style="padding:6px 0;color:#64748b;font-size:13px;line-height:1.5;">
+                                        <strong style="color:#1e293b;">2.</strong> Informe sua formacao academica
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td style="padding:6px 0;color:#64748b;font-size:13px;line-height:1.5;">
+                                        <strong style="color:#1e293b;">3.</strong> Selecione sua disponibilidade e cargos de interesse
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td style="padding:6px 0;color:#64748b;font-size:13px;line-height:1.5;">
+                                        <strong style="color:#1e293b;">4.</strong> Envie seu curriculo em PDF
+                                    </td>
+                                </tr>
+                            </table>
+                        </div>
+
+                    </td>
+                </tr>
+
+                <tr>
+                    <td style="padding: 0 40px;">
+                        <hr style="border:none; border-top:1px solid #e2e8f0; margin:0;">
+                    </td>
+                </tr>
+
+                <tr>
+                    <td style="padding: 20px 40px; text-align:center;">
+                        <p style="color:#94a3b8; font-size:12px; line-height:1.6; margin:0;">
+                            &copy; {{ 'now'|date('Y') }}
+                            {% if tenant is defined and tenant %}{{ tenant.name }}{% else %}WAB Curriculos{% endif %}
+                            — Seus dados estao protegidos conforme a LGPD.
+                        </p>
+                    </td>
+                </tr>
+
+            </table>
+
+        </td>
+    </tr>
+</table>
+
+</body>
+</html>

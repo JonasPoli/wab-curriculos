@@ -13,6 +13,7 @@ use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Validator\Constraints\Length;
 use Symfony\Component\Validator\Constraints\NotBlank;
+use Symfony\Component\Validator\Constraints\IsTrue;
 
 class CandidateRegisterType extends AbstractType
 {
@@ -36,13 +37,17 @@ class CandidateRegisterType extends AbstractType
             ])
             ->add('lgpdConsent', CheckboxType::class, [
                 'label'    => 'Li e aceito os termos de uso e a política de privacidade.',
-                'mapped'   => false,
                 'required' => true,
+                'constraints' => [
+                    new IsTrue(['message' => 'Você deve aceitar os termos para prosseguir.']),
+                ],
             ]);
     }
 
     public function configureOptions(OptionsResolver $resolver): void
     {
-        $resolver->setDefaults(['data_class' => Candidate::class]);
+        $resolver->setDefaults([
+            'data_class' => Candidate::class,
+        ]);
     }
 }

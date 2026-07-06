@@ -1,28 +1,28 @@
 {% extends 'pub/candidate/layout.html.twig' %}
-{% block title %}Experiências Profissionais{% endblock %}
+{% block title %}Experiencias Profissionais{% endblock %}
 
 {% block content %}
 
 {% if candidate.workExperiences|length > 0 %}
-<div class="pub-card" style="margin-bottom:1.5rem">
-    <div class="pub-card-title"><i class="fa-solid fa-briefcase"></i> Suas experiências</div>
+<div class="card" style="margin-bottom:1.25rem">
+    <div class="card-title"><i class="fa-solid fa-briefcase" style="color:var(--p)"></i> Suas experiencias</div>
     {% for we in candidate.workExperiences %}
-    <div style="padding:1rem 0;border-bottom:1px solid #f1f5f9;display:flex;justify-content:space-between;align-items:flex-start">
+    <div class="list-item">
         <div>
-            <div style="font-weight:700">{{ we.position }}</div>
-            <div style="color:#475569;font-size:.88rem">{{ we.companyName }}</div>
-            <div style="font-size:.78rem;color:#94a3b8;margin-top:3px">
+            <div style="font-weight:700;font-size:.9rem;color:var(--text)">{{ we.position }}</div>
+            <div style="color:var(--text2);font-size:.85rem">{{ we.companyName }}</div>
+            <div style="font-size:.78rem;color:var(--muted);margin-top:3px">
                 {{ we.startDate ? we.startDate|date('m/Y') : '' }}
                 —
-                {{ we.current is defined and we.current ? 'Atual' : (we.endDate ? we.endDate|date('m/Y') : 'Atual') }}
+                {{ we.currentJob ? 'Atual' : (we.endDate ? we.endDate|date('m/Y') : 'Atual') }}
             </div>
             {% if we.description %}
-                <p style="font-size:.83rem;color:#64748b;margin-top:.5rem">{{ we.description }}</p>
+                <p style="font-size:.83rem;color:var(--muted);margin-top:.5rem;line-height:1.5">{{ we.description }}</p>
             {% endif %}
         </div>
-        <form method="post" action="{{ path('pub_candidate_experience_delete', {id: we.id}) }}" onsubmit="return confirm('Remover esta experiência?')">
+        <form method="post" action="{{ path('pub_candidate_experience_delete', {id: we.id}) }}" onsubmit="return confirm('Remover esta experiencia?')">
             <input type="hidden" name="_token" value="{{ csrf_token('delete_we_' ~ we.id) }}">
-            <button type="submit" style="background:none;border:none;color:#dc2626;cursor:pointer;padding:4px 8px;border-radius:6px;transition:background .15s" onmouseover="this.style.background='#fef2f2'" onmouseout="this.style.background='none'">
+            <button type="submit" class="btn btn-danger btn-sm">
                 <i class="fa-solid fa-trash"></i>
             </button>
         </form>
@@ -31,25 +31,47 @@
 </div>
 {% endif %}
 
-<div class="pub-card">
-    <div class="pub-card-title"><i class="fa-solid fa-plus"></i> Adicionar experiência</div>
+<div class="card">
+    <div class="card-title"><i class="fa-solid fa-plus" style="color:var(--p)"></i> Adicionar experiencia</div>
     {{ form_start(form, {attr: {novalidate: 'novalidate'}}) }}
-    <div class="pub-grid-2">
-        <div class="pub-form-group">{{ form_label(form.companyName) }}{{ form_widget(form.companyName) }}{{ form_errors(form.companyName) }}</div>
-        <div class="pub-form-group">{{ form_label(form.position) }}{{ form_widget(form.position) }}{{ form_errors(form.position) }}</div>
+    <div class="form-row">
+        <div class="form-group">
+            <label class="form-label">Empresa</label>
+            {{ form_widget(form.companyName, {attr: {class: 'form-control'}}) }}
+            {{ form_errors(form.companyName) }}
+        </div>
+        <div class="form-group">
+            <label class="form-label">Cargo</label>
+            {{ form_widget(form.position, {attr: {class: 'form-control'}}) }}
+            {{ form_errors(form.position) }}
+        </div>
     </div>
-    <div class="pub-grid-2">
-        <div class="pub-form-group">{{ form_label(form.startDate) }}{{ form_widget(form.startDate) }}{{ form_errors(form.startDate) }}</div>
-        <div class="pub-form-group">{{ form_label(form.endDate) }}{{ form_widget(form.endDate) }}{{ form_errors(form.endDate) }}</div>
+    <div class="form-row">
+        <div class="form-group">
+            <label class="form-label">Data de inicio</label>
+            {{ form_widget(form.startDate, {attr: {class: 'form-control'}}) }}
+            {{ form_errors(form.startDate) }}
+        </div>
+        <div class="form-group">
+            <label class="form-label">Data de saida</label>
+            {{ form_widget(form.endDate, {attr: {class: 'form-control'}}) }}
+            {{ form_errors(form.endDate) }}
+        </div>
     </div>
-    <div class="pub-form-group">
-        <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:.88rem">
-            {{ form_widget(form.current, {attr: {style: 'accent-color:var(--pub-primary,#0044cc)'}}) }}
-            {{ form_label(form.current) }}
+    <div class="form-group">
+        <label class="check-item" style="border:none;padding:0">
+            {{ form_widget(form.currentJob) }}
+            Emprego atual
         </label>
     </div>
-    <div class="pub-form-group">{{ form_label(form.description) }}{{ form_widget(form.description) }}{{ form_errors(form.description) }}</div>
-    <button type="submit" class="pub-btn-primary"><i class="fa-solid fa-plus"></i> Adicionar</button>
+    <div class="form-group">
+        <label class="form-label">Descricao</label>
+        {{ form_widget(form.description, {attr: {class: 'form-control', rows: 3, style: 'resize:vertical'}}) }}
+        {{ form_errors(form.description) }}
+    </div>
+    <button type="submit" class="btn btn-primary">
+        <i class="fa-solid fa-plus"></i> Adicionar
+    </button>
     {{ form_end(form) }}
 </div>
 

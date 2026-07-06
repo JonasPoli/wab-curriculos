@@ -4,13 +4,13 @@
 {% block content %}
 {{ form_start(form, {attr: {novalidate: 'novalidate'}}) }}
 
-<div class="pub-card">
-    <div class="pub-card-title"><i class="fa-solid fa-calendar-check"></i> Horários disponíveis</div>
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:.5rem">
+<div class="card" style="margin-bottom:1.25rem">
+    <div class="card-title"><i class="fa-solid fa-calendar-check" style="color:var(--p)"></i> Horarios disponiveis</div>
+    <div class="check-grid">
         {% for child in form %}
             {% if child.vars.name ends with 'Morning' or child.vars.name ends with 'Afternoon' %}
-            <label style="display:flex;align-items:center;gap:8px;padding:9px 12px;border:1.5px solid #e2e8f0;border-radius:8px;cursor:pointer;font-size:.875rem;transition:border-color .15s">
-                {{ form_widget(child, {attr: {style: 'accent-color:var(--pub-primary,#0044cc)'}}) }}
+            <label class="check-item">
+                {{ form_widget(child) }}
                 {{ form_label(child) }}
             </label>
             {% endif %}
@@ -18,21 +18,26 @@
     </div>
 </div>
 
-<div class="pub-card">
-    <div class="pub-card-title"><i class="fa-solid fa-briefcase"></i> Cargos de interesse</div>
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:.5rem">
+<div class="card" style="margin-bottom:1.25rem">
+    <div class="card-title"><i class="fa-solid fa-briefcase" style="color:var(--p)"></i> Cargos de interesse</div>
+    <div class="check-grid">
         {% for child in form.careers %}
-            <label style="display:flex;align-items:center;gap:8px;padding:9px 12px;border:1.5px solid #e2e8f0;border-radius:8px;cursor:pointer;font-size:.82rem;transition:border-color .15s">
-                {{ form_widget(child, {attr: {style: 'accent-color:var(--pub-primary,#0044cc)'}}) }}
+            <label class="check-item">
+                {{ form_widget(child) }}
                 {{ form_label(child) }}
             </label>
         {% endfor %}
     </div>
     {% if form.careers|length == 0 %}
-        <p style="color:#94a3b8;font-size:.875rem;text-align:center;padding:1.5rem 0">Nenhum cargo cadastrado pelo RH ainda.</p>
+        <div class="empty-state">
+            <i class="fa-solid fa-briefcase"></i>
+            <p>Nenhum cargo cadastrado pelo RH ainda.</p>
+        </div>
     {% endif %}
 </div>
 
-<button type="submit" class="pub-btn-primary"><i class="fa-solid fa-check"></i> Salvar disponibilidade</button>
+<button type="submit" class="btn btn-primary btn-full btn-lg">
+    <i class="fa-solid fa-check"></i> Salvar disponibilidade
+</button>
 {{ form_end(form) }}
 {% endblock %}

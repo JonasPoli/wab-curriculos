@@ -1,0 +1,59 @@
+{% extends 'pub/candidate/layout.html.twig' %}
+{% block title %}Excluir Conta{% endblock %}
+
+{% block content %}
+
+<div class="card" style="border:2px solid #fecaca;margin-bottom:1.5rem">
+    <div style="display:flex;align-items:flex-start;gap:14px;margin-bottom:1.25rem">
+        <div style="width:44px;height:44px;border-radius:10px;background:#fef2f2;display:flex;align-items:center;justify-content:center;flex-shrink:0">
+            <i class="fa-solid fa-triangle-exclamation" style="color:#dc2626;font-size:1.1rem"></i>
+        </div>
+        <div>
+            <h2 style="font-size:1.1rem;font-weight:700;color:#dc2626;margin-bottom:.25rem">Excluir minha conta</h2>
+            <p style="font-size:.85rem;color:var(--muted);line-height:1.6">
+                Esta acao e permanente e nao pode ser desfeita. Todos os seus dados pessoais, experiencias, formacao e curriculo serao removidos da nossa base de dados.
+            </p>
+        </div>
+    </div>
+
+    <div style="background:#fef2f2;border:1px solid #fecaca;border-radius:10px;padding:1rem;margin-bottom:1.5rem">
+        <p style="font-size:.84rem;color:#991b1b;line-height:1.6">
+            <strong>O que sera removido:</strong>
+        </p>
+        <ul style="margin:.5rem 0 0 1.25rem;font-size:.84rem;color:#991b1b;line-height:1.8">
+            <li>Seus dados pessoais (nome, e-mail, telefone, endereco)</li>
+            <li>Experiencias profissionais cadastradas</li>
+            <li>Formacao academica</li>
+            <li>Disponibilidade e cargos de interesse</li>
+            <li>Curriculo em PDF (se enviado)</li>
+            <li>Historico de consentimento LGPD</li>
+        </ul>
+    </div>
+
+    <form method="post" action="{{ path('pub_candidate_delete_account') }}">
+        <div class="form-group">
+            <label class="form-label" style="color:#dc2626">
+                Para confirmar, digite a palavra <strong>remover</strong> no campo abaixo:
+            </label>
+            <input type="text"
+                   name="confirm_word"
+                   class="form-control"
+                   placeholder="Digite 'remover' para confirmar"
+                   autocomplete="off"
+                   required
+                   style="border-color:#fecaca">
+        </div>
+        <div style="display:flex;gap:.75rem;align-items:center">
+            <button type="submit" class="btn btn-danger">
+                <i class="fa-solid fa-trash" aria-hidden="true"></i>
+                Excluir minha conta permanentemente
+            </button>
+            <a href="{{ path('pub_candidate_dashboard') }}" class="btn btn-secondary">
+                <i class="fa-solid fa-arrow-left" aria-hidden="true"></i>
+                Voltar
+            </a>
+        </div>
+    </form>
+</div>
+
+{% endblock %}

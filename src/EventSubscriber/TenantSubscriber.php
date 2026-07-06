@@ -55,10 +55,6 @@ class TenantSubscriber implements EventSubscriberInterface
         $tenant = $this->tenantRepository->findByDomain($host);
 
         if ($tenant === null) {
-            $event->setResponse(new Response(
-                sprintf('<h1>Domínio não configurado</h1><p>O domínio <strong>%s</strong> não está registrado nesta plataforma.</p>', htmlspecialchars($host)),
-                Response::HTTP_NOT_FOUND,
-            ));
             return;
         }
 

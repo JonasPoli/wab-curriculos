@@ -40,9 +40,9 @@ class CandidateAvailabilityType extends AbstractType
             'required'      => false,
             'query_builder' => fn (CareerRepository $repo) => $repo->createQueryBuilder('c')
                 ->join('c.area', 'a')
-                ->orderBy('a.name', 'ASC')
+                ->orderBy('a.title', 'ASC')
                 ->addOrderBy('c.title', 'ASC'),
-            'choice_label'  => fn (Career $c) => $c->getArea()->getName() . ' › ' . $c->getTitle(),
+            'choice_label'  => fn (Career $c) => $c->getArea()->getTitle() . ' > ' . $c->getTitle(),
         ]);
     }
 

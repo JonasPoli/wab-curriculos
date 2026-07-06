@@ -2,68 +2,112 @@
 {% block title %}Entrar{% endblock %}
 
 {% block body %}
-<div style="min-height: calc(100vh - 124px); display:flex; align-items:center; justify-content:center; padding: 2rem 1rem; position:relative; overflow:hidden; background: linear-gradient(135deg, #f0f4ff 0%, #fafafa 100%)">
+<div class="pub-page-auth">
+    <div class="auth-card">
 
-    <div style="position:absolute;top:-100px;left:-100px;width:400px;height:400px;border-radius:50%;background:var(--pub-primary,#0044cc);opacity:.06;filter:blur(60px)"></div>
-    <div style="position:absolute;bottom:-100px;right:-100px;width:400px;height:400px;border-radius:50%;background:var(--pub-secondary,#ffaa00);opacity:.08;filter:blur(60px)"></div>
+        {# ── Painel esquerdo ─────────────────────────────────────────────── #}
+        <div class="auth-panel-left">
+            <div class="auth-panel-left-content">
+                {% if tenant.logo %}
+                    <img src="/uploads/tenants/logo/{{ tenant.logo }}" alt="{{ tenant.name }}" class="auth-panel-logo">
+                {% else %}
+                    <div style="font-family:'Plus Jakarta Sans',sans-serif;font-size:1.3rem;font-weight:800;margin-bottom:1.5rem;opacity:.9">
+                        {{ tenant.name }}
+                    </div>
+                {% endif %}
 
-    <div style="width:100%;max-width:900px;display:grid;grid-template-columns:1fr 1fr;border-radius:20px;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,.12);position:relative;z-index:1">
+                <h1>Acesse sua conta de candidato</h1>
+                <p style="margin-top:.75rem">Gerencie seu currículo, acompanhe seu cadastro e seja encontrado pelo RH.</p>
+            </div>
 
-        <div style="background:linear-gradient(135deg,var(--pub-primary,#0044cc),color-mix(in srgb,var(--pub-primary,#0044cc) 60%,#000));padding:3rem;color:#fff;display:flex;flex-direction:column;justify-content:center">
-            {% if tenant.logo %}
-                <img src="/uploads/tenants/logo/{{ tenant.logo }}" alt="{{ tenant.name }}" style="height:50px;object-fit:contain;filter:brightness(0) invert(1);margin-bottom:2rem;align-self:flex-start">
-            {% else %}
-                <div style="font-size:1.5rem;font-weight:800;margin-bottom:.5rem">{{ tenant.name }}</div>
-            {% endif %}
-            <h1 style="font-size:1.8rem;font-weight:800;line-height:1.2;margin-bottom:1rem">Faça parte do nosso time</h1>
-            <p style="opacity:.85;line-height:1.6;font-size:.95rem">Cadastre seu currículo e seja encontrado por nosso RH. Gerencie seus dados a qualquer momento.</p>
-
-            <div style="margin-top:2rem;display:flex;flex-direction:column;gap:10px">
-                <div style="display:flex;align-items:center;gap:10px;opacity:.85;font-size:.88rem">
-                    <i class="fa-solid fa-check-circle" style="color:var(--pub-secondary,#ffaa00)"></i>
-                    Atualização de dados a qualquer momento
-                </div>
-                <div style="display:flex;align-items:center;gap:10px;opacity:.85;font-size:.88rem">
-                    <i class="fa-solid fa-check-circle" style="color:var(--pub-secondary,#ffaa00)"></i>
+            <div class="auth-features">
+                <div class="auth-feature">
+                    <i class="fa-solid fa-shield-halved"></i>
                     Dados protegidos conforme a LGPD
                 </div>
-                <div style="display:flex;align-items:center;gap:10px;opacity:.85;font-size:.88rem">
-                    <i class="fa-solid fa-check-circle" style="color:var(--pub-secondary,#ffaa00)"></i>
-                    Exclusão completa dos dados a qualquer momento
+                <div class="auth-feature">
+                    <i class="fa-solid fa-pen-to-square"></i>
+                    Atualize seu perfil a qualquer momento
+                </div>
+                <div class="auth-feature">
+                    <i class="fa-solid fa-circle-xmark"></i>
+                    Exclusão completa dos dados garantida
                 </div>
             </div>
         </div>
 
-        <div style="background:#fff;padding:3rem;display:flex;flex-direction:column;justify-content:center">
-            <h2 style="font-size:1.3rem;font-weight:700;margin-bottom:.4rem">Acesse seu currículo</h2>
-            <p style="color:#64748b;font-size:.88rem;margin-bottom:1.75rem">Não tem conta? <a href="{{ path('pub_candidate_register') }}" style="color:var(--pub-primary,#0044cc);font-weight:600">Cadastre-se aqui</a></p>
+        {# ── Painel direito ──────────────────────────────────────────────── #}
+        <div class="auth-panel-right">
+            <div style="margin-bottom:1.75rem">
+                <h2 style="font-family:'Plus Jakarta Sans',sans-serif;font-size:1.35rem;font-weight:800;color:var(--text)">
+                    Bem-vindo de volta
+                </h2>
+                <p style="font-size:.84rem;color:var(--muted);margin-top:.35rem">
+                    Não tem conta?
+                    <a href="{{ path('pub_candidate_register') }}" style="color:var(--p);font-weight:600;text-decoration:none">Cadastre-se gratuitamente</a>
+                </p>
+            </div>
 
             {% if error %}
-                <div class="pub-flash-error" style="margin-bottom:1.25rem">
+                <div class="alert alert-error">
                     <i class="fa-solid fa-circle-exclamation"></i>
                     {{ error.messageKey|trans(error.messageData, 'security') }}
                 </div>
             {% endif %}
 
             <form method="post" action="{{ path('pub_candidate_login') }}">
-                <div class="pub-form-group">
-                    <label for="email">E-mail</label>
-                    <input type="email" id="email" name="_email" value="{{ last_username }}" autofocus required placeholder="seu@email.com">
+                <div class="form-group">
+                    <label class="form-label" for="email">E-mail</label>
+                    <input class="form-control" type="email" id="email" name="_email"
+                           value="{{ last_username }}" autofocus required
+                           placeholder="seu@email.com">
                 </div>
-                <div class="pub-form-group">
-                    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:5px">
-                        <label for="password" style="margin:0">Senha</label>
-                        <a href="{{ path('pub_candidate_forgot_password') }}" style="font-size:.78rem;color:var(--pub-primary,#0044cc)">Esqueceu a senha?</a>
+
+                <div class="form-group">
+                    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
+                        <label class="form-label" for="password" style="margin:0">Senha</label>
+                        <a href="{{ path('pub_candidate_forgot_password') }}"
+                           style="font-size:.78rem;color:var(--p);text-decoration:none;font-weight:500">
+                            Esqueceu a senha?
+                        </a>
                     </div>
-                    <input type="password" id="password" name="_password" required placeholder="Sua senha">
+                    <div style="position:relative">
+                        <input class="form-control" type="password" id="password" name="_password"
+                               required placeholder="Mínimo 8 caracteres" style="padding-right:40px">
+                        <button type="button" onclick="togglePwd('password',this)"
+                                style="position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;color:var(--muted);cursor:pointer;font-size:.9rem;padding:0">
+                            <i class="fa-solid fa-eye"></i>
+                        </button>
+                    </div>
                 </div>
+
                 <input type="hidden" name="_csrf_token" value="{{ csrf_token('authenticate') }}">
-                <button type="submit" class="pub-btn-primary" style="width:100%;justify-content:center;margin-top:.5rem">
+
+                <button type="submit" class="btn btn-primary btn-full btn-lg" style="margin-top:.5rem">
                     <i class="fa-solid fa-right-to-bracket"></i>
-                    Entrar
+                    Entrar na minha conta
                 </button>
             </form>
+
+            <div class="divider">ou</div>
+
+            <a href="{{ path('pub_candidate_register') }}" class="btn btn-secondary btn-full">
+                <i class="fa-solid fa-user-plus"></i>
+                Criar nova conta
+            </a>
         </div>
+
     </div>
 </div>
+{% endblock %}
+
+{% block javascripts %}
+<script>
+function togglePwd(id, btn) {
+    const input = document.getElementById(id);
+    const isHidden = input.type === 'password';
+    input.type = isHidden ? 'text' : 'password';
+    btn.querySelector('i').className = isHidden ? 'fa-solid fa-eye-slash' : 'fa-solid fa-eye';
+}
+</script>
 {% endblock %}

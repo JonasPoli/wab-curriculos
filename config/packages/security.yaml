@@ -56,7 +56,7 @@ security:
         - { path: ^/trabalhe-conosco/cadastro, roles: PUBLIC_ACCESS }
         - { path: ^/trabalhe-conosco/esqueci-a-senha, roles: PUBLIC_ACCESS }
         - { path: ^/trabalhe-conosco/redefinir-senha, roles: PUBLIC_ACCESS }
-        - { path: ^/trabalhe-conosco/removido, roles: PUBLIC_ACCESS }
+        - { path: ^/trabalhe-conosco/conta-excluida, roles: PUBLIC_ACCESS }
         - { path: ^/trabalhe-conosco, roles: ROLE_CANDIDATE }
         - { path: ^/esqueci-a-senha, roles: PUBLIC_ACCESS }
         - { path: ^/redefinir-senha, roles: PUBLIC_ACCESS }

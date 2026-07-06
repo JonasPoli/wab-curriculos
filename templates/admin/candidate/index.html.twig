@@ -142,6 +142,27 @@
     </div>
 </div>
 
+{# ── Pesquisas Salvas ──────────────────────────────────────────────────── #}
+{% if savedSearches is defined and savedSearches|length > 0 %}
+<div style="margin-bottom:1rem;display:flex;flex-wrap:wrap;gap:.5rem;align-items:center">
+    <span style="font-size:.8rem;font-weight:600;color:var(--bm-text-muted);margin-right:.25rem">
+        <i class="fa-solid fa-bookmark" style="margin-right:4px"></i>Pesquisas salvas:
+    </span>
+    {% for search in savedSearches %}
+        <span style="display:inline-flex;align-items:center;gap:4px;background:color-mix(in srgb, var(--bm-accent) 10%, transparent);border:1px solid color-mix(in srgb, var(--bm-accent) 25%, transparent);border-radius:999px;padding:3px 6px 3px 12px;font-size:.78rem;font-weight:600;color:var(--bm-accent)">
+            <a href="{{ path('admin_candidate_index', search.filters) }}" style="color:inherit;text-decoration:none">
+                {{ search.name }}
+            </a>
+            <form method="post" action="{{ path('admin_candidate_delete_search', {id: search.id}) }}" style="display:inline;margin:0">
+                <button type="submit" style="background:none;border:none;cursor:pointer;color:var(--bm-text-muted);padding:2px 4px;font-size:.7rem;line-height:1" title="Remover pesquisa">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </form>
+        </span>
+    {% endfor %}
+</div>
+{% endif %}
+
 {# ── Painel de Filtros ────────────────────────────────────────────────────── #}
 {{ form_start(filterForm, {
     attr: { id: 'filter-form', novalidate: 'novalidate' },
@@ -218,7 +239,33 @@
                 Limpar filtros
             </a>
             {% endif %}
+            <a href="{{ path('admin_candidate_export_csv', app.request.query.all) }}" class="btn-secondary">
+                <i class="fa-solid fa-file-csv" aria-hidden="true"></i>
+                Exportar CSV
+            </a>
         </div>
+
+        {% if activeFilters > 0 %}
+        <div style="margin-top:.75rem;padding-top:.75rem;border-top:1px solid var(--bm-border);display:flex;align-items:center;gap:.5rem">
+            <form method="post" action="{{ path('admin_candidate_save_search') }}" style="display:flex;align-items:center;gap:.5rem;flex:1">
+                {% for key, value in currentFilters %}
+                    {% if value is iterable %}
+                        {% for v in value %}
+                            <input type="hidden" name="filters[{{ key }}][]" value="{{ v }}">
+                        {% endfor %}
+                    {% else %}
+                        <input type="hidden" name="filters[{{ key }}]" value="{{ value }}">
+                    {% endif %}
+                {% endfor %}
+                <input type="text" name="search_name" placeholder="Nome da pesquisa..." required
+                       style="padding:6px 10px;border:1.5px solid var(--bm-border);border-radius:7px;font-size:.8rem;font-family:inherit;color:var(--bm-text);background:var(--bm-bg);outline:none;flex:1;max-width:220px">
+                <button type="submit" class="btn-secondary" style="padding:6px 12px;font-size:.78rem">
+                    <i class="fa-solid fa-bookmark" aria-hidden="true"></i>
+                    Salvar pesquisa
+                </button>
+            </form>
+        </div>
+        {% endif %}
 
     </div>
 </div>

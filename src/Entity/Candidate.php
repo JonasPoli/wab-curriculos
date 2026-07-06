@@ -36,28 +36,29 @@ class Candidate implements TenantAwareInterface, UserInterface, PasswordAuthenti
     private array $roles = [];
 
     #[ORM\Column(length: 150)]
-    #[Assert\NotBlank(message: 'O nome é obrigatório.')]
-    #[Assert\Length(max: 150)]
+    #[Assert\NotBlank(message: 'O nome é obrigatório.', groups: ['Default', 'Registration'])]
+    #[Assert\Length(max: 150, groups: ['Default', 'Registration'])]
     private ?string $name = null;
 
     #[ORM\Column(type: Types::DATE_IMMUTABLE, nullable: true)]
     private ?\DateTimeImmutable $birthDate = null;
 
     #[ORM\Column(length: 180)]
-    #[Assert\NotBlank(message: 'O e-mail é obrigatório.')]
-    #[Assert\Email(message: 'Informe um e-mail válido.')]
+    #[Assert\NotBlank(message: 'O e-mail é obrigatório.', groups: ['Default', 'Registration'])]
+    #[Assert\Email(message: 'Informe um e-mail válido.', groups: ['Default', 'Registration'])]
     private ?string $email = null;
 
     #[ORM\Column(length: 20)]
-    #[Assert\NotBlank(message: 'O telefone é obrigatório.')]
+    #[Assert\NotBlank(message: 'O telefone é obrigatório.', groups: ['Default', 'Registration'])]
     private ?string $phone = null;
 
     #[ORM\Column(length: 100)]
-    #[Assert\NotBlank(message: 'A cidade é obrigatória.')]
+    #[Assert\NotBlank(message: 'A cidade é obrigatória.', groups: ['Default', 'Registration'])]
     private ?string $city = null;
 
     #[ORM\Column(length: 2)]
-    #[Assert\NotBlank(message: 'O estado é obrigatório.')]
+    #[Assert\NotBlank(message: 'O estado é obrigatório.', groups: ['Default', 'Registration'])]
+    #[Assert\Length(max: 2, maxMessage: 'Informe a sigla do estado (ex: SP).', groups: ['Default', 'Registration'])]
     private ?string $state = null;
 
     #[ORM\Column(length: 255, nullable: true)]
@@ -120,7 +121,6 @@ class Candidate implements TenantAwareInterface, UserInterface, PasswordAuthenti
     // ─── LGPD ────────────────────────────────────────────────────────────────
 
     #[ORM\Column(options: ['default' => false])]
-    #[Assert\IsTrue(message: 'Você deve aceitar os termos para prosseguir.')]
     private bool $lgpdConsent = false;
 
     #[ORM\Column(type: Types::DATETIME_MUTABLE, nullable: true)]
@@ -140,6 +140,14 @@ class Candidate implements TenantAwareInterface, UserInterface, PasswordAuthenti
     #[ORM\Column(type: Types::DATETIME_MUTABLE, nullable: true)]
     private ?\DateTime $updatedAt = null;
 
+    // ─── Reset de senha ──────────────────────────────────────────────────────
+
+    #[ORM\Column(length: 100, nullable: true, unique: true)]
+    private ?string $resetToken = null;
+
+    #[ORM\Column(nullable: true)]
+    private ?\DateTimeImmutable $resetTokenExpiresAt = null;
+
     // ─── Relacionamentos ─────────────────────────────────────────────────────
 
     /**
@@ -153,6 +161,7 @@ class Candidate implements TenantAwareInterface, UserInterface, PasswordAuthenti
      * @var Collection<int, WorkExperience>
      */
     #[ORM\OneToMany(targetEntity: WorkExperience::class, mappedBy: 'candidate', cascade: ['persist', 'remove'], orphanRemoval: true)]
+    #[ORM\OrderBy(['startDate' => 'DESC'])]
     private Collection $workExperiences;
 
     /**
@@ -377,4 +386,9 @@ class Candidate implements TenantAwareInterface, UserInterface, PasswordAuthenti
             'Sexta'     => ['morning' => $this->fridayMorning,    'afternoon' => $this->fridayAfternoon],
         ];
     }
+
+    public function getResetToken(): ?string { return $this->resetToken; }
+    public function setResetToken(?string $t): static { $this->resetToken = $t; return $this; }
+    public function getResetTokenExpiresAt(): ?\DateTimeImmutable { return $this->resetTokenExpiresAt; }
+    public function setResetTokenExpiresAt(?\DateTimeImmutable $t): static { $this->resetTokenExpiresAt = $t; return $this; }
 }

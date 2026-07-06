@@ -15,6 +15,7 @@ use App\Service\TenantContext;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Bundle\SecurityBundle\Security;
+use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -27,14 +28,35 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 class CandidateProfileController extends AbstractController
 {
     #[Route('/perfil', name: 'pub_candidate_profile', methods: ['GET', 'POST'])]
-    public function profile(Request $request, EntityManagerInterface $em, TenantContext $tenantContext): Response
-    {
+    public function profile(
+        Request $request,
+        EntityManagerInterface $em,
+        TenantContext $tenantContext,
+        #[Autowire('%kernel.project_dir%')] string $projectDir,
+    ): Response {
         /** @var Candidate $candidate */
         $candidate = $this->getUser();
         $form = $this->createForm(CandidateProfileType::class, $candidate);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
+            $resumeFile = $form->get('resumeFile')->getData();
+            if ($resumeFile) {
+                $uploadDir = $projectDir . '/var/uploads/resumes';
+                if (!is_dir($uploadDir)) {
+                    mkdir($uploadDir, 0775, true);
+                }
+
+                $oldFile = $candidate->getResumeFilename();
+                if ($oldFile && file_exists($uploadDir . '/' . $oldFile)) {
+                    unlink($uploadDir . '/' . $oldFile);
+                }
+
+                $newFilename = $candidate->getId() . '_' . uniqid() . '.pdf';
+                $resumeFile->move($uploadDir, $newFilename);
+                $candidate->setResumeFilename($newFilename);
+            }
+
             $em->flush();
             $this->addFlash('success', 'Dados pessoais atualizados com sucesso.');
             return $this->redirectToRoute('pub_candidate_profile');
@@ -45,6 +67,26 @@ class CandidateProfileController extends AbstractController
             'candidate' => $candidate,
             'tenant'    => $tenantContext->getTenant(),
         ]);
+    }
+
+    #[Route('/curriculo/download', name: 'pub_candidate_resume_download', methods: ['GET'])]
+    public function downloadResume(
+        #[Autowire('%kernel.project_dir%')] string $projectDir,
+    ): Response {
+        /** @var Candidate $candidate */
+        $candidate = $this->getUser();
+        $filename = $candidate->getResumeFilename();
+
+        if (!$filename) {
+            throw $this->createNotFoundException();
+        }
+
+        $path = $projectDir . '/var/uploads/resumes/' . $filename;
+        if (!file_exists($path)) {
+            throw $this->createNotFoundException();
+        }
+
+        return $this->file($path, 'curriculo_' . $candidate->getId() . '.pdf');
     }
 
     #[Route('/acesso', name: 'pub_candidate_access', methods: ['GET', 'POST'])]
@@ -101,12 +143,16 @@ class CandidateProfileController extends AbstractController
     }
 
     #[Route('/experiencias/{id}/remover', name: 'pub_candidate_experience_delete', methods: ['POST'])]
-    public function deleteExperience(WorkExperience $we, EntityManagerInterface $em): Response
+    public function deleteExperience(WorkExperience $we, Request $request, EntityManagerInterface $em): Response
     {
         /** @var Candidate $candidate */
         $candidate = $this->getUser();
 
         if ($we->getCandidate() !== $candidate) {
+            throw $this->createAccessDeniedException();
+        }
+
+        if (!$this->isCsrfTokenValid('delete_we_' . $we->getId(), $request->request->get('_token'))) {
             throw $this->createAccessDeniedException();
         }
 
@@ -141,12 +187,16 @@ class CandidateProfileController extends AbstractController
     }
 
     #[Route('/formacao/{id}/remover', name: 'pub_candidate_academic_delete', methods: ['POST'])]
-    public function deleteAcademic(AcademicBackground $ab, EntityManagerInterface $em): Response
+    public function deleteAcademic(AcademicBackground $ab, Request $request, EntityManagerInterface $em): Response
     {
         /** @var Candidate $candidate */
         $candidate = $this->getUser();
 
         if ($ab->getCandidate() !== $candidate) {
+            throw $this->createAccessDeniedException();
+        }
+
+        if (!$this->isCsrfTokenValid('delete_ab_' . $ab->getId(), $request->request->get('_token'))) {
             throw $this->createAccessDeniedException();
         }
 

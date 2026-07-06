@@ -2,78 +2,104 @@
 {% block title %}Minha Conta{% endblock %}
 
 {% block content %}
+{% set progress = candidate_progress(candidate) %}
 
-<div class="pub-card" style="background:linear-gradient(135deg,var(--pub-primary,#0044cc),color-mix(in srgb,var(--pub-primary,#0044cc) 60%,#7c3aed));color:#fff;margin-bottom:1.5rem">
+<div class="card" style="background:linear-gradient(135deg,var(--p),color-mix(in srgb,var(--p) 60%,#1a1a2e));color:#fff;margin-bottom:1.5rem">
     <div style="display:flex;align-items:center;gap:16px">
         <div style="width:60px;height:60px;border-radius:50%;background:rgba(255,255,255,.2);display:flex;align-items:center;justify-content:center;font-size:1.5rem;font-weight:800;flex-shrink:0">
             {{ candidate.name|first|upper }}
         </div>
-        <div>
-            <div style="font-size:1.2rem;font-weight:700">Olá, {{ candidate.name|split(' ')|first }}!</div>
+        <div style="flex:1">
+            <div style="font-size:1.2rem;font-weight:700">Ola, {{ candidate.name|split(' ')|first }}!</div>
             <div style="opacity:.85;font-size:.88rem;margin-top:2px">{{ candidate.email }}</div>
         </div>
     </div>
 </div>
 
-<div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.5rem">
+<div class="card" style="margin-bottom:1.5rem">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:.75rem">
+        <div style="font-weight:700;font-size:.92rem;color:var(--text)">Progresso do cadastro</div>
+        <div style="font-size:.85rem;font-weight:600;color:var(--p)">{{ progress.percent }}%</div>
+    </div>
+    <div class="progress-bar-wrap" style="height:8px;margin-bottom:1rem">
+        <div class="progress-bar-fill" style="width:{{ progress.percent }}%;background:{% if progress.percent == 100 %}#22c55e{% else %}var(--p){% endif %}"></div>
+    </div>
+    <div style="font-size:.82rem;color:var(--muted);margin-bottom:1.25rem">
+        {{ progress.doneCount }} de {{ progress.totalSteps }} etapas concluidas
+        {% if progress.percent == 100 %}
+            — Seu perfil esta completo!
+        {% else %}
+            — Complete as etapas abaixo para aumentar suas chances.
+        {% endif %}
+    </div>
+    <div style="display:flex;flex-direction:column;gap:.5rem">
+        {% for step in progress.steps %}
+        <a href="{{ path(step.route) }}" style="display:flex;align-items:center;gap:12px;padding:10px 14px;border-radius:10px;text-decoration:none;color:inherit;border:1.5px solid {{ step.done ? 'color-mix(in srgb, #22c55e 30%, transparent)' : 'var(--border)' }};background:{{ step.done ? 'color-mix(in srgb, #22c55e 5%, transparent)' : 'transparent' }};transition:all .18s"
+           onmouseover="this.style.borderColor='var(--p)'" onmouseout="this.style.borderColor='{{ step.done ? 'color-mix(in srgb, #22c55e 30%, transparent)' : 'var(--border)' }}'">
+            <div style="width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:.85rem;{% if step.done %}background:rgba(34,197,94,.12);color:#15803d{% else %}background:color-mix(in srgb, var(--p) 10%, transparent);color:var(--p){% endif %}">
+                <i class="fa-solid fa-{{ step.done ? 'check' : step.icon }}"></i>
+            </div>
+            <div style="flex:1;font-size:.88rem;font-weight:{{ step.done ? '500' : '600' }};color:{{ step.done ? 'var(--muted)' : 'var(--text)' }}">
+                {{ step.label }}
+            </div>
+            {% if step.done %}
+                <span style="font-size:.72rem;font-weight:700;color:#15803d;background:rgba(34,197,94,.1);padding:3px 10px;border-radius:999px">Concluido</span>
+            {% else %}
+                <span style="font-size:.72rem;font-weight:700;color:var(--p);background:color-mix(in srgb, var(--p) 10%, transparent);padding:3px 10px;border-radius:999px">Pendente</span>
+            {% endif %}
+        </a>
+        {% endfor %}
+    </div>
+</div>
+
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem">
     <a href="{{ path('pub_candidate_profile') }}" style="text-decoration:none">
-        <div class="pub-card" style="cursor:pointer;transition:transform .15s,box-shadow .15s;display:flex;align-items:center;gap:14px" onmouseover="this.style.transform='translateY(-2px)';this.style.boxShadow='0 8px 24px rgba(0,0,0,.1)'" onmouseout="this.style.transform='';this.style.boxShadow=''">
-            <div style="width:44px;height:44px;border-radius:10px;background:rgba(0,68,204,.1);display:flex;align-items:center;justify-content:center;flex-shrink:0">
-                <i class="fa-solid fa-user" style="color:var(--pub-primary,#0044cc)"></i>
+        <div class="card" style="cursor:pointer;transition:transform .15s,box-shadow .15s;display:flex;align-items:center;gap:14px" onmouseover="this.style.transform='translateY(-2px)';this.style.boxShadow='0 8px 24px rgba(0,0,0,.1)'" onmouseout="this.style.transform='';this.style.boxShadow=''">
+            <div style="width:44px;height:44px;border-radius:10px;background:color-mix(in srgb, var(--p) 10%, transparent);display:flex;align-items:center;justify-content:center;flex-shrink:0">
+                <i class="fa-solid fa-user" style="color:var(--p)"></i>
             </div>
             <div>
                 <div style="font-weight:600;font-size:.88rem">Dados pessoais</div>
-                <div style="font-size:.78rem;color:#64748b;margin-top:2px">Editar perfil e contato</div>
+                <div style="font-size:.78rem;color:var(--muted);margin-top:2px">Editar perfil e contato</div>
             </div>
         </div>
     </a>
 
     <a href="{{ path('pub_candidate_experience') }}" style="text-decoration:none">
-        <div class="pub-card" style="cursor:pointer;transition:transform .15s,box-shadow .15s;display:flex;align-items:center;gap:14px" onmouseover="this.style.transform='translateY(-2px)';this.style.boxShadow='0 8px 24px rgba(0,0,0,.1)'" onmouseout="this.style.transform='';this.style.boxShadow=''">
-            <div style="width:44px;height:44px;border-radius:10px;background:rgba(124,58,237,.1);display:flex;align-items:center;justify-content:center;flex-shrink:0">
-                <i class="fa-solid fa-briefcase" style="color:#7c3aed"></i>
+        <div class="card" style="cursor:pointer;transition:transform .15s,box-shadow .15s;display:flex;align-items:center;gap:14px" onmouseover="this.style.transform='translateY(-2px)';this.style.boxShadow='0 8px 24px rgba(0,0,0,.1)'" onmouseout="this.style.transform='';this.style.boxShadow=''">
+            <div style="width:44px;height:44px;border-radius:10px;background:rgba(168,85,247,.1);display:flex;align-items:center;justify-content:center;flex-shrink:0">
+                <i class="fa-solid fa-briefcase" style="color:#9333ea"></i>
             </div>
             <div>
-                <div style="font-weight:600;font-size:.88rem">Experiências</div>
-                <div style="font-size:.78rem;color:#64748b;margin-top:2px">{{ candidate.workExperiences|length }} cadastrada(s)</div>
+                <div style="font-weight:600;font-size:.88rem">Experiencias</div>
+                <div style="font-size:.78rem;color:var(--muted);margin-top:2px">{{ candidate.workExperiences|length }} cadastrada(s)</div>
             </div>
         </div>
     </a>
 
     <a href="{{ path('pub_candidate_academic') }}" style="text-decoration:none">
-        <div class="pub-card" style="cursor:pointer;transition:transform .15s,box-shadow .15s;display:flex;align-items:center;gap:14px" onmouseover="this.style.transform='translateY(-2px)';this.style.boxShadow='0 8px 24px rgba(0,0,0,.1)'" onmouseout="this.style.transform='';this.style.boxShadow=''">
+        <div class="card" style="cursor:pointer;transition:transform .15s,box-shadow .15s;display:flex;align-items:center;gap:14px" onmouseover="this.style.transform='translateY(-2px)';this.style.boxShadow='0 8px 24px rgba(0,0,0,.1)'" onmouseout="this.style.transform='';this.style.boxShadow=''">
             <div style="width:44px;height:44px;border-radius:10px;background:rgba(5,150,105,.1);display:flex;align-items:center;justify-content:center;flex-shrink:0">
                 <i class="fa-solid fa-graduation-cap" style="color:#059669"></i>
             </div>
             <div>
-                <div style="font-weight:600;font-size:.88rem">Formação acadêmica</div>
-                <div style="font-size:.78rem;color:#64748b;margin-top:2px">{{ candidate.academicBackgrounds|length }} cadastrada(s)</div>
+                <div style="font-weight:600;font-size:.88rem">Formacao academica</div>
+                <div style="font-size:.78rem;color:var(--muted);margin-top:2px">{{ candidate.academicBackgrounds|length }} cadastrada(s)</div>
             </div>
         </div>
     </a>
 
     <a href="{{ path('pub_candidate_availability') }}" style="text-decoration:none">
-        <div class="pub-card" style="cursor:pointer;transition:transform .15s,box-shadow .15s;display:flex;align-items:center;gap:14px" onmouseover="this.style.transform='translateY(-2px)';this.style.boxShadow='0 8px 24px rgba(0,0,0,.1)'" onmouseout="this.style.transform='';this.style.boxShadow=''">
+        <div class="card" style="cursor:pointer;transition:transform .15s,box-shadow .15s;display:flex;align-items:center;gap:14px" onmouseover="this.style.transform='translateY(-2px)';this.style.boxShadow='0 8px 24px rgba(0,0,0,.1)'" onmouseout="this.style.transform='';this.style.boxShadow=''">
             <div style="width:44px;height:44px;border-radius:10px;background:rgba(217,119,6,.1);display:flex;align-items:center;justify-content:center;flex-shrink:0">
                 <i class="fa-solid fa-calendar-check" style="color:#d97706"></i>
             </div>
             <div>
                 <div style="font-weight:600;font-size:.88rem">Disponibilidade</div>
-                <div style="font-size:.78rem;color:#64748b;margin-top:2px">{{ candidate.careers|length }} cargo(s) de interesse</div>
+                <div style="font-size:.78rem;color:var(--muted);margin-top:2px">{{ candidate.careers|length }} cargo(s) de interesse</div>
             </div>
         </div>
     </a>
 </div>
-
-{% if not candidate.professionalSummary and candidate.workExperiences|length == 0 %}
-<div class="pub-card" style="border:2px dashed #e2e8f0;background:#fafafa;text-align:center;padding:2rem">
-    <i class="fa-solid fa-circle-info fa-2x" style="color:var(--pub-primary,#0044cc);margin-bottom:.75rem;opacity:.6"></i>
-    <div style="font-weight:600;margin-bottom:.4rem">Complete seu currículo</div>
-    <p style="font-size:.875rem;color:#64748b;margin-bottom:1.25rem">Adicione suas experiências, formação e disponibilidade para aumentar suas chances.</p>
-    <a href="{{ path('pub_candidate_profile') }}" class="pub-btn-primary">
-        <i class="fa-solid fa-pencil"></i> Completar perfil
-    </a>
-</div>
-{% endif %}
 
 {% endblock %}

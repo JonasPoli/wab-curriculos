@@ -1,12 +1,11 @@
 #!/bin/bash
-rm -rf var/cache
+set -e
 
-# Cores para o output
 GREEN='\033[0;32m'
 BLUE='\033[0;34m'
-NC='\033[0m' # No Color
+NC='\033[0m'
 
-# Detectar binário do PHP
+# Detectar PHP
 PHP_BIN="/RunCloud/Packages/php84rc/bin/php"
 if [ ! -f "$PHP_BIN" ]; then
     if command -v php84 &> /dev/null; then
@@ -16,35 +15,45 @@ if [ ! -f "$PHP_BIN" ]; then
     fi
 fi
 
-echo -e "${BLUE}==> Iniciando limpeza completa do sistema TickePix...${NC}"
+echo -e "${BLUE}==> Build WAB Curriculos${NC}"
+echo ""
 
-# 1. Limpar Cache do Symfony
-echo -e "${GREEN}--> Limpando cache do Symfony...${NC}"
-$PHP_BIN bin/console cache:clear
+# 1. Composer
+echo -e "${GREEN}--> Instalando dependencias...${NC}"
+COMPOSER_NO_INTERACTION=1 composer install --no-scripts --quiet
+composer run-script post-install-cmd --quiet 2>/dev/null || true
+
+# 2. Cache
+echo -e "${GREEN}--> Limpando cache...${NC}"
 rm -rf var/cache/*
+$PHP_BIN bin/console cache:clear --no-warmup 2>/dev/null || true
+$PHP_BIN bin/console cache:warmup 2>/dev/null || true
 
-# 2. Limpar Cache de Imagens (LiipImagine)
+# 3. Migrations
+echo -e "${GREEN}--> Executando migrations...${NC}"
+$PHP_BIN bin/console doctrine:migrations:migrate --no-interaction 2>/dev/null || true
+
+# 4. Assets
+echo -e "${GREEN}--> Compilando assets...${NC}"
+$PHP_BIN bin/console importmap:install 2>/dev/null || true
+$PHP_BIN bin/console asset-map:compile 2>/dev/null || true
+
+# 5. Miniaturas LiipImagine
 if [ -d "public/media/cache" ]; then
-    echo -e "${GREEN}--> Removendo miniaturas (LiipImagine)...${NC}"
+    echo -e "${GREEN}--> Removendo miniaturas...${NC}"
     rm -rf public/media/cache/*
 fi
 
-# 3. Recompilar Tailwind
-echo -e "${GREEN}--> Recompilando Tailwind CSS...${NC}"
-$PHP_BIN bin/console tailwind:build
+# 6. Logs e temporarios
+echo -e "${GREEN}--> Limpando logs e temporarios...${NC}"
+rm -rf var/log/*.log 2>/dev/null || true
+rm -rf var/tmp/* 2>/dev/null || true
 
-# 4. Compilar Assets (Asset Mapper)
-echo -e "${GREEN}--> Compilando AssetMap...${NC}"
-$PHP_BIN bin/console asset-map:compile
+# 7. Permissoes e diretorios
+echo -e "${GREEN}--> Ajustando permissoes...${NC}"
+mkdir -p var/cache var/log var/uploads/resumes
+mkdir -p public/uploads/tenants/logo public/uploads/tenants/dark-logo public/uploads/tenants/favicon
+chmod -R 775 var/ public/uploads/ 2>/dev/null || true
 
-# 5. Limpar Logs
-echo -e "${GREEN}--> Limpando logs...${NC}"
-rm -rf var/log/*
-
-echo -e "${BLUE}==> Limpeza concluída com sucesso!${NC}"
-
-
-$PHP_BIN bin/console tailwind:build --minify
-$PHP_BIN bin/console asset-map:compile
-
-$PHP_BIN bin/console liip:imagine:cache:remove
+echo ""
+echo -e "${BLUE}==> Build concluido!${NC}"

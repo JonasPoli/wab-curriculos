@@ -1,53 +1,61 @@
-{% macro sidebar_link(route, icon, label, current_route) %}
-<a href="{{ path(route) }}" class="{{ app.request.get('_route') == route ? 'active' : '' }}">
-    <i class="fa-solid fa-{{ icon }}"></i> {{ label }}
-</a>
-{% endmacro %}
-
 {% extends 'pub/base.html.twig' %}
 {% block title %}Minha Conta{% endblock %}
 
 {% block body %}
 <div class="pub-layout">
 
-    <aside>
-        <div class="pub-card" style="padding:1.25rem">
-            <div style="text-align:center;padding:.75rem 0 1rem">
-                <div style="width:56px;height:56px;border-radius:50%;background:linear-gradient(135deg,var(--pub-primary,#0044cc),#7c3aed);color:#fff;display:flex;align-items:center;justify-content:center;font-size:1.3rem;font-weight:700;margin:0 auto .75rem">
+    <aside class="pub-sidebar">
+        <div class="pub-sidebar-nav">
+            <div class="pub-sidebar-user">
+                <div class="pub-sidebar-avatar">
                     {{ candidate.name|first|upper }}
                 </div>
-                <div style="font-weight:700;font-size:.9rem">{{ candidate.name }}</div>
-                <div style="font-size:.75rem;color:#64748b;margin-top:2px">{{ candidate.email }}</div>
+                <div>
+                    <div class="pub-sidebar-name">{{ candidate.name }}</div>
+                    <div class="pub-sidebar-email">{{ candidate.email }}</div>
+                </div>
             </div>
 
-            <nav class="pub-sidebar-menu">
-                <a href="{{ path('pub_candidate_dashboard') }}" class="{{ app.request.get('_route') == 'pub_candidate_dashboard' ? 'active' : '' }}">
-                    <i class="fa-solid fa-house"></i> Início
-                </a>
-                <a href="{{ path('pub_candidate_profile') }}" class="{{ app.request.get('_route') starts with 'pub_candidate_profile' ? 'active' : '' }}">
-                    <i class="fa-solid fa-user"></i> Dados pessoais
-                </a>
-                <a href="{{ path('pub_candidate_experience') }}" class="{{ app.request.get('_route') starts with 'pub_candidate_experience' ? 'active' : '' }}">
-                    <i class="fa-solid fa-briefcase"></i> Experiências
-                </a>
-                <a href="{{ path('pub_candidate_academic') }}" class="{{ app.request.get('_route') starts with 'pub_candidate_academic' ? 'active' : '' }}">
-                    <i class="fa-solid fa-graduation-cap"></i> Formação
-                </a>
-                <a href="{{ path('pub_candidate_availability') }}" class="{{ app.request.get('_route') starts with 'pub_candidate_availability' ? 'active' : '' }}">
-                    <i class="fa-solid fa-calendar-check"></i> Disponibilidade
-                </a>
-                <a href="{{ path('pub_candidate_access') }}" class="{{ app.request.get('_route') == 'pub_candidate_access' ? 'active' : '' }}">
-                    <i class="fa-solid fa-lock"></i> Dados de acesso
-                </a>
-                <hr style="border:none;border-top:1px solid #e2e8f0;margin:.5rem 0">
-                <a href="{{ path('pub_candidate_delete_account') }}" style="color:#dc2626" class="{{ app.request.get('_route') == 'pub_candidate_delete_account' ? 'active' : '' }}">
-                    <i class="fa-solid fa-trash"></i> Excluir conta
-                </a>
-            </nav>
+            <a href="{{ path('pub_candidate_dashboard') }}" class="pub-nav-item {{ app.request.get('_route') == 'pub_candidate_dashboard' ? 'active' : '' }}">
+                <i class="fa-solid fa-house"></i> Inicio
+            </a>
+            <a href="{{ path('pub_candidate_profile') }}" class="pub-nav-item {{ app.request.get('_route') starts with 'pub_candidate_profile' ? 'active' : '' }}">
+                <i class="fa-solid fa-user"></i> Dados pessoais
+            </a>
+            <a href="{{ path('pub_candidate_experience') }}" class="pub-nav-item {{ app.request.get('_route') starts with 'pub_candidate_experience' ? 'active' : '' }}">
+                <i class="fa-solid fa-briefcase"></i> Experiencias
+            </a>
+            <a href="{{ path('pub_candidate_academic') }}" class="pub-nav-item {{ app.request.get('_route') starts with 'pub_candidate_academic' ? 'active' : '' }}">
+                <i class="fa-solid fa-graduation-cap"></i> Formacao
+            </a>
+            <a href="{{ path('pub_candidate_availability') }}" class="pub-nav-item {{ app.request.get('_route') starts with 'pub_candidate_availability' ? 'active' : '' }}">
+                <i class="fa-solid fa-calendar-check"></i> Disponibilidade
+            </a>
+            <a href="{{ path('pub_candidate_access') }}" class="pub-nav-item {{ app.request.get('_route') == 'pub_candidate_access' ? 'active' : '' }}">
+                <i class="fa-solid fa-lock"></i> Dados de acesso
+            </a>
+            <div class="pub-nav-divider"></div>
+            <a href="{{ path('pub_candidate_delete_account') }}" class="pub-nav-item {{ app.request.get('_route') == 'pub_candidate_delete_account' ? 'active' : '' }}" style="color:#dc2626">
+                <i class="fa-solid fa-trash"></i> Excluir conta
+            </a>
         </div>
     </aside>
 
     <div>
+        {% set progress = candidate_progress(candidate) %}
+        <div class="card" style="margin-bottom:1.25rem;padding:1rem 1.5rem">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:.5rem">
+                <span style="font-size:.82rem;font-weight:600;color:var(--text2)">Progresso do cadastro</span>
+                <span style="font-size:.82rem;font-weight:700;color:{% if progress.percent == 100 %}#22c55e{% else %}var(--p){% endif %}">{{ progress.percent }}%</span>
+            </div>
+            <div class="progress-bar-wrap" style="height:6px">
+                <div class="progress-bar-fill" style="width:{{ progress.percent }}%;background:{% if progress.percent == 100 %}#22c55e{% else %}var(--p){% endif %}"></div>
+            </div>
+            <div style="font-size:.72rem;color:var(--muted);margin-top:.4rem">
+                {{ progress.doneCount }} de {{ progress.totalSteps }} etapas
+                {% if progress.percent == 100 %} — Perfil completo{% endif %}
+            </div>
+        </div>
         {% block content %}{% endblock %}
     </div>
 </div>

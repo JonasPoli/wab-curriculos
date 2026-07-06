@@ -6,6 +6,7 @@ enum EducationLevel: string
 {
     case FUNDAMENTAL    = 'Ensino Fundamental';
     case MEDIO          = 'Ensino Médio';
+    case CURSO_LIVRE    = 'Curso Livre';
     case TECNICO        = 'Curso Técnico';
     case SUPERIOR_INC   = 'Ensino Superior Incompleto';
     case SUPERIOR_COMP  = 'Ensino Superior Completo';

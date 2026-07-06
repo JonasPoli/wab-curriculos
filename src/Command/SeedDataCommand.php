@@ -61,24 +61,42 @@ class SeedDataCommand extends Command
 
         $tenants = [
             [
-                'name'             => 'Procordis Hospital',
-                'domain'           => 'procordis.localhost',
-                'primaryColor'     => '#0f4c81',
-                'secondaryColor'   => '#e8a020',
-                'primaryColorDark' => '#3b82f6',
+                'name'               => 'Procordis Hospital',
+                'domain'             => '127.0.0.1',
+                'primaryColor'       => '#0f4c81',
+                'secondaryColor'     => '#e8a020',
+                'primaryColorDark'   => '#3b82f6',
                 'secondaryColorDark' => '#f59e0b',
-                'contactEmail'     => 'rh@procordis.com.br',
-                'logo'             => 'logo-procordis.png',
+                'contactEmail'       => 'rh@procordis.com.br',
+                'phone'              => '(11) 3456-7890',
+                'address'            => 'Av. Paulista, 1500 - Bela Vista, Sao Paulo - SP',
+                'logo'               => 'logo-procordis.png',
+                'heroTitle'          => 'Faca parte do time Procordis',
+                'heroSubtitle'       => 'Ha mais de 20 anos cuidando de vidas. Cadastre seu curriculo e construa uma carreira na area da saude.',
+                'heroDescription'    => 'O Hospital Procordis e referencia em cardiologia e cirurgia cardiovascular. Valorizamos profissionais comprometidos com a excelencia no atendimento ao paciente. Oferecemos um ambiente de trabalho colaborativo, programas de desenvolvimento profissional e beneficios competitivos.',
+                'ctaText'            => 'Cadastre seu curriculo',
+                'ctaSubtext'         => 'Processo seguro e rapido',
+                'seoTitle'           => 'Trabalhe Conosco - Procordis Hospital',
+                'seoDescription'     => 'Cadastre seu curriculo e faca parte do time do Hospital Procordis. Vagas em enfermagem, medicina, administrativo e TI.',
             ],
             [
-                'name'             => 'Vida & Saúde Clínica',
-                'domain'           => 'vidasaude.localhost',
-                'primaryColor'     => '#16a34a',
-                'secondaryColor'   => '#f97316',
-                'primaryColorDark' => '#22c55e',
+                'name'               => 'Vida & Saude Clinica',
+                'domain'             => 'vidasaude.localhost',
+                'primaryColor'       => '#16a34a',
+                'secondaryColor'     => '#f97316',
+                'primaryColorDark'   => '#22c55e',
                 'secondaryColorDark' => '#fb923c',
-                'contactEmail'     => 'vagas@vidasaude.com.br',
-                'logo'             => 'logo-vidasaude.png',
+                'contactEmail'       => 'vagas@vidasaude.com.br',
+                'phone'              => '(21) 2345-6789',
+                'address'            => 'Rua Voluntarios da Patria, 300 - Botafogo, Rio de Janeiro - RJ',
+                'logo'               => 'logo-vidasaude.png',
+                'heroTitle'          => 'Venha trabalhar na Vida & Saude',
+                'heroSubtitle'       => 'Uma clinica que valoriza seus profissionais. Cadastre-se e faca parte da nossa equipe multidisciplinar.',
+                'heroDescription'    => 'A Clinica Vida & Saude oferece atendimento integrado em psicologia, fisioterapia, nutricao e fonoaudiologia. Buscamos profissionais dedicados que compartilhem nossa visao de saude humanizada.',
+                'ctaText'            => 'Quero fazer parte',
+                'ctaSubtext'         => 'Cadastro simples e gratuito',
+                'seoTitle'           => 'Trabalhe Conosco - Vida & Saude Clinica',
+                'seoDescription'     => 'Oportunidades em psicologia, fisioterapia, farmacia e administrativo na Clinica Vida & Saude.',
             ],
         ];
 
@@ -99,6 +117,15 @@ class SeedDataCommand extends Command
             $tenant->setPrimaryColorDark($data['primaryColorDark']);
             $tenant->setSecondaryColorDark($data['secondaryColorDark']);
             $tenant->setContactEmail($data['contactEmail']);
+            $tenant->setPhone($data['phone'] ?? null);
+            $tenant->setAddress($data['address'] ?? null);
+            $tenant->setHeroTitle($data['heroTitle'] ?? null);
+            $tenant->setHeroSubtitle($data['heroSubtitle'] ?? null);
+            $tenant->setHeroDescription($data['heroDescription'] ?? null);
+            $tenant->setCtaText($data['ctaText'] ?? null);
+            $tenant->setCtaSubtext($data['ctaSubtext'] ?? null);
+            $tenant->setSeoTitle($data['seoTitle'] ?? null);
+            $tenant->setSeoDescription($data['seoDescription'] ?? null);
 
             $this->copyLogoToTenant($fs, $data['logo'], $tenant);
 
@@ -119,7 +146,7 @@ class SeedDataCommand extends Command
                 ['title' => 'Administrativo', 'careers' => ['Recepcionista', 'Assistente Administrativo', 'Auxiliar de Faturamento']],
                 ['title' => 'Tecnologia da Informação', 'careers' => ['Analista de Sistemas', 'Suporte de TI']],
             ],
-            'Vida & Saúde Clínica' => [
+            'Vida & Saude Clinica' => [
                 ['title' => 'Saúde', 'careers' => ['Psicólogo(a)', 'Fisioterapeuta', 'Nutricionista', 'Fonoaudiólogo(a)']],
                 ['title' => 'Administrativo', 'careers' => ['Recepcionista', 'Coordenador(a) Administrativo']],
                 ['title' => 'Farmácia', 'careers' => ['Farmacêutico(a)', 'Auxiliar de Farmácia']],
@@ -210,7 +237,7 @@ class SeedDataCommand extends Command
                     ],
                 ],
             ],
-            'Vida & Saúde Clínica' => [
+            'Vida & Saude Clinica' => [
                 [
                     'name' => 'Beatriz Oliveira Santos',
                     'email' => 'beatriz.santos@email.com',
@@ -345,7 +372,7 @@ class SeedDataCommand extends Command
     {
         $connection = $this->em->getConnection();
         $connection->executeStatement('SET FOREIGN_KEY_CHECKS=0');
-        foreach (['academic_background', 'work_experience', 'candidate', 'career', 'area_of_interest', 'lgpd_log', 'exclusion_request'] as $table) {
+        foreach (['saved_search', 'academic_background', 'work_experience', 'candidate', 'career', 'area_of_interest', 'lgpd_log', 'exclusion_request'] as $table) {
             $connection->executeStatement("TRUNCATE TABLE `$table`");
         }
         $connection->executeStatement('SET FOREIGN_KEY_CHECKS=1');

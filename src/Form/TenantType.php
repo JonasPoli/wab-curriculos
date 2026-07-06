@@ -109,6 +109,31 @@ class TenantType extends AbstractType
                 'download_uri'  => false,
                 'image_uri'     => true,
             ])
+            ->add('heroTitle', TextType::class, [
+                'label'    => 'Título do Hero (landing page)',
+                'required' => false,
+                'attr'     => ['placeholder' => 'Faça parte do nosso time'],
+            ])
+            ->add('heroSubtitle', TextType::class, [
+                'label'    => 'Subtítulo do Hero',
+                'required' => false,
+                'attr'     => ['placeholder' => 'Cadastre seu currículo'],
+            ])
+            ->add('heroDescription', TextareaType::class, [
+                'label'    => 'Descrição institucional (landing page)',
+                'required' => false,
+                'attr'     => ['rows' => 4, 'placeholder' => 'Texto sobre a empresa, cultura, valores...'],
+            ])
+            ->add('ctaText', TextType::class, [
+                'label'    => 'Texto do botão CTA',
+                'required' => false,
+                'attr'     => ['placeholder' => 'Cadastre seu currículo'],
+            ])
+            ->add('ctaSubtext', TextType::class, [
+                'label'    => 'Texto de apoio do CTA',
+                'required' => false,
+                'attr'     => ['placeholder' => 'Processo rápido e seguro'],
+            ])
         ;
     }
 
