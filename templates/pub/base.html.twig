@@ -726,8 +726,14 @@
         }
     </style>
     {% block stylesheets %}{% endblock %}
+    {% if tenant is defined and tenant and tenant.headerScript %}
+        {{ tenant.headerScript|raw }}
+    {% endif %}
 </head>
 <body>
+    {% if tenant is defined and tenant and tenant.bodyScript %}
+        {{ tenant.bodyScript|raw }}
+    {% endif %}
 
 {# ── Header ─────────────────────────────────────────────────────────────── #}
 <header class="pub-header">

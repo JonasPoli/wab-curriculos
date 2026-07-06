@@ -103,6 +103,12 @@ class Tenant
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $ctaSubtext = null;
 
+    #[ORM\Column(type: Types::TEXT, nullable: true)]
+    private ?string $headerScript = null;
+
+    #[ORM\Column(type: Types::TEXT, nullable: true)]
+    private ?string $bodyScript = null;
+
     #[ORM\Column(type: Types::DATETIME_MUTABLE, nullable: true)]
     private ?\DateTime $updatedAt = null;
 
@@ -387,6 +393,12 @@ class Tenant
 
     public function getCtaSubtext(): ?string { return $this->ctaSubtext; }
     public function setCtaSubtext(?string $ctaSubtext): static { $this->ctaSubtext = $ctaSubtext; return $this; }
+
+    public function getHeaderScript(): ?string { return $this->headerScript; }
+    public function setHeaderScript(?string $headerScript): static { $this->headerScript = $headerScript; return $this; }
+
+    public function getBodyScript(): ?string { return $this->bodyScript; }
+    public function setBodyScript(?string $bodyScript): static { $this->bodyScript = $bodyScript; return $this; }
 
     public function getUpdatedAt(): ?\DateTime
     {

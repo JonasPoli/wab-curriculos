@@ -134,6 +134,18 @@ class TenantType extends AbstractType
                 'required' => false,
                 'attr'     => ['placeholder' => 'Processo rápido e seguro'],
             ])
+            ->add('headerScript', TextareaType::class, [
+                'label'    => 'Script do Header (Google Analytics / Pixel, etc.)',
+                'required' => false,
+                'attr'     => ['rows' => 6, 'placeholder' => 'Ex: <script async src="https://www.googletagmanager.com/gtag/js..."></script>'],
+                'help'     => 'Script injetado antes do fechamento da tag </head> nas páginas públicas.',
+            ])
+            ->add('bodyScript', TextareaType::class, [
+                'label'    => 'Script do Body (GTM noscript, etc.)',
+                'required' => false,
+                'attr'     => ['rows' => 6, 'placeholder' => 'Ex: <noscript><iframe src="https://www.googletagmanager.com/ns.html..." ...></iframe></noscript>'],
+                'help'     => 'Script injetado logo após a abertura da tag <body> nas páginas públicas.',
+            ])
         ;
     }
 

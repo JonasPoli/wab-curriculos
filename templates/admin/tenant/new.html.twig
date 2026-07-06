@@ -216,6 +216,15 @@
             </div>
         </div>
 
+        {# ── Scripts do Domínio ── #}
+        <div class="admin-card">
+            <div class="form-section-title"><i class="fa-solid fa-code" aria-hidden="true"></i> Scripts do Domínio (Analytics / Pixel)</div>
+            <div style="display:flex;flex-direction:column;gap:16px">
+                {{ form_row(form.headerScript) }}
+                {{ form_row(form.bodyScript) }}
+            </div>
+        </div>
+
     </div>
 
     {# ══ Coluna lateral ═════════════════════════════════════════════════════ #}
