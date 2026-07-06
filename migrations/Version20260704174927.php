@@ -19,11 +19,38 @@ final class Version20260704174927 extends AbstractMigration
 
     public function up(Schema $schema): void
     {
-        // this up() migration is auto-generated, please modify it to your needs
-        $this->addSql('CREATE TABLE saved_search (id INT AUTO_INCREMENT NOT NULL, tenant_id INT NOT NULL, user_id INT NOT NULL, name VARCHAR(100) NOT NULL, filters JSON NOT NULL, created_at DATETIME NOT NULL COMMENT \'(DC2Type:datetime_immutable)\', INDEX IDX_D0F6A0BC9033212A (tenant_id), INDEX IDX_D0F6A0BCA76ED395 (user_id), PRIMARY KEY(id)) DEFAULT CHARACTER SET utf8mb4 COLLATE `utf8mb4_unicode_ci` ENGINE = InnoDB');
-        $this->addSql('ALTER TABLE saved_search ADD CONSTRAINT FK_D0F6A0BC9033212A FOREIGN KEY (tenant_id) REFERENCES tenant (id) ON DELETE CASCADE');
-        $this->addSql('ALTER TABLE saved_search ADD CONSTRAINT FK_D0F6A0BCA76ED395 FOREIGN KEY (user_id) REFERENCES user (id) ON DELETE CASCADE');
-        $this->addSql('ALTER TABLE tenant ADD hero_title VARCHAR(255) DEFAULT NULL, ADD hero_subtitle VARCHAR(255) DEFAULT NULL, ADD hero_description LONGTEXT DEFAULT NULL, ADD cta_text VARCHAR(100) DEFAULT NULL, ADD cta_subtext VARCHAR(255) DEFAULT NULL');
+        if (!$schema->hasTable('saved_search')) {
+            $this->addSql('CREATE TABLE saved_search (id INT AUTO_INCREMENT NOT NULL, tenant_id INT NOT NULL, user_id INT NOT NULL, name VARCHAR(100) NOT NULL, filters JSON NOT NULL, created_at DATETIME NOT NULL COMMENT \'(DC2Type:datetime_immutable)\', INDEX IDX_D0F6A0BC9033212A (tenant_id), INDEX IDX_D0F6A0BCA76ED395 (user_id), PRIMARY KEY(id)) DEFAULT CHARACTER SET utf8mb4 COLLATE `utf8mb4_unicode_ci` ENGINE = InnoDB');
+            $this->addSql('ALTER TABLE saved_search ADD CONSTRAINT FK_D0F6A0BC9033212A FOREIGN KEY (tenant_id) REFERENCES tenant (id) ON DELETE CASCADE');
+            $this->addSql('ALTER TABLE saved_search ADD CONSTRAINT FK_D0F6A0BCA76ED395 FOREIGN KEY (user_id) REFERENCES user (id) ON DELETE CASCADE');
+        } else {
+            $table = $schema->getTable('saved_search');
+            if (!$table->hasForeignKey('FK_D0F6A0BC9033212A')) {
+                $this->addSql('ALTER TABLE saved_search ADD CONSTRAINT FK_D0F6A0BC9033212A FOREIGN KEY (tenant_id) REFERENCES tenant (id) ON DELETE CASCADE');
+            }
+            if (!$table->hasForeignKey('FK_D0F6A0BCA76ED395')) {
+                $this->addSql('ALTER TABLE saved_search ADD CONSTRAINT FK_D0F6A0BCA76ED395 FOREIGN KEY (user_id) REFERENCES user (id) ON DELETE CASCADE');
+            }
+        }
+
+        if ($schema->hasTable('tenant')) {
+            $table = $schema->getTable('tenant');
+            $cols = ['hero_title', 'hero_subtitle', 'hero_description', 'cta_text', 'cta_subtext'];
+            $types = [
+                'hero_title' => 'VARCHAR(255) DEFAULT NULL',
+                'hero_subtitle' => 'VARCHAR(255) DEFAULT NULL',
+                'hero_description' => 'LONGTEXT DEFAULT NULL',
+                'cta_text' => 'VARCHAR(100) DEFAULT NULL',
+                'cta_subtext' => 'VARCHAR(255) DEFAULT NULL'
+            ];
+            foreach ($cols as $col) {
+                if (!$table->hasColumn($col)) {
+                    $this->addSql("ALTER TABLE tenant ADD {$col} {$types[$col]}");
+                }
+            }
+        } else {
+            $this->addSql('ALTER TABLE tenant ADD hero_title VARCHAR(255) DEFAULT NULL, ADD hero_subtitle VARCHAR(255) DEFAULT NULL, ADD hero_description LONGTEXT DEFAULT NULL, ADD cta_text VARCHAR(100) DEFAULT NULL, ADD cta_subtext VARCHAR(255) DEFAULT NULL');
+        }
     }
 
     public function down(Schema $schema): void
