@@ -1,0 +1,17 @@
+{% extends 'pub/base.html.twig' %}
+{% block title %}Política de Privacidade{% if tenant %} · {{ tenant.name }}{% endif %}{% endblock %}
+
+{% block body %}
+<div style="max-width:800px; margin: 2rem auto; padding: 0 1.5rem;">
+    <div class="card" style="padding: 2.5rem;">
+        <h1 style="font-family:'Plus Jakarta Sans',sans-serif; font-size:2rem; font-weight:800; margin-bottom:1.5rem; color:var(--text)">Política de Privacidade</h1>
+        <div class="privacy-content" style="line-height:1.7; color:var(--text2)">
+            {% if tenant and tenant.privacyPolicyHtml %}
+                {{ tenant.privacyPolicyHtml|raw }}
+            {% else %}
+                <p>Nenhuma política de privacidade cadastrada para este portal.</p>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

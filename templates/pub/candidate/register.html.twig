@@ -106,7 +106,7 @@
                 <div class="form-group" style="margin-top:.25rem">
                     <label style="display:flex;align-items:flex-start;gap:10px;cursor:pointer;font-size:.82rem;color:var(--text2)">
                         {{ form_widget(form.lgpdConsent, {attr: {style: 'accent-color:var(--p);margin-top:3px;flex-shrink:0'}}) }}
-                        <span>Li e aceito os <a href="#" style="color:var(--p)">termos de uso</a> e a <a href="#" style="color:var(--p)">política de privacidade</a>, autorizando o uso dos meus dados conforme a LGPD.</span>
+                        <span>Li e aceito os <a href="{{ path('pub_terms') }}" target="_blank" style="color:var(--p);text-decoration:underline">termos de uso</a> e a <a href="{{ path('pub_privacy') }}" target="_blank" style="color:var(--p);text-decoration:underline">política de privacidade</a>, autorizando o uso dos meus dados conforme a LGPD.</span>
                     </label>
                     {{ form_errors(form.lgpdConsent) }}
                 </div>

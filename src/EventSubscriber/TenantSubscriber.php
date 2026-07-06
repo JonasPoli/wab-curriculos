@@ -40,7 +40,6 @@ class TenantSubscriber implements EventSubscriberInterface
         $path    = $request->getPathInfo();
 
         if (str_starts_with($path, '/_')
-            || str_starts_with($path, '/login')
             || str_starts_with($path, '/logout')
         ) {
             return;

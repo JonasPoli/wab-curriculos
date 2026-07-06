@@ -15,6 +15,8 @@ use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 
+use App\Service\TenantContext;
+
 class ResetPasswordController extends AbstractController
 {
     public function __construct(
@@ -23,6 +25,7 @@ class ResetPasswordController extends AbstractController
         private readonly UserPasswordHasherInterface $hasher,
         private readonly MailerInterface $mailer,
         private readonly ParameterBagInterface $params,
+        private readonly TenantContext $tenantContext,
     ) {}
 
     // ── Step 1: Formulário de e-mail ──────────────────────────────────────────
@@ -53,8 +56,9 @@ class ResetPasswordController extends AbstractController
                 );
 
                 try {
+                    $tenant = $this->tenantContext->getTenant();
                     $emailMessage = (new TemplatedEmail())
-                        ->from(new Address($this->params->get('emailFrom'), 'WAB Admin'))
+                        ->from(new Address($this->params->get('emailFrom'), $tenant ? $tenant->getName() : 'WAB Admin'))
                         ->to(new Address($user->getEmail(), $user->getDisplayName()))
                         ->subject('Redefinição de senha')
                         ->htmlTemplate('email/reset_password.html.twig')
@@ -62,6 +66,7 @@ class ResetPasswordController extends AbstractController
                             'user'      => $user,
                             'resetUrl'  => $resetUrl,
                             'expiresAt' => $expiresAt,
+                            'tenant'    => $tenant,
                         ])
                     ;
                     $this->mailer->send($emailMessage);
