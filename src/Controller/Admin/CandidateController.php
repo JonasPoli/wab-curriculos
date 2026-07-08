@@ -184,7 +184,7 @@ final class CandidateController extends AbstractTenantController
     }
 
     #[Route('/{id}/download-resume', name: 'admin_candidate_download_resume', methods: ['GET'])]
-    public function downloadResume(Candidate $candidate, string $projectDir, TenantContext $tenantContext): Response
+    public function downloadResume(Candidate $candidate, TenantContext $tenantContext): Response
     {
         $this->setTenantContext($tenantContext);
         $this->requireTenant();
@@ -195,8 +195,8 @@ final class CandidateController extends AbstractTenantController
             throw new NotFoundHttpException('Este candidato não possui currículo em arquivo.');
         }
 
-        $tenantId = $candidate->getTenant()?->getId();
-        $filePath = $projectDir . '/var/uploads/resumes/tenant_' . $tenantId . '/' . $filename;
+        $projectDir = $this->getParameter('kernel.project_dir');
+        $filePath   = $projectDir . '/var/uploads/resumes/' . $filename;
 
         if (!file_exists($filePath)) {
             throw new NotFoundHttpException('Arquivo não encontrado no servidor.');

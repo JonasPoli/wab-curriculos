@@ -80,23 +80,61 @@ class CandidateRepository extends ServiceEntityRepository
             ->orderBy('c.createdAt', 'DESC');
 
         if (!empty($filters['q'])) {
-            $qb->andWhere('c.name LIKE :q OR c.email LIKE :q')
-               ->setParameter('q', '%' . $filters['q'] . '%');
+            $qMode = $filters['qMode'] ?? 'or';
+            $qMode = strtolower($qMode) === 'and' ? 'and' : 'or';
+
+            $terms = array_filter(
+                array_map('trim', explode(' ', $filters['q'])),
+                fn($t) => $t !== ''
+            );
+
+            if (!empty($terms)) {
+                $termExpressions = [];
+                foreach ($terms as $index => $term) {
+                    $paramName = 'q_' . $index;
+                    $termExpressions[] = $qb->expr()->orX(
+                        $qb->expr()->like('c.name', ':' . $paramName),
+                        $qb->expr()->like('c.email', ':' . $paramName)
+                    );
+                    $qb->setParameter($paramName, '%' . $term . '%');
+                }
+
+                if ($qMode === 'and') {
+                    $qb->andWhere($qb->expr()->andX(...$termExpressions));
+                } else {
+                    $qb->andWhere($qb->expr()->orX(...$termExpressions));
+                }
+            }
         }
 
         if (!empty($filters['area'])) {
-            $qb->andWhere('area.id = :area')
-               ->setParameter('area', (int) $filters['area']);
+            $areaIds = [];
+            $rawAreas = is_iterable($filters['area']) ? $filters['area'] : [$filters['area']];
+            foreach ($rawAreas as $item) {
+                $areaIds[] = $item instanceof \App\Entity\AreaOfInterest ? $item->getId() : (int) $item;
+            }
+            if (!empty($areaIds)) {
+                $qb->andWhere('area.id IN (:areas)')
+                   ->setParameter('areas', $areaIds);
+            }
         }
 
         if (!empty($filters['career'])) {
-            $qb->andWhere('career.id = :career')
-               ->setParameter('career', (int) $filters['career']);
+            $careerIds = [];
+            $rawCareers = is_iterable($filters['career']) ? $filters['career'] : [$filters['career']];
+            foreach ($rawCareers as $item) {
+                $careerIds[] = $item instanceof \App\Entity\Career ? $item->getId() : (int) $item;
+            }
+            if (!empty($careerIds)) {
+                $qb->andWhere('career.id IN (:careers)')
+                   ->setParameter('careers', $careerIds);
+            }
         }
 
         if (!empty($filters['state'])) {
-            $qb->andWhere('c.state = :state')
-               ->setParameter('state', $filters['state']);
+            $states = is_iterable($filters['state']) ? $filters['state'] : [$filters['state']];
+            $qb->andWhere('c.state IN (:states)')
+               ->setParameter('states', $states);
         }
 
         if (!empty($filters['city'])) {
@@ -105,8 +143,16 @@ class CandidateRepository extends ServiceEntityRepository
         }
 
         if (!empty($filters['contractType'])) {
-            $qb->andWhere("JSON_CONTAINS(c.contractTypes, :ct) = 1")
-               ->setParameter('ct', json_encode($filters['contractType']));
+            $contractTypes = is_iterable($filters['contractType']) ? $filters['contractType'] : [$filters['contractType']];
+            $orStatements = [];
+            foreach ($contractTypes as $index => $ct) {
+                $paramName = 'ct_' . $index;
+                $orStatements[] = "c.contractTypes LIKE :" . $paramName;
+                $qb->setParameter($paramName, '%"' . $ct . '"%');
+            }
+            if (!empty($orStatements)) {
+                $qb->andWhere($qb->expr()->orX(...$orStatements));
+            }
         }
 
         if (isset($filters['immediateStart']) && $filters['immediateStart'] !== '') {
@@ -143,17 +189,58 @@ class CandidateRepository extends ServiceEntityRepository
             ->leftJoin('career.area', 'area');
 
         if (!empty($filters['q'])) {
-            $qb->andWhere('c.name LIKE :q OR c.email LIKE :q')
-               ->setParameter('q', '%' . $filters['q'] . '%');
+            $qMode = $filters['qMode'] ?? 'or';
+            $qMode = strtolower($qMode) === 'and' ? 'and' : 'or';
+
+            $terms = array_filter(
+                array_map('trim', explode(' ', $filters['q'])),
+                fn($t) => $t !== ''
+            );
+
+            if (!empty($terms)) {
+                $termExpressions = [];
+                foreach ($terms as $index => $term) {
+                    $paramName = 'q_' . $index;
+                    $termExpressions[] = $qb->expr()->orX(
+                        $qb->expr()->like('c.name', ':' . $paramName),
+                        $qb->expr()->like('c.email', ':' . $paramName)
+                    );
+                    $qb->setParameter($paramName, '%' . $term . '%');
+                }
+
+                if ($qMode === 'and') {
+                    $qb->andWhere($qb->expr()->andX(...$termExpressions));
+                } else {
+                    $qb->andWhere($qb->expr()->orX(...$termExpressions));
+                }
+            }
         }
         if (!empty($filters['area'])) {
-            $qb->andWhere('area.id = :area')->setParameter('area', (int) $filters['area']);
+            $areaIds = [];
+            $rawAreas = is_iterable($filters['area']) ? $filters['area'] : [$filters['area']];
+            foreach ($rawAreas as $item) {
+                $areaIds[] = $item instanceof \App\Entity\AreaOfInterest ? $item->getId() : (int) $item;
+            }
+            if (!empty($areaIds)) {
+                $qb->andWhere('area.id IN (:areas)')
+                   ->setParameter('areas', $areaIds);
+            }
         }
         if (!empty($filters['career'])) {
-            $qb->andWhere('career.id = :career')->setParameter('career', (int) $filters['career']);
+            $careerIds = [];
+            $rawCareers = is_iterable($filters['career']) ? $filters['career'] : [$filters['career']];
+            foreach ($rawCareers as $item) {
+                $careerIds[] = $item instanceof \App\Entity\Career ? $item->getId() : (int) $item;
+            }
+            if (!empty($careerIds)) {
+                $qb->andWhere('career.id IN (:careers)')
+                   ->setParameter('careers', $careerIds);
+            }
         }
         if (!empty($filters['state'])) {
-            $qb->andWhere('c.state = :state')->setParameter('state', $filters['state']);
+            $states = is_iterable($filters['state']) ? $filters['state'] : [$filters['state']];
+            $qb->andWhere('c.state IN (:states)')
+               ->setParameter('states', $states);
         }
 
         return (int) $qb->getQuery()->getSingleScalarResult();

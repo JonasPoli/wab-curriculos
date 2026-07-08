@@ -19,7 +19,7 @@
             <i class="fa-solid fa-user" style="margin-right:8px;color:var(--bm-accent)" aria-hidden="true"></i>
             {{ candidate.name }}
         </h1>
-        <p class="page-subtitle">Cadastrado em {{ candidate.createdAt|date('d/m/Y \\à\\s H:i') }}</p>
+        <p class="page-subtitle">Cadastrado em {{ candidate.createdAt|date('d/m/Y \à\s H:i') }}</p>
     </div>
     <div style="display:flex;gap:10px">
         <a href="{{ path('admin_candidate_index') }}" class="btn-secondary">
@@ -35,202 +35,243 @@
     </div>
 </div>
 
-<div style="display:grid;grid-template-columns:1fr 340px;gap:24px;align-items:start">
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
 
     {# ── Coluna principal ── #}
-    <div style="display:flex;flex-direction:column;gap:20px">
+    <div class="lg:col-span-2 flex flex-col gap-6">
 
-        <div class="card">
-            <div class="card-body">
-                <div class="form-section-title"><i class="fa-solid fa-circle-info" aria-hidden="true"></i> Dados Pessoais</div>
-                <dl style="display:grid;grid-template-columns:160px 1fr;gap:10px 16px;font-size:14px">
-                    <dt style="color:var(--bm-text-muted)">E-mail</dt>
-                    <dd><a href="mailto:{{ candidate.email }}">{{ candidate.email }}</a></dd>
-                    <dt style="color:var(--bm-text-muted)">Telefone</dt>
-                    <dd>{{ candidate.phone }}</dd>
-                    <dt style="color:var(--bm-text-muted)">Cidade / UF</dt>
-                    <dd>{{ candidate.city }} / {{ candidate.state }}</dd>
-                    {% if candidate.birthDate %}
-                    <dt style="color:var(--bm-text-muted)">Nascimento</dt>
-                    <dd>{{ candidate.birthDate|date('d/m/Y') }}</dd>
-                    {% endif %}
-                    {% if candidate.linkedinUrl %}
-                    <dt style="color:var(--bm-text-muted)">LinkedIn</dt>
-                    <dd><a href="{{ candidate.linkedinUrl }}" target="_blank" rel="noopener">Ver perfil</a></dd>
-                    {% endif %}
-                    {% if candidate.lattesUrl %}
-                    <dt style="color:var(--bm-text-muted)">Lattes</dt>
-                    <dd><a href="{{ candidate.lattesUrl }}" target="_blank" rel="noopener">Ver currículo</a></dd>
-                    {% endif %}
-                </dl>
+        <div class="admin-card">
+            <div class="admin-card-title">
+                <i class="fa-solid fa-circle-info" style="color:var(--bm-accent)"></i>
+                Dados Pessoais
             </div>
+            <dl style="display:grid;grid-template-columns:140px 1fr;gap:12px 16px;font-size:14px">
+                <dt style="color:var(--bm-text-muted);font-weight:500">E-mail</dt>
+                <dd><a href="mailto:{{ candidate.email }}" style="color:var(--bm-accent);text-decoration:none">{{ candidate.email }}</a></dd>
+                
+                <dt style="color:var(--bm-text-muted);font-weight:500">Telefone</dt>
+                <dd style="color:var(--bm-text)">{{ candidate.phone }}</dd>
+                
+                <dt style="color:var(--bm-text-muted);font-weight:500">Cidade / UF</dt>
+                <dd style="color:var(--bm-text)">{{ candidate.city }} / {{ candidate.state }}</dd>
+                
+                {% if candidate.birthDate %}
+                <dt style="color:var(--bm-text-muted);font-weight:500">Nascimento</dt>
+                <dd style="color:var(--bm-text)">{{ candidate.birthDate|date('d/m/Y') }}</dd>
+                {% endif %}
+                
+                {% if candidate.linkedinUrl %}
+                <dt style="color:var(--bm-text-muted);font-weight:500">LinkedIn</dt>
+                <dd>
+                    <a href="{{ candidate.linkedinUrl }}" target="_blank" rel="noopener" style="color:var(--bm-accent);text-decoration:none;display:inline-flex;align-items:center;gap:4px">
+                        <i class="fa-brands fa-linkedin"></i> Ver perfil
+                    </a>
+                </dd>
+                {% endif %}
+                
+                {% if candidate.lattesUrl %}
+                <dt style="color:var(--bm-text-muted);font-weight:500">Lattes</dt>
+                <dd>
+                    <a href="{{ candidate.lattesUrl }}" target="_blank" rel="noopener" style="color:var(--bm-accent);text-decoration:none;display:inline-flex;align-items:center;gap:4px">
+                        <i class="fa-solid fa-graduation-cap"></i> Ver currículo
+                    </a>
+                </dd>
+                {% endif %}
+            </dl>
         </div>
 
         {% if candidate.professionalSummary %}
-        <div class="card">
-            <div class="card-body">
-                <div class="form-section-title"><i class="fa-solid fa-align-left" aria-hidden="true"></i> Resumo Profissional</div>
-                <p style="font-size:14px;line-height:1.7;white-space:pre-wrap">{{ candidate.professionalSummary }}</p>
+        <div class="admin-card">
+            <div class="admin-card-title">
+                <i class="fa-solid fa-align-left" style="color:var(--bm-accent)"></i>
+                Resumo Profissional
             </div>
+            <p style="font-size:14px;line-height:1.7;white-space:pre-wrap;color:var(--bm-text)">{{ candidate.professionalSummary }}</p>
         </div>
         {% endif %}
 
         {% if candidate.workExperiences|length %}
-        <div class="card">
-            <div class="card-body">
-                <div class="form-section-title"><i class="fa-solid fa-briefcase" aria-hidden="true"></i> Experiência Profissional</div>
-                <div style="display:flex;flex-direction:column;gap:20px">
-                {% for exp in candidate.workExperiences %}
-                    <div style="padding-left:16px;border-left:3px solid var(--bm-accent)">
-                        <div style="font-weight:600;font-size:14px">{{ exp.position }} — {{ exp.companyName }}</div>
-                        <div style="font-size:12px;color:var(--bm-text-muted);margin:2px 0 6px">
-                            {{ exp.startDate|date('m/Y') }} → {{ exp.isCurrentJob ? 'Atual' : (exp.endDate ? exp.endDate|date('m/Y') : '?') }}
-                        </div>
-                        <p style="font-size:13px;line-height:1.6;white-space:pre-wrap">{{ exp.description }}</p>
+        <div class="admin-card">
+            <div class="admin-card-title">
+                <i class="fa-solid fa-briefcase" style="color:var(--bm-accent)"></i>
+                Experiência Profissional
+            </div>
+            <div style="display:flex;flex-direction:column;gap:20px">
+            {% for exp in candidate.workExperiences %}
+                <div style="padding-left:16px;border-left:3px solid var(--bm-accent)">
+                    <div style="font-weight:600;font-size:14px;color:var(--bm-text)">{{ exp.position }} — {{ exp.companyName }}</div>
+                    <div style="font-size:12px;color:var(--bm-text-muted);margin:4px 0 8px;font-weight:500">
+                        <i class="fa-regular fa-calendar-days" style="margin-right:4px"></i>
+                        {{ exp.startDate|date('m/Y') }} → {{ exp.isCurrentJob ? 'Atual' : (exp.endDate ? exp.endDate|date('m/Y') : '?') }}
                     </div>
-                {% endfor %}
+                    <p style="font-size:13px;line-height:1.6;white-space:pre-wrap;color:var(--bm-text);opacity:.85">{{ exp.description }}</p>
                 </div>
+            {% endfor %}
             </div>
         </div>
         {% endif %}
 
         {% if candidate.academicBackgrounds|length %}
-        <div class="card">
-            <div class="card-body">
-                <div class="form-section-title"><i class="fa-solid fa-graduation-cap" aria-hidden="true"></i> Formação Acadêmica</div>
-                <div style="display:flex;flex-direction:column;gap:14px">
-                {% for ab in candidate.academicBackgrounds %}
-                    <div style="display:flex;justify-content:space-between;align-items:start">
-                        <div>
-                            <div style="font-weight:600;font-size:14px">{{ ab.course }}</div>
-                            <div style="font-size:13px;color:var(--bm-text-muted)">{{ ab.institution }}</div>
-                            <div style="font-size:12px;color:var(--bm-text-muted);margin-top:2px">{{ ab.educationLevel.label() }}</div>
-                        </div>
-                        <div style="text-align:right;flex-shrink:0">
-                            <span class="badge {% if ab.status.value == 'Concluído' %}badge-green{% elseif ab.status.value == 'Em andamento' %}badge-blue{% else %}badge-red{% endif %}">
-                                {{ ab.status.label() }}
-                            </span>
-                            <div style="font-size:11px;color:var(--bm-text-muted);margin-top:4px">
-                                {% if ab.startDate %}{{ ab.startDate|date('m/Y') }}{% endif %}
-                                {% if ab.endDate %} → {{ ab.endDate|date('m/Y') }}{% endif %}
-                            </div>
+        <div class="admin-card">
+            <div class="admin-card-title">
+                <i class="fa-solid fa-graduation-cap" style="color:var(--bm-accent)"></i>
+                Formação Acadêmica
+            </div>
+            <div style="display:flex;flex-direction:column;gap:18px">
+            {% for ab in candidate.academicBackgrounds %}
+                <div style="display:flex;justify-content:space-between;align-items:start;gap:16px">
+                    <div>
+                        <div style="font-weight:600;font-size:14px;color:var(--bm-text)">{{ ab.course }}</div>
+                        <div style="font-size:13px;color:var(--bm-text-muted);margin-top:2px">{{ ab.institution }}</div>
+                        <div style="font-size:12px;color:var(--bm-text-muted);margin-top:2px;font-weight:500">{{ ab.educationLevel.label() }}</div>
+                    </div>
+                    <div style="text-align:right;flex-shrink:0">
+                        <span class="badge {% if ab.status.value == 'Concluído' %}badge-green{% elseif ab.status.value == 'Em andamento' %}badge-blue{% else %}badge-red{% endif %}">
+                            {{ ab.status.label() }}
+                        </span>
+                        <div style="font-size:11px;color:var(--bm-text-muted);margin-top:6px;font-weight:500">
+                            {% if ab.startDate %}{{ ab.startDate|date('m/Y') }}{% endif %}
+                            {% if ab.endDate %} → {{ ab.endDate|date('m/Y') }}{% endif %}
                         </div>
                     </div>
-                {% endfor %}
                 </div>
+                {% if not loop.last %}
+                    <hr style="border:0;border-top:1px solid var(--bm-border);margin:0">
+                {% endif %}
+            {% endfor %}
             </div>
         </div>
         {% endif %}
 
         {% if candidate.candidateMessage %}
-        <div class="card">
-            <div class="card-body">
-                <div class="form-section-title"><i class="fa-solid fa-comment" aria-hidden="true"></i> Mensagem do Candidato</div>
-                <p style="font-size:14px;line-height:1.7;white-space:pre-wrap">{{ candidate.candidateMessage }}</p>
+        <div class="admin-card">
+            <div class="admin-card-title">
+                <i class="fa-solid fa-comment" style="color:var(--bm-accent)"></i>
+                Mensagem do Candidato
             </div>
+            <p style="font-size:14px;line-height:1.7;white-space:pre-wrap;color:var(--bm-text)">{{ candidate.candidateMessage }}</p>
         </div>
         {% endif %}
 
     </div>
 
     {# ── Coluna lateral ── #}
-    <div style="display:flex;flex-direction:column;gap:20px">
+    <div class="flex flex-col gap-6">
 
-        <div class="card">
-            <div class="card-body">
-                <div class="form-section-title"><i class="fa-solid fa-briefcase" aria-hidden="true"></i> Cargos de Interesse</div>
-                <div style="display:flex;flex-wrap:wrap;gap:6px">
-                    {% for career in candidate.careers %}
-                        <span class="badge badge-blue">{{ career.title }}</span>
-                    {% else %}
-                        <span style="opacity:.4;font-size:13px">Nenhum cargo informado.</span>
-                    {% endfor %}
-                </div>
+        <div class="admin-card">
+            <div class="admin-card-title">
+                <i class="fa-solid fa-briefcase" style="color:var(--bm-accent)"></i>
+                Cargos de Interesse
+            </div>
+            <div style="display:flex;flex-wrap:wrap;gap:6px">
+                {% for career in candidate.careers %}
+                    <span class="badge badge-blue">{{ career.title }}</span>
+                {% else %}
+                    <span style="opacity:.4;font-size:13px">Nenhum cargo informado.</span>
+                {% endfor %}
             </div>
         </div>
 
-        <div class="card">
-            <div class="card-body">
-                <div class="form-section-title"><i class="fa-solid fa-file-contract" aria-hidden="true"></i> Contrato</div>
-                <div style="font-size:13px;display:flex;flex-direction:column;gap:6px">
+        <div class="admin-card">
+            <div class="admin-card-title">
+                <i class="fa-solid fa-file-contract" style="color:var(--bm-accent)"></i>
+                Contrato
+            </div>
+            <div style="font-size:13px;display:flex;flex-direction:column;gap:10px">
+                <div style="display:flex;flex-wrap:wrap;gap:6px">
                     {% if candidate.contractTypes %}
                         {% for type in candidate.contractTypes %}
-                            <span class="badge badge-green" style="width:fit-content">{{ type }}</span>
+                            <span class="badge badge-green">{{ type }}</span>
                         {% endfor %}
                     {% else %}
                         <span style="opacity:.4">Não informado</span>
                     {% endif %}
-                    <div style="margin-top:6px">
-                        {% if candidate.isImmediateStart %}
-                            <span class="badge badge-green">Disponível imediatamente</span>
-                        {% else %}
-                            <span class="badge badge-red">Sem disponibilidade imediata</span>
-                        {% endif %}
-                    </div>
+                </div>
+                <div style="margin-top:4px">
+                    {% if candidate.isImmediateStart %}
+                        <span class="badge badge-green" style="display:inline-flex;align-items:center;gap:4px">
+                            <i class="fa-solid fa-bolt"></i> Disponível imediatamente
+                        </span>
+                    {% else %}
+                        <span class="badge badge-red" style="display:inline-flex;align-items:center;gap:4px">
+                            <i class="fa-solid fa-hourglass-half"></i> Sem disponibilidade imediata
+                        </span>
+                    {% endif %}
                 </div>
             </div>
         </div>
 
-        <div class="card">
-            <div class="card-body">
-                <div class="form-section-title"><i class="fa-solid fa-calendar" aria-hidden="true"></i> Disponibilidade Semanal</div>
-                <table style="width:100%;font-size:12px;border-collapse:collapse">
-                    <thead>
-                        <tr>
-                            <th style="text-align:left;padding:4px 6px;color:var(--bm-text-muted)">Dia</th>
-                            <th style="padding:4px 6px;text-align:center;color:var(--bm-text-muted)">Manhã</th>
-                            <th style="padding:4px 6px;text-align:center;color:var(--bm-text-muted)">Tarde</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                    {% for day, slots in candidate.availabilityGrid %}
-                        <tr style="border-top:1px solid var(--bm-border)">
-                            <td style="padding:6px">{{ day }}</td>
-                            <td style="text-align:center;padding:6px">
-                                {% if slots.morning %}<i class="fa-solid fa-check" style="color:#22c55e"></i>{% else %}<i class="fa-solid fa-minus" style="opacity:.2"></i>{% endif %}
-                            </td>
-                            <td style="text-align:center;padding:6px">
-                                {% if slots.afternoon %}<i class="fa-solid fa-check" style="color:#22c55e"></i>{% else %}<i class="fa-solid fa-minus" style="opacity:.2"></i>{% endif %}
-                            </td>
-                        </tr>
-                    {% endfor %}
-                    </tbody>
-                </table>
+        <div class="admin-card">
+            <div class="admin-card-title">
+                <i class="fa-solid fa-calendar" style="color:var(--bm-accent)"></i>
+                Disponibilidade Semanal
             </div>
+            <table style="width:100%;font-size:13px;border-collapse:collapse">
+                <thead>
+                    <tr>
+                        <th style="text-align:left;padding:6px;color:var(--bm-text-muted);font-weight:600">Dia</th>
+                        <th style="padding:6px;text-align:center;color:var(--bm-text-muted);font-weight:600">Manhã</th>
+                        <th style="padding:6px;text-align:center;color:var(--bm-text-muted);font-weight:600">Tarde</th>
+                    </tr>
+                </thead>
+                <tbody>
+                {% for day, slots in candidate.availabilityGrid %}
+                    <tr style="border-top:1px solid var(--bm-border)">
+                        <td style="padding:8px 6px;color:var(--bm-text);font-weight:500">{{ day }}</td>
+                        <td style="text-align:center;padding:8px 6px">
+                            {% if slots.morning %}
+                                <i class="fa-solid fa-circle" style="color:#22c55e;font-size:.65rem" title="Disponível"></i>
+                            {% else %}
+                                <i class="fa-solid fa-circle" style="color:var(--bm-border);font-size:.65rem" title="Indisponível"></i>
+                            {% endif %}
+                        </td>
+                        <td style="text-align:center;padding:8px 6px">
+                            {% if slots.afternoon %}
+                                <i class="fa-solid fa-circle" style="color:#22c55e;font-size:.65rem" title="Disponível"></i>
+                            {% else %}
+                                <i class="fa-solid fa-circle" style="color:var(--bm-border);font-size:.65rem" title="Indisponível"></i>
+                            {% endif %}
+                        </td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
         </div>
 
         {% if candidate.activeRegistration %}
-        <div class="card">
-            <div class="card-body">
-                <div class="form-section-title"><i class="fa-solid fa-id-card" aria-hidden="true"></i> Conselho Profissional</div>
-                <dl style="font-size:13px;display:grid;grid-template-columns:auto 1fr;gap:6px 12px">
-                    <dt style="color:var(--bm-text-muted)">Conselho</dt>
-                    <dd>{{ candidate.councilName ?? '—' }}</dd>
-                    <dt style="color:var(--bm-text-muted)">Registro</dt>
-                    <dd>{{ candidate.registrationNumber ?? '—' }}</dd>
-                </dl>
+        <div class="admin-card">
+            <div class="admin-card-title">
+                <i class="fa-solid fa-id-card" style="color:var(--bm-accent)"></i>
+                Conselho Profissional
             </div>
+            <dl style="font-size:13px;display:grid;grid-template-columns:auto 1fr;gap:8px 16px">
+                <dt style="color:var(--bm-text-muted);font-weight:500">Conselho</dt>
+                <dd style="color:var(--bm-text)">{{ candidate.councilName ?? '—' }}</dd>
+                <dt style="color:var(--bm-text-muted);font-weight:500">Registro</dt>
+                <dd style="color:var(--bm-text)">{{ candidate.registrationNumber ?? '—' }}</dd>
+            </dl>
         </div>
         {% endif %}
 
-        <div class="card">
-            <div class="card-body">
-                <div class="form-section-title"><i class="fa-solid fa-shield" aria-hidden="true"></i> LGPD</div>
-                <dl style="font-size:12px;display:grid;grid-template-columns:auto 1fr;gap:6px 12px">
-                    <dt style="color:var(--bm-text-muted)">Consentimento</dt>
-                    <dd>
-                        {% if candidate.isLgpdConsent %}
-                            <span class="badge badge-green">Concedido</span>
-                        {% else %}
-                            <span class="badge badge-red">Não concedido</span>
-                        {% endif %}
-                    </dd>
-                    <dt style="color:var(--bm-text-muted)">Data / Hora</dt>
-                    <dd>{{ candidate.lgpdConsentAt ? candidate.lgpdConsentAt|date('d/m/Y H:i') : '—' }}</dd>
-                    <dt style="color:var(--bm-text-muted)">IP</dt>
-                    <dd><code>{{ candidate.lgpdConsentIp ?? '—' }}</code></dd>
-                </dl>
+        <div class="admin-card">
+            <div class="admin-card-title">
+                <i class="fa-solid fa-shield" style="color:var(--bm-accent)"></i>
+                LGPD
             </div>
+            <dl style="font-size:13px;display:grid;grid-template-columns:auto 1fr;gap:8px 16px">
+                <dt style="color:var(--bm-text-muted);font-weight:500">Consentimento</dt>
+                <dd>
+                    {% if candidate.isLgpdConsent %}
+                        <span class="badge badge-green">Concedido</span>
+                    {% else %}
+                        <span class="badge badge-red">Não concedido</span>
+                    {% endif %}
+                </dd>
+                <dt style="color:var(--bm-text-muted);font-weight:500">Data / Hora</dt>
+                <dd style="color:var(--bm-text)">{{ candidate.lgpdConsentAt ? candidate.lgpdConsentAt|date('d/m/Y H:i') : '—' }}</dd>
+                <dt style="color:var(--bm-text-muted);font-weight:500">IP</dt>
+                <dd style="color:var(--bm-text)"><code>{{ candidate.lgpdConsentIp ?? '—' }}</code></dd>
+            </dl>
         </div>
 
     </div>

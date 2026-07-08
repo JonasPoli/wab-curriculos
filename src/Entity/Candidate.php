@@ -124,7 +124,7 @@ class Candidate implements TenantAwareInterface, UserInterface, PasswordAuthenti
     private bool $lgpdConsent = false;
 
     #[ORM\Column(type: Types::DATETIME_MUTABLE, nullable: true)]
-    private ?\DateTime $lgpdConsentAt = null;
+    private ?\DateTimeInterface $lgpdConsentAt = null;
 
     #[ORM\Column(length: 50, nullable: true)]
     private ?string $lgpdConsentIp = null;
@@ -138,7 +138,7 @@ class Candidate implements TenantAwareInterface, UserInterface, PasswordAuthenti
     private ?\DateTimeImmutable $createdAt = null;
 
     #[ORM\Column(type: Types::DATETIME_MUTABLE, nullable: true)]
-    private ?\DateTime $updatedAt = null;
+    private ?\DateTimeInterface $updatedAt = null;
 
     // ─── Reset de senha ──────────────────────────────────────────────────────
 
@@ -299,8 +299,8 @@ class Candidate implements TenantAwareInterface, UserInterface, PasswordAuthenti
     public function isLgpdConsent(): bool { return $this->lgpdConsent; }
     public function setLgpdConsent(bool $lgpdConsent): static { $this->lgpdConsent = $lgpdConsent; return $this; }
 
-    public function getLgpdConsentAt(): ?\DateTime { return $this->lgpdConsentAt; }
-    public function setLgpdConsentAt(?\DateTime $lgpdConsentAt): static { $this->lgpdConsentAt = $lgpdConsentAt; return $this; }
+    public function getLgpdConsentAt(): ?\DateTimeInterface { return $this->lgpdConsentAt; }
+    public function setLgpdConsentAt(?\DateTimeInterface $lgpdConsentAt): static { $this->lgpdConsentAt = $lgpdConsentAt; return $this; }
 
     public function getLgpdConsentIp(): ?string { return $this->lgpdConsentIp; }
     public function setLgpdConsentIp(?string $lgpdConsentIp): static { $this->lgpdConsentIp = $lgpdConsentIp; return $this; }
@@ -311,7 +311,7 @@ class Candidate implements TenantAwareInterface, UserInterface, PasswordAuthenti
     // ─── Timestamps ───────────────────────────────────────────────────────────
 
     public function getCreatedAt(): ?\DateTimeImmutable { return $this->createdAt; }
-    public function getUpdatedAt(): ?\DateTime { return $this->updatedAt; }
+    public function getUpdatedAt(): ?\DateTimeInterface { return $this->updatedAt; }
 
     // ─── Relacionamentos ─────────────────────────────────────────────────────
 

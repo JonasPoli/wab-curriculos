@@ -29,10 +29,10 @@ class ExclusionRequest implements TenantAwareInterface
     private bool $confirmed = false;
 
     #[ORM\Column(type: Types::DATETIME_MUTABLE)]
-    private \DateTime $requestedAt;
+    private \DateTimeInterface $requestedAt;
 
     #[ORM\Column(type: Types::DATETIME_MUTABLE, nullable: true)]
-    private ?\DateTime $confirmedAt = null;
+    private ?\DateTimeInterface $confirmedAt = null;
 
     public function __construct()
     {
@@ -54,8 +54,8 @@ class ExclusionRequest implements TenantAwareInterface
     public function isConfirmed(): bool { return $this->confirmed; }
     public function setConfirmed(bool $confirmed): static { $this->confirmed = $confirmed; return $this; }
 
-    public function getRequestedAt(): \DateTime { return $this->requestedAt; }
+    public function getRequestedAt(): \DateTimeInterface { return $this->requestedAt; }
 
-    public function getConfirmedAt(): ?\DateTime { return $this->confirmedAt; }
-    public function setConfirmedAt(?\DateTime $confirmedAt): static { $this->confirmedAt = $confirmedAt; return $this; }
+    public function getConfirmedAt(): ?\DateTimeInterface { return $this->confirmedAt; }
+    public function setConfirmedAt(?\DateTimeInterface $confirmedAt): static { $this->confirmedAt = $confirmedAt; return $this; }
 }

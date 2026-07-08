@@ -19,28 +19,17 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
-    <link rel="preload" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@600;700;800&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'">
-    <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@600;700;800&display=swap"></noscript>
-    <link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/fontawesome.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
-    <link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/solid.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
-    <noscript>
-        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/fontawesome.min.css">
-        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/solid.min.css">
-    </noscript>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@600;700;800&display=swap" media="print" onload="this.media='all'">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/fontawesome.min.css" media="print" onload="this.media='all'">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/solid.min.css" media="print" onload="this.media='all'">
 
     <style>
-        @font-face {
-            font-family: 'Font Awesome 6 Free';
-            font-style: normal;
-            font-weight: 900;
-            font-display: swap;
-            src: url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/webfonts/fa-solid-900.woff2') format('woff2');
-        }
-        /* ── CSS Variables – injetadas pelo tenant ────────────────────────── */
         :root {
             --p:   {{ (tenant is defined and tenant and tenant.primaryColor)   ? tenant.primaryColor   : '#4f46e5' }};
             --s:   {{ (tenant is defined and tenant and tenant.secondaryColor)  ? tenant.secondaryColor : '#f59e0b' }};
-            --p-dark: color-mix(in srgb, var(--p), #000 45%);
+            --p-dark: {{ color_mix_php((tenant is defined and tenant and tenant.primaryColor) ? tenant.primaryColor : '#4f46e5', '#000000', 45) }};
+            --p-text: {{ contrast_text_color((tenant is defined and tenant and tenant.primaryColor) ? tenant.primaryColor : '#4f46e5') }};
+            --p-dark-text: {{ contrast_text_color(color_mix_php((tenant is defined and tenant and tenant.primaryColor) ? tenant.primaryColor : '#4f46e5', '#000000', 45)) }};
         }
         [data-theme="light"] {
             --bg:        #f4f6fb;
@@ -65,7 +54,9 @@
             --muted:     #8b949e;
             --header-bg: rgba(22,27,34,0.9);
             --logo-filter: brightness(0) invert(1);
-            --p-dark: color-mix(in srgb, var(--p), #fff 25%);
+            --p-dark: {{ color_mix_php((tenant is defined and tenant and tenant.primaryColorDark) ? tenant.primaryColorDark : '#6366f1', '#ffffff', 25) }};
+            --p-text: {{ contrast_text_color((tenant is defined and tenant and tenant.primaryColorDark) ? tenant.primaryColorDark : '#6366f1') }};
+            --p-dark-text: {{ contrast_text_color(color_mix_php((tenant is defined and tenant and tenant.primaryColorDark) ? tenant.primaryColorDark : '#6366f1', '#ffffff', 25)) }};
         }
 
         /* ── Base ─────────────────────────────────────────────────────────── */
@@ -141,7 +132,7 @@
         .pub-nav .nav-active { color: var(--text); background: var(--surface2); }
         .pub-nav .nav-cta {
             background: var(--p-dark);
-            color: #fff !important;
+            color: var(--p-dark-text) !important;
             font-weight: 600;
         }
         .pub-nav .nav-cta:hover { opacity: .88; background: var(--p-dark); }

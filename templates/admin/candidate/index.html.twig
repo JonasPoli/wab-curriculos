@@ -13,7 +13,70 @@
 {% block stylesheets %}
     <link rel="stylesheet" href="https://cdn.datatables.net/2.0.8/css/dataTables.dataTables.min.css">
     <link rel="stylesheet" href="https://cdn.datatables.net/buttons/3.0.2/css/buttons.dataTables.min.css">
+    <link href="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/css/tom-select.css" rel="stylesheet">
     <style>
+        /* Premium custom styles for TomSelect */
+        .ts-wrapper.multi .ts-control {
+            border: 1.5px solid var(--bm-border) !important;
+            border-radius: 8px !important;
+            background: var(--bm-bg) !important;
+            color: var(--bm-text) !important;
+            padding: 8px 12px !important;
+            font-size: .82rem !important;
+            font-family: inherit !important;
+            box-shadow: none !important;
+            transition: border-color .15s !important;
+        }
+        .ts-wrapper.multi.focus .ts-control {
+            border-color: var(--bm-accent) !important;
+            box-shadow: 0 0 0 3px rgba(var(--bm-accent-rgb, 99,102,241), .12) !important;
+        }
+        .ts-dropdown {
+            background: var(--bm-surface, #ffffff) !important;
+            color: var(--bm-text) !important;
+            border: 1px solid var(--bm-border) !important;
+            border-radius: 8px !important;
+            box-shadow: var(--bm-shadow-lg) !important;
+            font-size: .82rem !important;
+            z-index: 1000 !important;
+        }
+        .ts-dropdown .active {
+            background-color: var(--bm-accent) !important;
+            color: #ffffff !important;
+        }
+        .ts-dropdown .option:hover {
+            background-color: color-mix(in srgb, var(--bm-accent) 15%, transparent) !important;
+            color: var(--bm-text) !important;
+        }
+        .ts-control .item {
+            background: var(--bm-accent) !important;
+            color: #ffffff !important;
+            border-radius: 4px !important;
+            font-weight: 500 !important;
+            padding: 2px 6px !important;
+            border: none !important;
+        }
+        .ts-control .item .remove {
+            border-left: 1px solid rgba(255, 255, 255, 0.3) !important;
+            color: #ffffff !important;
+        }
+        /* Fix styles in dark mode */
+        html.dark .ts-wrapper.multi .ts-control {
+            background: var(--bm-input-bg) !important;
+            border-color: var(--bm-input-border) !important;
+        }
+        html.dark .ts-dropdown {
+            background: var(--bm-card-bg) !important;
+            border-color: var(--bm-border) !important;
+        }
+        html.dark .ts-dropdown .option {
+            color: var(--bm-text) !important;
+        }
+        html.dark .ts-dropdown .option.active {
+            background-color: var(--bm-accent) !important;
+            color: #ffffff !important;
+        }
+
         .filter-panel {
             background: var(--bm-surface);
             border: 1px solid var(--bm-border);
@@ -185,45 +248,58 @@
 
         <div class="filter-grid">
             {# Busca textual #}
-            <div class="filter-full">
-                {{ form_widget(filterForm.q, {attr: {class: 'filter-input'}}) }}
+            <div class="filter-full" style="display: flex; gap: 8px;">
+                <div style="flex: 1;">
+                    {{ form_widget(filterForm.q, {attr: {class: 'filter-input'}}) }}
+                </div>
+                <div style="width: 220px; flex-shrink: 0;">
+                    {{ form_widget(filterForm.qMode, {attr: {class: 'filter-select'}}) }}
+                </div>
             </div>
 
             {# Área de interesse #}
             <div>
+                <label style="display:block;font-size:.74rem;font-weight:600;color:var(--bm-text-muted);margin-bottom:5px">Áreas de Interesse</label>
                 {{ form_widget(filterForm.area, {attr: {class: 'filter-select'}}) }}
             </div>
 
             {# Cargo #}
             <div>
+                <label style="display:block;font-size:.74rem;font-weight:600;color:var(--bm-text-muted);margin-bottom:5px">Cargos</label>
                 {{ form_widget(filterForm.career, {attr: {class: 'filter-select'}}) }}
             </div>
 
             {# Estado #}
             <div>
+                <label style="display:block;font-size:.74rem;font-weight:600;color:var(--bm-text-muted);margin-bottom:5px">Estados (UF)</label>
                 {{ form_widget(filterForm.state, {attr: {class: 'filter-select'}}) }}
             </div>
 
             {# Tipo de contrato #}
             <div>
-                {{ form_widget(filterForm.contractType, {attr: {class: 'filter-select', size: 1}}) }}
+                <label style="display:block;font-size:.74rem;font-weight:600;color:var(--bm-text-muted);margin-bottom:5px">Tipos de Contrato</label>
+                {{ form_widget(filterForm.contractType, {attr: {class: 'filter-select'}}) }}
             </div>
 
             {# Início imediato #}
             <div>
+                <label style="display:block;font-size:.74rem;font-weight:600;color:var(--bm-text-muted);margin-bottom:5px">Início Imediato</label>
                 {{ form_widget(filterForm.immediateStart, {attr: {class: 'filter-select'}}) }}
             </div>
 
             {# PDF #}
             <div>
+                <label style="display:block;font-size:.74rem;font-weight:600;color:var(--bm-text-muted);margin-bottom:5px">PDF Currículo</label>
                 {{ form_widget(filterForm.hasResume, {attr: {class: 'filter-select'}}) }}
             </div>
 
             {# Datas #}
             <div>
+                <label style="display:block;font-size:.74rem;font-weight:600;color:var(--bm-text-muted);margin-bottom:5px">Cadastrado de</label>
                 {{ form_widget(filterForm.dateFrom, {attr: {class: 'filter-input', type: 'date'}}) }}
             </div>
             <div>
+                <label style="display:block;font-size:.74rem;font-weight:600;color:var(--bm-text-muted);margin-bottom:5px">Cadastrado até</label>
                 {{ form_widget(filterForm.dateTo, {attr: {class: 'filter-input', type: 'date'}}) }}
             </div>
         </div>
@@ -274,17 +350,15 @@
 {# ── Tabela ───────────────────────────────────────────────────────────────── #}
 <div class="card">
     <div class="card-body">
-        <table id="candidates-table" class="display nowrap" style="width:100%">
+        <div class="responsive-table">
+            <table id="candidates-table" class="display nowrap" style="width:100%">
             <thead>
                 <tr>
                     <th>#</th>
                     <th>Nome</th>
-                    <th>Localização</th>
-                    <th>Contato</th>
+                    <th>Contato / Localização</th>
                     <th>Cargos de interesse</th>
                     <th>Disponibilidade</th>
-                    <th>Contrato</th>
-                    <th>PDF</th>
                     <th>Cadastrado em</th>
                     <th>Ações</th>
                 </tr>
@@ -298,31 +372,50 @@
                             <div style="width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,var(--bm-accent),#7c3aed);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:.85rem;flex-shrink:0">
                                 {{ candidate.name|first|upper }}
                             </div>
-                            <div>
-                                <strong style="font-size:.875rem">{{ candidate.name }}</strong>
-                                {% if candidate.immediateStart %}
-                                    <span class="badge" style="background:#dcfce7;color:#15803d;margin-left:4px;font-size:.65rem">Início imediato</span>
-                                {% endif %}
+                            <div style="display:flex; flex-direction:column; gap:4px">
+                                <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap">
+                                    <strong style="font-size:.875rem">{{ candidate.name }}</strong>
+                                    {% if candidate.resumeFilename %}
+                                        <a href="{{ path('admin_candidate_download_resume', {id: candidate.id}) }}"
+                                           title="Baixar currículo PDF" target="_blank" style="color:var(--bm-danger);font-size:.85rem;text-decoration:none;display:inline-flex;align-items:center"
+                                           onclick="event.stopPropagation();">
+                                            <i class="fa-solid fa-file-pdf"></i>
+                                        </a>
+                                    {% endif %}
+                                </div>
+                                <div style="display:flex; align-items:center; gap:4px; flex-wrap:wrap">
+                                    {% if candidate.immediateStart %}
+                                        <span class="badge" style="background:#dcfce7;color:#15803d;font-size:.65rem">Início imediato</span>
+                                    {% endif %}
+                                    {% if candidate.contractTypes %}
+                                        {% for ct in candidate.contractTypes %}
+                                            <span class="badge" style="background:var(--bm-border);color:var(--bm-text);font-size:.65rem;text-transform:uppercase">{{ ct }}</span>
+                                        {% endfor %}
+                                    {% endif %}
+                                </div>
                             </div>
                         </div>
                     </td>
                     <td>
-                        <span style="font-size:.85rem">{{ candidate.city }}/{{ candidate.state }}</span>
-                    </td>
-                    <td>
                         <div style="font-size:.82rem;line-height:1.5">
                             <a href="mailto:{{ candidate.email }}" style="color:var(--bm-accent);text-decoration:none">{{ candidate.email }}</a><br>
-                            <span style="color:var(--bm-text-muted)">{{ candidate.phone }}</span>
+                            <span style="color:var(--bm-text-muted)">{{ candidate.phone }}</span><br>
+                            <span style="font-size:.78rem;color:var(--bm-text-muted);display:inline-flex;align-items:center;gap:4px">
+                                <i class="fa-solid fa-location-dot" style="font-size:.7rem"></i>
+                                {{ candidate.city }}/{{ candidate.state }}
+                            </span>
                         </div>
                     </td>
                     <td>
                         {% if candidate.careers|length > 0 %}
-                            {% for career in candidate.careers|slice(0, 2) %}
-                                <span class="badge badge-blue" style="margin-right:2px;margin-bottom:2px;font-size:.7rem">{{ career.title }}</span>
-                            {% endfor %}
-                            {% if candidate.careers|length > 2 %}
-                                <span class="badge" style="background:rgba(100,116,139,.15);color:var(--bm-text-muted);font-size:.7rem">+{{ candidate.careers|length - 2 }}</span>
-                            {% endif %}
+                            <div style="display:flex; flex-direction:column; gap:4px; align-items:flex-start">
+                                {% for career in candidate.careers|slice(0, 2) %}
+                                    <span class="badge badge-blue" style="font-size:.7rem; white-space:nowrap">{{ career.title }}</span>
+                                {% endfor %}
+                                {% if candidate.careers|length > 2 %}
+                                    <span class="badge" style="background:rgba(100,116,139,.15);color:var(--bm-text-muted);font-size:.7rem">+{{ candidate.careers|length - 2 }}</span>
+                                {% endif %}
+                            </div>
                         {% else %}
                             <span style="font-size:.75rem;opacity:.4">—</span>
                         {% endif %}
@@ -337,25 +430,6 @@
                             {% endfor %}
                         </div>
                     </td>
-                    <td>
-                        {% if candidate.contractTypes %}
-                            {% for ct in candidate.contractTypes %}
-                                <span class="badge" style="background:var(--bm-border);color:var(--bm-text);margin-right:2px;font-size:.68rem;text-transform:uppercase">{{ ct }}</span>
-                            {% endfor %}
-                        {% else %}
-                            <span style="opacity:.4;font-size:.75rem">—</span>
-                        {% endif %}
-                    </td>
-                    <td>
-                        {% if candidate.resumeFilename %}
-                            <a href="{{ path('admin_candidate_download_resume', {id: candidate.id}) }}"
-                               class="btn-secondary" title="Baixar currículo PDF" target="_blank" style="font-size:.78rem;padding:4px 10px">
-                                <i class="fa-solid fa-file-pdf" aria-hidden="true"></i> PDF
-                            </a>
-                        {% else %}
-                            <span style="opacity:.35;font-size:.75rem">Sem arquivo</span>
-                        {% endif %}
-                    </td>
                     <td>{{ candidate.createdAt ? candidate.createdAt|date('d/m/Y') : '—' }}</td>
                     <td>
                         <a href="{{ path('admin_candidate_show', {id: candidate.id}) }}" class="btn-secondary" title="Ver detalhes" style="padding:5px 10px">
@@ -365,7 +439,7 @@
                 </tr>
                 {% else %}
                 <tr>
-                    <td colspan="10" style="text-align:center;padding:64px 32px">
+                    <td colspan="7" style="text-align:center;padding:64px 32px">
                         <i class="fa-solid fa-users-slash" style="font-size:2.5rem;opacity:.2;display:block;margin-bottom:1rem"></i>
                         {% if activeFilters > 0 %}
                             Nenhum candidato encontrado com os filtros aplicados.
@@ -378,6 +452,7 @@
                 {% endfor %}
             </tbody>
         </table>
+        </div>
     </div>
 </div>
 
@@ -389,11 +464,13 @@
 <script src="https://cdn.datatables.net/buttons/3.0.2/js/dataTables.buttons.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
 <script src="https://cdn.datatables.net/buttons/3.0.2/js/buttons.html5.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/js/tom-select.complete.min.js"></script>
 <script>
+    {% if candidates|length > 0 %}
     new DataTable('#candidates-table', {
         language: { url: 'https://cdn.datatables.net/plug-ins/2.0.8/i18n/pt-BR.json' },
         pageLength: 25,
-        order: [[8, 'desc']],
+        order: [[5, 'desc']],
         layout: {
             topStart: {
                 buttons: [
@@ -401,8 +478,9 @@
                 ]
             }
         },
-        columnDefs: [{ orderable: false, targets: [4, 5, 6, 7, 9] }]
+        columnDefs: [{ orderable: false, targets: [3, 4, 6] }]
     });
+    {% endif %}
 
     // Toggle do painel de filtros
     const toggle = document.getElementById('filter-toggle');
@@ -414,9 +492,35 @@
         chev.style.transform = body.classList.contains('open') ? 'rotate(180deg)' : '';
     });
 
-    // Auto-submit em selects de filtro
-    document.querySelectorAll('#filter-form select').forEach(sel => {
+    // Auto-submit apenas nos selects de filtro não múltiplos
+    document.querySelectorAll('#filter-form select:not([multiple])').forEach(sel => {
         sel.addEventListener('change', () => document.getElementById('filter-form').submit());
+    });
+
+    // Inicialização do TomSelect para campos de seleção múltipla
+    const tomSelects = [];
+    document.querySelectorAll('#filter-form select[multiple]').forEach(sel => {
+        let placeholder = 'Selecione...';
+        if (sel.name.includes('area')) placeholder = 'Selecionar áreas...';
+        else if (sel.name.includes('career')) placeholder = 'Selecionar cargos...';
+        else if (sel.name.includes('state')) placeholder = 'Selecionar estados...';
+        else if (sel.name.includes('contractType')) placeholder = 'Selecionar contratos...';
+
+        const ts = new TomSelect(sel, {
+            plugins: ['remove_button'],
+            placeholder: placeholder,
+            maxItems: null,
+            create: false,
+            hideSelected: true,
+        });
+        tomSelects.push(ts);
+    });
+
+    // Limpeza do TomSelect antes do Turbo cachear a página
+    document.addEventListener('turbo:before-cache', () => {
+        tomSelects.forEach(ts => {
+            try { ts.destroy(); } catch(e) {}
+        });
     });
 </script>
 {% endblock %}

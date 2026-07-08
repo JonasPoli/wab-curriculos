@@ -110,7 +110,7 @@ class Tenant
     private ?string $bodyScript = null;
 
     #[ORM\Column(type: Types::DATETIME_MUTABLE, nullable: true)]
-    private ?\DateTime $updatedAt = null;
+    private ?\DateTimeInterface $updatedAt = null;
 
     // ─── Lifecycle Callbacks ──────────────────────────────────────────────────
 
@@ -400,7 +400,7 @@ class Tenant
     public function getBodyScript(): ?string { return $this->bodyScript; }
     public function setBodyScript(?string $bodyScript): static { $this->bodyScript = $bodyScript; return $this; }
 
-    public function getUpdatedAt(): ?\DateTime
+    public function getUpdatedAt(): ?\DateTimeInterface
     {
         return $this->updatedAt;
     }

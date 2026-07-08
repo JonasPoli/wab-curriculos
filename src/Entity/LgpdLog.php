@@ -23,7 +23,7 @@ class LgpdLog
     private ?LgpdActionType $actionType = null;
 
     #[ORM\Column(type: Types::DATETIME_MUTABLE)]
-    private \DateTime $executedAt;
+    private \DateTimeInterface $executedAt;
 
     #[ORM\Column(length: 50, nullable: true)]
     private ?string $ipAddress = null;
@@ -44,8 +44,8 @@ class LgpdLog
     public function getActionType(): ?LgpdActionType { return $this->actionType; }
     public function setActionType(LgpdActionType $actionType): static { $this->actionType = $actionType; return $this; }
 
-    public function getExecutedAt(): \DateTime { return $this->executedAt; }
-    public function setExecutedAt(\DateTime $executedAt): static { $this->executedAt = $executedAt; return $this; }
+    public function getExecutedAt(): \DateTimeInterface { return $this->executedAt; }
+    public function setExecutedAt(\DateTimeInterface $executedAt): static { $this->executedAt = $executedAt; return $this; }
 
     public function getIpAddress(): ?string { return $this->ipAddress; }
     public function setIpAddress(?string $ipAddress): static { $this->ipAddress = $ipAddress; return $this; }

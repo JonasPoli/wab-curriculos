@@ -64,13 +64,13 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     private ?\DateTimeImmutable $createdAt = null;
 
     #[ORM\Column(type: Types::DATETIME_MUTABLE, nullable: true)]
-    private ?\DateTime $updatedAt = null;
+    private ?\DateTimeInterface $updatedAt = null;
 
     #[ORM\Column(length: 100, nullable: true, unique: true)]
     private ?string $resetPasswordToken = null;
 
     #[ORM\Column(type: Types::DATETIME_MUTABLE, nullable: true)]
-    private ?\DateTime $resetPasswordExpiresAt = null;
+    private ?\DateTimeInterface $resetPasswordExpiresAt = null;
 
     // ─── Lifecycle Callbacks ──────────────────────────────────────────────────
 
@@ -214,7 +214,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this->createdAt;
     }
 
-    public function getUpdatedAt(): ?\DateTime
+    public function getUpdatedAt(): ?\DateTimeInterface
     {
         return $this->updatedAt;
     }
@@ -235,12 +235,12 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this;
     }
 
-    public function getResetPasswordExpiresAt(): ?\DateTime
+    public function getResetPasswordExpiresAt(): ?\DateTimeInterface
     {
         return $this->resetPasswordExpiresAt;
     }
 
-    public function setResetPasswordExpiresAt(?\DateTime $expiresAt): static
+    public function setResetPasswordExpiresAt(?\DateTimeInterface $expiresAt): static
     {
         $this->resetPasswordExpiresAt = $expiresAt;
         return $this;

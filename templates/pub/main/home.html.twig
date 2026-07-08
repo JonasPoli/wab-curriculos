@@ -135,7 +135,7 @@
         gap: 10px;
         padding: 16px 40px;
         background: #fff;
-        color: color-mix(in srgb, var(--p), #000 65%);
+        color: {{ color_mix_php((tenant is defined and tenant and tenant.primaryColor) ? tenant.primaryColor : '#4f46e5', '#000000', 65) }};
         font-weight: 700;
         font-size: 1rem;
         border-radius: 14px;
@@ -388,7 +388,7 @@
         gap: 10px;
         padding: 16px 40px;
         background: var(--p);
-        color: #fff;
+        color: var(--p-text);
         font-weight: 700;
         font-size: 1rem;
         border-radius: 14px;

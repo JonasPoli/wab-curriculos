@@ -32,11 +32,20 @@ class CandidateFilterType extends AbstractType
                 'label'    => false,
                 'attr'     => ['placeholder' => 'Nome ou e-mail...'],
             ])
+            ->add('qMode', ChoiceType::class, [
+                'required' => true,
+                'label'    => false,
+                'choices'  => [
+                    'Qualquer termo (OR)' => 'or',
+                    'Todos os termos (AND)' => 'and',
+                ],
+                'data'     => 'or',
+            ])
             ->add('area', EntityType::class, [
                 'class'         => AreaOfInterest::class,
                 'required'      => false,
                 'label'         => false,
-                'placeholder'   => 'Todas as áreas',
+                'multiple'      => true,
                 'query_builder' => fn (AreaOfInterestRepository $r) => $r
                     ->createQueryBuilder('a')
                     ->where('a.tenant = :tenant')
@@ -48,7 +57,7 @@ class CandidateFilterType extends AbstractType
                 'class'         => Career::class,
                 'required'      => false,
                 'label'         => false,
-                'placeholder'   => 'Todos os cargos',
+                'multiple'      => true,
                 'query_builder' => fn (CareerRepository $r) => $r
                     ->createQueryBuilder('c')
                     ->join('c.area', 'a')
@@ -61,13 +70,13 @@ class CandidateFilterType extends AbstractType
             ->add('state', ChoiceType::class, [
                 'required'    => false,
                 'label'       => false,
-                'placeholder' => 'Estado (UF)',
+                'multiple'    => true,
                 'choices'     => array_combine(self::UF_LIST, self::UF_LIST),
             ])
             ->add('contractType', ChoiceType::class, [
                 'required'    => false,
                 'label'       => false,
-                'placeholder' => 'Tipo de contrato',
+                'multiple'    => true,
                 'choices'     => [
                     'CLT'        => 'clt',
                     'PJ'         => 'pj',
