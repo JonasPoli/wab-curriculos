@@ -273,7 +273,14 @@
                     </td>
                     <td>
                         {% if user.tenant %}
-                            <span class="badge badge-green">{{ user.tenant.name }}</span>
+                            <div style="display:flex; flex-direction:column; gap:4px; align-items:flex-start">
+                                <span class="badge badge-green">{{ user.tenant.name }}</span>
+                                {% if user.tenant.logo %}
+                                    <div style="background:var(--bm-bg); padding:4px 8px; border:1px solid var(--bm-border); border-radius:4px; display:inline-flex; align-items:center; max-height:28px">
+                                        <img src="{{ tenant_logo_url(user.tenant.logo, 'logo') }}" alt="{{ user.tenant.name }}" style="height:18px; width:auto; object-fit:contain">
+                                    </div>
+                                {% endif %}
+                            </div>
                         {% else %}
                             <span class="badge" style="background:rgba(168,85,247,.15);color:#a855f7">Global</span>
                         {% endif %}
