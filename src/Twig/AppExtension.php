@@ -3,6 +3,7 @@
 namespace App\Twig;
 
 use Symfony\Component\HttpFoundation\RequestStack;
+use Twig\Environment;
 use Twig\Extension\AbstractExtension;
 use Twig\TwigFilter;
 use Twig\TwigFunction;
@@ -25,6 +26,7 @@ class AppExtension extends AbstractExtension
             new TwigFunction('nav_item_class', [$this, 'navItemClass'], ['is_safe' => ['html']]),
             new TwigFunction('color_mix_php', [$this, 'colorMix']),
             new TwigFunction('contrast_text_color', [$this, 'contrastTextColor']),
+            new TwigFunction('tenant_logo_url', [$this, 'tenantLogoUrl'], ['needs_environment' => true]),
         ];
     }
 
@@ -108,5 +110,21 @@ class AppExtension extends AbstractExtension
         $yiq = (($r * 299) + ($g * 587) + ($b * 114)) / 1000;
 
         return ($yiq >= 180) ? '#0f172a' : '#ffffff';
+    }
+
+    public function tenantLogoUrl(Environment $env, ?string $logo, string $type = 'logo'): string
+    {
+        if (!$logo) {
+            return '';
+        }
+
+        $path = 'uploads/tenants/' . $type . '/' . $logo;
+
+        if (strtolower(pathinfo($logo, PATHINFO_EXTENSION)) === 'svg') {
+            return '/' . $path;
+        }
+
+        $filter = $env->getFilter('imagine_filter')->getCallable();
+        return $filter($path, 'tenant_logo');
     }
 }
