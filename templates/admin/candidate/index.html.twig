@@ -367,7 +367,7 @@
                 {% for candidate in candidates %}
                 <tr>
                     <td>{{ candidate.id }}</td>
-                    <td>
+                    <td data-export="{{ candidate.name }}">
                         <div style="display:flex;align-items:center;gap:10px">
                             <div style="width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,var(--bm-accent),#7c3aed);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:.85rem;flex-shrink:0">
                                 {{ candidate.name|first|upper }}
@@ -406,21 +406,21 @@
                             </span>
                         </div>
                     </td>
-                    <td>
+                    <td data-export="{% for career in candidate.careers %}{{ career.title }}{% if not loop.last %}, {% endif %}{% endfor %}">
                         {% if candidate.careers|length > 0 %}
                             <div style="display:flex; flex-direction:column; gap:4px; align-items:flex-start">
                                 {% for career in candidate.careers|slice(0, 2) %}
                                     <span class="badge badge-blue" style="font-size:.7rem; white-space:nowrap">{{ career.title }}</span>
-                                {% endfor %}
+                                  {% endfor %}
                                 {% if candidate.careers|length > 2 %}
                                     <span class="badge" style="background:rgba(100,116,139,.15);color:var(--bm-text-muted);font-size:.7rem">+{{ candidate.careers|length - 2 }}</span>
-                                {% endif %}
-                            </div>
-                        {% else %}
+                                  {% endif %}
+                              </div>
+                          {% else %}
                             <span style="font-size:.75rem;opacity:.4">—</span>
-                        {% endif %}
+                          {% endif %}
                     </td>
-                    <td>
+                    <td data-export="{{ candidate.availabilityText }}">
                         {# Grade de disponibilidade: Seg–Sex, Manhã/Tarde #}
                         {% set grid = candidate.availabilityGrid %}
                         <div class="avail-grid" title="Disponibilidade semanal">
@@ -474,7 +474,22 @@
         layout: {
             topStart: {
                 buttons: [
-                    { extend: 'excelHtml5', text: '<i class="fa-solid fa-file-excel"></i> Exportar Excel', className: 'btn-secondary' }
+                    {
+                        extend: 'excelHtml5',
+                        text: '<i class="fa-solid fa-file-excel"></i> Exportar Excel',
+                        className: 'btn-secondary',
+                        exportOptions: {
+                            columns: [0, 1, 2, 3, 4, 5],
+                            format: {
+                                body: function (data, row, column, node) {
+                                    if (node.hasAttribute('data-export')) {
+                                        return node.getAttribute('data-export');
+                                    }
+                                    return node.textContent.trim().replace(/\s+/g, ' ');
+                                }
+                            }
+                        }
+                    }
                 ]
             }
         },

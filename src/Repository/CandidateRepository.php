@@ -146,9 +146,17 @@ class CandidateRepository extends ServiceEntityRepository
             $contractTypes = is_iterable($filters['contractType']) ? $filters['contractType'] : [$filters['contractType']];
             $orStatements = [];
             foreach ($contractTypes as $index => $ct) {
+                $normalizedCt = match (strtolower($ct)) {
+                    'clt' => 'CLT',
+                    'pj' => 'PJ',
+                    'estagio', 'estágio' => 'Estágio',
+                    'temporario', 'temporário' => 'Temporário',
+                    'voluntario', 'voluntário' => 'Voluntário',
+                    default => $ct,
+                };
                 $paramName = 'ct_' . $index;
                 $orStatements[] = "c.contractTypes LIKE :" . $paramName;
-                $qb->setParameter($paramName, '%"' . $ct . '"%');
+                $qb->setParameter($paramName, '%"' . $normalizedCt . '"%');
             }
             if (!empty($orStatements)) {
                 $qb->andWhere($qb->expr()->orX(...$orStatements));

@@ -387,6 +387,25 @@ class Candidate implements TenantAwareInterface, UserInterface, PasswordAuthenti
         ];
     }
 
+    public function getAvailabilityText(): string
+    {
+        $avail = [];
+        $grid = $this->getAvailabilityGrid();
+        foreach ($grid as $day => $slots) {
+            $periods = [];
+            if ($slots['morning']) {
+                $periods[] = 'Manhã';
+            }
+            if ($slots['afternoon']) {
+                $periods[] = 'Tarde';
+            }
+            if (!empty($periods)) {
+                $avail[] = $day . ' (' . implode('/', $periods) . ')';
+            }
+        }
+        return !empty($avail) ? implode(', ', $avail) : 'Não informado';
+    }
+
     public function getResetToken(): ?string { return $this->resetToken; }
     public function setResetToken(?string $t): static { $this->resetToken = $t; return $this; }
     public function getResetTokenExpiresAt(): ?\DateTimeImmutable { return $this->resetTokenExpiresAt; }

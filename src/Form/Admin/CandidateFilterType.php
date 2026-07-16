@@ -78,11 +78,11 @@ class CandidateFilterType extends AbstractType
                 'label'       => false,
                 'multiple'    => true,
                 'choices'     => [
-                    'CLT'        => 'clt',
-                    'PJ'         => 'pj',
-                    'Freelancer' => 'freelancer',
-                    'Temporário' => 'temporario',
-                    'Estágio'    => 'estagio',
+                    'CLT'        => 'CLT',
+                    'PJ'         => 'PJ',
+                    'Estágio'    => 'Estágio',
+                    'Temporário' => 'Temporário',
+                    'Voluntário' => 'Voluntário',
                 ],
             ])
             ->add('immediateStart', ChoiceType::class, [

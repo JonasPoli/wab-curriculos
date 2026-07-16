@@ -137,7 +137,7 @@ final class CandidateController extends AbstractTenantController
             fputcsv($handle, [
                 'ID', 'Nome', 'E-mail', 'Telefone', 'Cidade', 'UF',
                 'Cargos de Interesse', 'Tipo de Contrato', 'Início Imediato',
-                'Currículo PDF', 'Data de Cadastro',
+                'Disponibilidade', 'Currículo PDF', 'Data de Cadastro',
             ], ';');
 
             foreach ($candidates as $c) {
@@ -156,6 +156,7 @@ final class CandidateController extends AbstractTenantController
                     implode(', ', $careers),
                     $c->getContractTypes() ? implode(', ', $c->getContractTypes()) : '',
                     $c->isImmediateStart() ? 'Sim' : 'Não',
+                    $c->getAvailabilityText(),
                     $c->getResumeFilename() ? 'Sim' : 'Não',
                     $c->getCreatedAt()?->format('d/m/Y H:i'),
                 ], ';');
@@ -205,9 +206,10 @@ final class CandidateController extends AbstractTenantController
         $candidateName = preg_replace('/[^a-z0-9]/i', '_', $candidate->getName());
         $downloadName  = 'curriculo_' . $candidateName . '.pdf';
 
-        $response = new BinaryFileResponse($filePath);
-        $response->setContentDisposition(ResponseHeaderBag::DISPOSITION_ATTACHMENT, $downloadName);
+        $content = file_get_contents($filePath);
+        $response = new Response($content);
         $response->headers->set('Content-Type', 'application/pdf');
+        $response->headers->set('Content-Disposition', ResponseHeaderBag::DISPOSITION_ATTACHMENT . '; filename="' . $downloadName . '"');
 
         return $response;
     }

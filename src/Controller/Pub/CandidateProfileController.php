@@ -86,7 +86,11 @@ class CandidateProfileController extends AbstractController
             throw $this->createNotFoundException();
         }
 
-        return $this->file($path, 'curriculo_' . $candidate->getId() . '.pdf');
+        $content = file_get_contents($path);
+        $response = new Response($content);
+        $response->headers->set('Content-Type', 'application/pdf');
+        $response->headers->set('Content-Disposition', 'attachment; filename="curriculo_' . $candidate->getId() . '.pdf"');
+        return $response;
     }
 
     #[Route('/acesso', name: 'pub_candidate_access', methods: ['GET', 'POST'])]

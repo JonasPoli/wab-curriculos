@@ -124,7 +124,12 @@ class AppExtension extends AbstractExtension
             return '/' . $path;
         }
 
-        $filter = $env->getFilter('imagine_filter')->getCallable();
-        return $filter($path, 'tenant_logo');
+        $callable = $env->getFilter('imagine_filter')->getCallable();
+        if (is_array($callable) && is_string($callable[0]) && class_exists($callable[0])) {
+            $lazyFilterRuntime = $env->getRuntime($callable[0]);
+            return call_user_func([$lazyFilterRuntime, $callable[1]], $path, 'tenant_logo');
+        }
+
+        return call_user_func($callable, $path, 'tenant_logo');
     }
 }
