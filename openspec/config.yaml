@@ -53,9 +53,16 @@ context: |
 
   Pontos que o código decide e não se mudam sem o Jonas
   - Usuário do /admin sem tenant é Super Admin (User::getRoles). Excluir um tenant deixa os usuários dele sem
-    tenant (FK SET NULL).
+    tenant (FK SET NULL); a correção foi decidida em 09/11/2026 e está em
+    openspec/changes/tenant-sem-super-admin-e-login-por-tenant (ainda não implementada).
   - O cadastro do candidato não avisa o RH do tenant por e-mail, não usa reCAPTCHA nem grava LgpdLog, e a
     exclusão de conta é feita pelo próprio candidato logado (não há fluxo por token), apesar do que diz docs/.
+
+  Decisões do Jonas de 09/11/2026 (não propor de novo sem ele pedir)
+  - Os perfis Editor / Recrutador e Revisor continuam sem acesso ao /admin (só ROLE_ADMIN entra).
+  - Alerta ao RH no cadastro, reCAPTCHA no cadastro e exclusão de conta por token não serão feitos ("não mexa").
+  - As horas do Procordis Carreiras são lançadas no sistema WAB sem contrato (sem contract_id) por enquanto.
+  - A PetVida segue sem cliente identificado no sistema WAB.
 
 rules:
   design:
