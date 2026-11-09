@@ -1,0 +1,74 @@
+schema: spec-driven
+
+# Contexto do projeto: só restrições que um agente não descobre lendo o código.
+# Regras de código ficam no agents.md da raiz. Os documentos docs/1_* a 4_* e implementation_plan.md são o
+# plano inicial (jul/2026) e divergem do código em vários pontos: o código e os specs prevalecem.
+context: |
+  Language: pt-BR
+  All artifacts must be written in pt-BR.
+  Keep OpenSpec structural headings and SHALL/MUST keywords in English.
+
+  Projeto: WAB Currículos, sistema multi-tenant de "Trabalhe Conosco" e banco de currículos. Cada domínio é um
+  tenant (empresa) com marca própria; o candidato cria a conta e completa o currículo; o RH do tenant pesquisa,
+  salva pesquisas, exporta CSV e baixa o PDF no /admin. O mesmo código e o mesmo banco atendem todos os tenants.
+
+  Tenants em produção (09/11/2026)
+  - 1 Procordis, carreiras.procordis.org.br: cliente WAB 212 "Procordis", projeto 84 "Carreiras", sem contrato de
+    plano de horas no sistema WAB. Contato sugerido secretaria@procordis.org.br, Cc suporte@wab.com.br. É o tenant
+    com uso real (dezenas de candidatos; os ajustes de jul/2026 em docs/ajustes-001.md vieram dele).
+  - 2 Wab, curriculo.wab.com.br (a própria WAB, cliente 196).
+  - 3 PetVida, curriculo.petvida.com.br (não há cliente "PetVida" no sistema WAB).
+  - 4 AgriVitta, agrivitta-curriculos.wab.com.br: cliente WAB 3, ticket #181 (entregue em 26/10/2026), contrato 15
+    (hospedagem). Contato sugerido marcelo@agrivitta.com.br, Cc suporte@wab.com.br.
+  - Tenant novo = cadastro em /admin/tenants + domínio no webapp app-curriculo do RunCloud (SSL) + DNS.
+    O campo domain está gravado como "https://host/" nos quatro; a busca por domínio normaliza.
+
+  Produção (conferida em 09/11/2026)
+  - Servidor wab001 (67.205.162.23, DigitalOcean + RunCloud), webapp app-curriculo em
+    /home/runcloud/webapps/app-curriculo, branch main do GitHub JonasPoli/wab-curriculos. Acesso:
+    ssh runcloud@67.205.162.23 (o runcloud é o dono; sem sudo). Servidor compartilhado com ~19 apps
+    (1 vCPU, 2 GB): nada pesado em horário de pico.
+  - O pool do PHP-FPM é o php83rc (8.3.36): usar /RunCloud/Packages/php83rc/bin/php. O build.sh fixa o php84rc
+    e o composer roda com o php padrão (8.2). Symfony 7.4.5, MariaDB 11.1.6.
+  - Leitura livre; qualquer escrita (deploy, banco, arquivos) exige aprovação do Jonas. Valores do .env.local
+    nunca são exibidos. Dado pessoal de candidato não se lê nem se copia: conferências só por contagem.
+  - Não há cron nem worker do Messenger: o e-mail sai na hora (SendEmailMessage roteado para sync) pelo
+    MAILER_DSN (WMailer). O remetente é o EMAIL_FROM do .env versionado (domínio wab.com.br) com o nome do tenant.
+    As variáveis MAIL_FROM, CONTACT_TO, MAIL_BCC, MAIL_SENDER, MAIL_SENDER_NAME, WMAILER_URL e TINYMCE_API_KEY
+    do .env.local de produção não são lidas pelo código.
+  - O Monolog de prod grava no stderr do PHP-FPM, que o runcloud não lê; não existe var/log. Legíveis só os logs
+    do nginx em /home/runcloud/logs/nginx/app-curriculo_*.log.
+  - Currículos em PDF ficam em var/uploads/resumes (fora do public e do git). Os logos dos tenants ficam em
+    public/uploads/tenants/*: parte está versionada e foi trocada no servidor, parte não está no git. Um
+    git checkout/reset/clean no servidor apagaria logos.
+
+  Deploy
+  - Local: git push origin main. No servidor, como runcloud, em ~/webapps/app-curriculo: git pull e ./build.sh.
+    O build.sh roda composer install (sem --no-dev), apaga var/cache, var/log/*.log e public/media/cache, roda
+    migrations, importmap:install e asset-map:compile e engole os erros (2>/dev/null || true): conferir o site
+    nos quatro domínios depois.
+  - Em 09/11/2026 o doctrine:migrations:status falha ("metadata storage is not up to date"): o .env.local usa
+    serverVersion=8.0 e o banco é MariaDB 11.1. As 8 migrations até Version20260706143800 estão gravadas.
+    Migration nova não roda pelo build.sh enquanto isso não for resolvido, e o build.sh esconde a falha.
+
+  Pontos que o código decide e não se mudam sem o Jonas
+  - Usuário do /admin sem tenant é Super Admin (User::getRoles). Excluir um tenant deixa os usuários dele sem
+    tenant (FK SET NULL).
+  - O cadastro do candidato não avisa o RH do tenant por e-mail, não usa reCAPTCHA nem grava LgpdLog, e a
+    exclusão de conta é feita pelo próprio candidato logado (não há fluxo por token), apesar do que diz docs/.
+
+rules:
+  design:
+    - Quando tocar em produção, dizer se a ação é leitura ou escrita.
+    - Mudança em consulta, rota ou entidade com dados de candidato diz como fica o isolamento por tenant
+      (TenantFilter, TenantAwareInterface, denyIfNotTenantOwner) e é conferida com dois tenants.
+    - Mudança de entidade que altera o banco mostra as consequências e pede confirmação antes (agents.md).
+  tasks:
+    - Toda tarefa que muda servidor ou banco de produção tem uma tarefa de backup antes e uma de conferência depois.
+    - Mudança com migration inclui a tarefa de resolver o doctrine:migrations:status em produção antes do deploy.
+    - A tarefa de deploy diz os passos (git pull, build.sh ou só cache:clear --env=prod) e termina com HTTP 200
+      nos quatro domínios.
+    - Seguir o agents.md (rotas admin_{entidade}_{ação}, CRUD pelo make:custom-crud com confirmação, estilos em
+      assets/styles/app.css, sem comentários desnecessários).
+    - Dado pessoal de candidato nunca vai para log, print, ticket ou commit.
+    - Quando for pedido do cliente, registrar o resultado no ticket do sistema WAB (Procordis 212, AgriVitta 3).
