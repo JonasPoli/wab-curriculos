@@ -47,9 +47,9 @@ context: |
     O build.sh roda composer install (sem --no-dev), apaga var/cache, var/log/*.log e public/media/cache, roda
     migrations, importmap:install e asset-map:compile e engole os erros (2>/dev/null || true): conferir o site
     nos quatro domínios depois.
-  - Em 09/11/2026 o doctrine:migrations:status falha ("metadata storage is not up to date"): o .env.local usa
-    serverVersion=8.0 e o banco é MariaDB 11.1. As 8 migrations até Version20260706143800 estão gravadas.
-    Migration nova não roda pelo build.sh enquanto isso não for resolvido, e o build.sh esconde a falha.
+  - Em 09/11/2026 o serverVersion do .env.local foi corrigido de 8.0 para 11.1.6-MariaDB (backup
+    .env.local.bak-20261109-serverversion), e o doctrine:migrations:status voltou a funcionar. As 8 migrations até
+    Version20260706143800 estão gravadas. O build.sh esconde falhas: rodar a migration à mão e conferir.
 
   Pontos que o código decide e não se mudam sem o Jonas
   - Usuário do /admin sem tenant é Super Admin (User::getRoles). Excluir um tenant deixa os usuários dele sem
