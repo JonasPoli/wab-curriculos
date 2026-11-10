@@ -192,9 +192,15 @@ class CandidateRepository extends ServiceEntityRepository implements UserLoaderI
                     'voluntario', 'voluntário' => 'Voluntário',
                     default => $ct,
                 };
-                $paramName = 'ct_' . $index;
-                $orStatements[] = "c.contractTypes LIKE :" . $paramName;
-                $qb->setParameter($paramName, '%"' . $normalizedCt . '"%');
+                $patterns = array_unique([
+                    json_encode($normalizedCt, JSON_UNESCAPED_UNICODE),
+                    json_encode($normalizedCt),
+                ]);
+                foreach (array_values($patterns) as $patternIndex => $pattern) {
+                    $paramName = 'ct_' . $index . '_' . $patternIndex;
+                    $orStatements[] = 'c.contractTypes LIKE :' . $paramName;
+                    $qb->setParameter($paramName, '%' . str_replace('\\', '\\\\', $pattern) . '%');
+                }
             }
             if (!empty($orStatements)) {
                 $qb->andWhere($qb->expr()->orX(...$orStatements));

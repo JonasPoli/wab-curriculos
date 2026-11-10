@@ -117,6 +117,19 @@ class CandidatePublicController extends AbstractController
         ]);
     }
 
+    #[Route('/conta-excluida', name: 'pub_candidate_account_deleted', methods: ['GET'])]
+    public function accountDeleted(TenantContext $tenantContext): Response
+    {
+        $tenant = $tenantContext->getTenant();
+        if ($tenant === null) {
+            throw $this->createNotFoundException('Tenant não encontrado para este domínio.');
+        }
+
+        return $this->render('pub/candidate/account_deleted.html.twig', [
+            'tenant' => $tenant,
+        ]);
+    }
+
     #[Route('/minha-conta', name: 'pub_candidate_dashboard', methods: ['GET'])]
     public function dashboard(TenantContext $tenantContext): Response
     {

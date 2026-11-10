@@ -17,6 +17,8 @@ use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
+use Symfony\Component\Filesystem\Exception\IOExceptionInterface;
+use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Form\FormError;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -263,6 +265,8 @@ class CandidateProfileController extends AbstractController
         EntityManagerInterface $em,
         Security $security,
         TenantContext $tenantContext,
+        Filesystem $filesystem,
+        #[Autowire('%kernel.project_dir%')] string $projectDir,
     ): Response {
         /** @var Candidate $candidate */
         $candidate = $this->getUser();
@@ -270,9 +274,19 @@ class CandidateProfileController extends AbstractController
         if ($request->isMethod('POST')) {
             $word = trim(strtolower((string) $request->request->get('confirm_word')));
             if ($word === 'remover') {
+                $resumeFilename = $candidate->getResumeFilename();
                 $security->logout(false);
                 $em->remove($candidate);
                 $em->flush();
+
+                if ($resumeFilename) {
+                    try {
+                        $filesystem->remove($projectDir . '/var/uploads/resumes/' . $resumeFilename);
+                    } catch (IOExceptionInterface) {
+                        error_log('Exclusão de conta: falha ao apagar o PDF do currículo.');
+                    }
+                }
+
                 return $this->redirectToRoute('pub_candidate_account_deleted');
             }
             $this->addFlash('error', 'Digite a palavra "remover" para confirmar.');
@@ -281,14 +295,6 @@ class CandidateProfileController extends AbstractController
         return $this->render('pub/candidate/delete_account.html.twig', [
             'candidate' => $candidate,
             'tenant'    => $tenantContext->getTenant(),
-        ]);
-    }
-
-    #[Route('/conta-excluida', name: 'pub_candidate_account_deleted', methods: ['GET'])]
-    public function accountDeleted(TenantContext $tenantContext): Response
-    {
-        return $this->render('pub/candidate/account_deleted.html.twig', [
-            'tenant' => $tenantContext->getTenant(),
         ]);
     }
 }
