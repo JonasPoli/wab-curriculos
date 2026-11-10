@@ -4,6 +4,7 @@
 Tela do RH do tenant para encontrar candidatos: filtros combinados, pesquisas salvas com nome, exportação em CSV, ficha do candidato e download do PDF do currículo. Só funciona com tenant ativo no /admin (usuário do tenant ou Super Admin impersonando). Implementado em `Controller/Admin/CandidateController`, `Repository/CandidateRepository::findFiltered()`, `Form/Admin/CandidateFilterType`, `Repository/SavedSearchRepository` e `templates/admin/candidate/`.
 
 ## Requirements
+
 ### Requirement: Lista de candidatos do tenant
 O sistema SHALL listar em `/admin/candidatos` os candidatos do tenant ativo, do cadastro mais recente para o mais antigo, junto com o total de candidatos do tenant. Sem tenant ativo, a tela MUST negar o acesso.
 
@@ -26,7 +27,7 @@ O sistema SHALL combinar com E os filtros preenchidos: áreas de interesse e car
 - **THEN** aparecem só candidatos de SP com algum cargo da área Enfermagem
 
 ### Requirement: Filtro por tipo de contrato
-O sistema SHALL filtrar o tipo de contrato procurando o texto `"<tipo>"` (CLT, PJ, Estágio, Temporário ou Voluntário, aceitando também clt, pj, estagio, temporario e voluntario) dentro do JSON gravado em `contract_types`. Como o JSON é gravado com acentos escapados (`Estágio`), os tipos acentuados não encontram candidatos.
+O sistema SHALL filtrar pelo tipo de contrato (CLT, PJ, Estágio, Temporário ou Voluntário, aceitando também clt, pj, estagio, temporario e voluntario), trazendo os candidatos do tenant ativo que escolheram qualquer um dos tipos marcados. O resultado MUST ser o mesmo para escolhas gravadas com os acentos escapados ou sem escape, e vale para a lista e para a exportação em CSV.
 
 #### Scenario: CLT
 - **WHEN** o RH marca o tipo CLT
@@ -34,7 +35,19 @@ O sistema SHALL filtrar o tipo de contrato procurando o texto `"<tipo>"` (CLT, P
 
 #### Scenario: Estágio
 - **WHEN** o RH marca o tipo Estágio e há candidatos que escolheram Estágio
-- **THEN** a lista vem vazia
+- **THEN** a lista traz esses candidatos
+
+#### Scenario: Temporário ou Voluntário
+- **WHEN** o RH marca Temporário e Voluntário
+- **THEN** aparecem os candidatos que escolheram pelo menos um dos dois
+
+#### Scenario: CSV filtrado por Estágio
+- **WHEN** o RH exporta o CSV com o filtro Estágio aplicado
+- **THEN** o arquivo traz os mesmos candidatos da lista, com "Estágio" legível na coluna Tipo de Contrato
+
+#### Scenario: Estágio em outro tenant
+- **WHEN** o RH da Procordis marca Estágio e só um candidato da AgriVitta escolheu Estágio
+- **THEN** a lista da Procordis vem vazia
 
 ### Requirement: Pesquisas salvas
 Depois que o formulário de filtros é aplicado, o sistema SHALL permitir salvar a pesquisa com um nome obrigatório, gravando os filtros no tenant e no usuário. Cada usuário SHALL ver só as próprias pesquisas do tenant, mais recentes primeiro, como atalhos que reabrem a lista com os filtros na URL, e pode removê-las.
