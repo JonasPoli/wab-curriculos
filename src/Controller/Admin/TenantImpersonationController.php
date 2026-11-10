@@ -19,7 +19,7 @@ final class TenantImpersonationController extends AbstractController
         $request->getSession()->set('admin_impersonate_tenant_id', $tenant->getId());
         $request->getSession()->set('admin_impersonate_tenant_name', $tenant->getName());
 
-        $this->addFlash('info', sprintf('Você está gerenciando o tenant <strong>%s</strong>.', htmlspecialchars($tenant->getName())));
+        $this->addFlash('info', sprintf('Você está gerenciando o tenant %s.', $tenant->getName()));
 
         return $this->redirectToRoute('admin_dash');
     }

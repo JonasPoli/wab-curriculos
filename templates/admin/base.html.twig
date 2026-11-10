@@ -184,7 +184,7 @@
         </div>
     </header>
 
-    {% if app.flashes|length > 0 %}
+    {% if app.session and app.session.flashBag.peekAll|length > 0 %}
         <div class="flash-container" aria-live="polite">
             {{ include('admin/_partials/flash.html.twig') }}
         </div>
