@@ -10,12 +10,14 @@ use App\Form\Pub\CandidateAccessType;
 use App\Form\Pub\CandidateAvailabilityType;
 use App\Form\Pub\WorkExperiencePublicType;
 use App\Form\Pub\AcademicBackgroundPublicType;
+use App\Repository\CandidateRepository;
 use App\Repository\CareerRepository;
 use App\Service\TenantContext;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
+use Symfony\Component\Form\FormError;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -99,6 +101,7 @@ class CandidateProfileController extends AbstractController
         EntityManagerInterface $em,
         UserPasswordHasherInterface $hasher,
         TenantContext $tenantContext,
+        CandidateRepository $candidateRepository,
     ): Response {
         /** @var Candidate $candidate */
         $candidate = $this->getUser();
@@ -106,13 +109,19 @@ class CandidateProfileController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            $plain = $form->get('newPassword')->getData();
-            if (!empty($plain)) {
-                $candidate->setPassword($hasher->hashPassword($candidate, $plain));
+            $email = (string) $form->get('email')->getData();
+            if ($candidateRepository->isEmailInUse($candidate->getTenant(), $email, $candidate)) {
+                $form->get('email')->addError(new FormError('Este e-mail já está em uso por outra conta.'));
+            } else {
+                $candidate->setEmail($email);
+                $plain = $form->get('newPassword')->getData();
+                if (!empty($plain)) {
+                    $candidate->setPassword($hasher->hashPassword($candidate, $plain));
+                }
+                $em->flush();
+                $this->addFlash('success', 'Dados de acesso atualizados.');
+                return $this->redirectToRoute('pub_candidate_access');
             }
-            $em->flush();
-            $this->addFlash('success', 'Dados de acesso atualizados.');
-            return $this->redirectToRoute('pub_candidate_access');
         }
 
         return $this->render('pub/candidate/access.html.twig', [

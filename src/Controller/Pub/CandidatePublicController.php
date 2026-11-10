@@ -70,12 +70,7 @@ class CandidatePublicController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            $existing = $candidateRepository->findOneBy([
-                'email'  => $candidate->getEmail(),
-                'tenant' => $tenant,
-            ]);
-
-            if ($existing !== null) {
+            if ($candidateRepository->isEmailInUse($tenant, (string) $candidate->getEmail())) {
                 $this->addFlash('error', 'Este e-mail já está cadastrado. Faça login ou recupere sua senha.');
                 return $this->render('pub/candidate/register.html.twig', [
                     'form'   => $form,

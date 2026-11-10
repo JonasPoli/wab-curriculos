@@ -9,14 +9,24 @@ use Symfony\Component\Form\Extension\Core\Type\PasswordType;
 use Symfony\Component\Form\Extension\Core\Type\RepeatedType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
+use Symfony\Component\Validator\Constraints\Email;
 use Symfony\Component\Validator\Constraints\Length;
+use Symfony\Component\Validator\Constraints\NotBlank;
 
 class CandidateAccessType extends AbstractType
 {
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $builder
-            ->add('email', EmailType::class, ['label' => 'E-mail de acesso'])
+            ->add('email', EmailType::class, [
+                'label'       => 'E-mail de acesso',
+                'mapped'      => false,
+                'data'        => ($options['data'] ?? null) instanceof Candidate ? $options['data']->getEmail() : null,
+                'constraints' => [
+                    new NotBlank(message: 'O e-mail é obrigatório.'),
+                    new Email(message: 'Informe um e-mail válido.'),
+                ],
+            ])
             ->add('newPassword', RepeatedType::class, [
                 'type'           => PasswordType::class,
                 'mapped'         => false,

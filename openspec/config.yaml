@@ -52,9 +52,10 @@ context: |
     Version20260706143800 estão gravadas. O build.sh esconde falhas: rodar a migration à mão e conferir.
 
   Pontos que o código decide e não se mudam sem o Jonas
-  - Usuário do /admin sem tenant é Super Admin (User::getRoles). Excluir um tenant deixa os usuários dele sem
-    tenant (FK SET NULL); a correção foi decidida em 09/11/2026 e está em
-    openspec/changes/tenant-sem-super-admin-e-login-por-tenant (ainda não implementada).
+  - Usuário do /admin sem tenant é Super Admin (User::getRoles). Desde 10/11/2026 (change
+    tenant-sem-super-admin-e-login-por-tenant), a exclusão de tenant que ainda tem usuários é recusada na tela e
+    no banco (FK user.tenant_id sem ON DELETE), então nenhum usuário de tenant vira Super Admin; o login do
+    candidato só procura o e-mail no tenant do domínio e candidate tem índice único (tenant_id, email).
   - O cadastro do candidato não avisa o RH do tenant por e-mail, não usa reCAPTCHA nem grava LgpdLog, e a
     exclusão de conta é feita pelo próprio candidato logado (não há fluxo por token), apesar do que diz docs/.
 

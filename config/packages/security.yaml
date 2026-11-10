@@ -15,7 +15,6 @@ security:
         candidate_provider:
             entity:
                 class: App\Entity\Candidate
-                property: email
 
     firewalls:
         dev:

@@ -13,6 +13,7 @@ use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: CandidateRepository::class)]
+#[ORM\UniqueConstraint(name: 'UNIQ_CANDIDATE_TENANT_EMAIL', columns: ['tenant_id', 'email'])]
 #[ORM\HasLifecycleCallbacks]
 class Candidate implements TenantAwareInterface, UserInterface, PasswordAuthenticatedUserInterface
 {

@@ -26,31 +26,21 @@ class TenantSubscriber implements EventSubscriberInterface
     public static function getSubscribedEvents(): array
     {
         return [
-            KernelEvents::REQUEST => ['onKernelRequest', -10],
+            KernelEvents::REQUEST => [
+                ['onPublicRequest', 16],
+                ['onAdminRequest', -10],
+            ],
         ];
     }
 
-    public function onKernelRequest(RequestEvent $event): void
+    public function onPublicRequest(RequestEvent $event): void
     {
-        if (!$event->isMainRequest()) {
+        $path = $this->tenantPath($event);
+        if ($path === null || str_starts_with($path, '/admin')) {
             return;
         }
 
-        $request = $event->getRequest();
-        $path    = $request->getPathInfo();
-
-        if (str_starts_with($path, '/_')
-            || str_starts_with($path, '/logout')
-        ) {
-            return;
-        }
-
-        if (str_starts_with($path, '/admin')) {
-            $this->resolveAdminTenant($request->hasSession() ? $request->getSession() : null);
-            return;
-        }
-
-        $host   = $request->getHost();
+        $host   = $event->getRequest()->getHost();
         $tenant = $this->tenantRepository->findByDomain($host);
 
         if ($tenant === null) {
@@ -59,6 +49,34 @@ class TenantSubscriber implements EventSubscriberInterface
 
         $this->activateTenantFilter($tenant->getId());
         $this->tenantContext->setTenant($tenant);
+    }
+
+    public function onAdminRequest(RequestEvent $event): void
+    {
+        $path = $this->tenantPath($event);
+        if ($path === null || !str_starts_with($path, '/admin')) {
+            return;
+        }
+
+        $request = $event->getRequest();
+        $this->resolveAdminTenant($request->hasSession() ? $request->getSession() : null);
+    }
+
+    private function tenantPath(RequestEvent $event): ?string
+    {
+        if (!$event->isMainRequest()) {
+            return null;
+        }
+
+        $path = $event->getRequest()->getPathInfo();
+
+        if (str_starts_with($path, '/_')
+            || str_starts_with($path, '/logout')
+        ) {
+            return null;
+        }
+
+        return $path;
     }
 
     private function resolveAdminTenant(mixed $session): void

@@ -4,17 +4,55 @@ namespace App\Repository;
 
 use App\Entity\Candidate;
 use App\Entity\Tenant;
+use App\Service\TenantContext;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
+use Symfony\Bridge\Doctrine\Security\User\UserLoaderInterface;
 
 /**
  * @extends ServiceEntityRepository<Candidate>
  */
-class CandidateRepository extends ServiceEntityRepository
+class CandidateRepository extends ServiceEntityRepository implements UserLoaderInterface
 {
-    public function __construct(ManagerRegistry $registry)
-    {
+    public function __construct(
+        ManagerRegistry $registry,
+        private readonly TenantContext $tenantContext,
+    ) {
         parent::__construct($registry, Candidate::class);
+    }
+
+    public function loadUserByIdentifier(string $identifier): ?Candidate
+    {
+        $tenant = $this->tenantContext->getTenant();
+        if ($tenant === null) {
+            return null;
+        }
+
+        return $this->createQueryBuilder('c')
+            ->where('c.tenant = :tenant')
+            ->andWhere('c.email = :email')
+            ->setParameter('tenant', $tenant)
+            ->setParameter('email', $identifier)
+            ->setMaxResults(1)
+            ->getQuery()
+            ->getOneOrNullResult();
+    }
+
+    public function isEmailInUse(Tenant $tenant, string $email, ?Candidate $except = null): bool
+    {
+        $qb = $this->createQueryBuilder('c')
+            ->select('COUNT(c.id)')
+            ->where('c.tenant = :tenant')
+            ->andWhere('c.email = :email')
+            ->setParameter('tenant', $tenant)
+            ->setParameter('email', $email);
+
+        if ($except?->getId() !== null) {
+            $qb->andWhere('c.id != :except')
+               ->setParameter('except', $except->getId());
+        }
+
+        return (int) $qb->getQuery()->getSingleScalarResult() > 0;
     }
 
     public function countByTenant(int $tenantId): int

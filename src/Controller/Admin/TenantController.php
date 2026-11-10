@@ -5,6 +5,7 @@ namespace App\Controller\Admin;
 use App\Entity\Tenant;
 use App\Form\TenantType;
 use App\Repository\TenantRepository;
+use App\Repository\UserRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -63,9 +64,15 @@ final class TenantController extends AbstractController
     }
 
     #[Route('/{id}/delete', name: 'admin_tenant_delete', methods: ['POST'])]
-    public function delete(Request $request, Tenant $tenant, EntityManagerInterface $em): Response
+    public function delete(Request $request, Tenant $tenant, EntityManagerInterface $em, UserRepository $userRepository): Response
     {
         if ($this->isCsrfTokenValid('delete_tenant_' . $tenant->getId(), $request->request->get('_token'))) {
+            $userCount = $userRepository->count(['tenant' => $tenant]);
+            if ($userCount > 0) {
+                $this->addFlash('error', sprintf('Este tenant tem %d usuário(s). Exclua os usuários ou mova-os para outro tenant antes de excluir o tenant.', $userCount));
+                return $this->redirectToRoute('admin_tenant_index');
+            }
+
             $em->remove($tenant);
             $em->flush();
             $this->addFlash('success', 'Tenant excluído.');
