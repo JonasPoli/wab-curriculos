@@ -20,7 +20,7 @@
 - [ ] 4.2 Leitura, antes: anotar `git rev-parse HEAD` (backup para a volta, já que não há mudança no banco) e contar, só o número, os PDFs em `var/uploads/resumes` e os candidatos com `resume_filename` preenchido (24 e 24 em 09/11/2026). Verificar: hash e contagens anotados.
 - [ ] 4.3 Escrita, com aprovação do Jonas: em `~/webapps/app-curriculo`, como runcloud, `git pull` e `/RunCloud/Packages/php83rc/bin/php bin/console cache:clear --env=prod` (sem `build.sh`: não há dependência nem asset novo). Verificar: `git log -1` mostra o commit da mudança e o cache:clear termina sem erro.
 - [ ] 4.4 Leitura, conferência: HTTP 200 em https://carreiras.procordis.org.br/, https://curriculo.wab.com.br/, https://curriculo.petvida.com.br/ e https://agrivitta-curriculos.wab.com.br/; no /admin, a soma dos resultados do filtro nos tenants dá Estágio 4, Temporário 3 e Voluntário 2 (ou o número atualizado por contagem), conferindo só a quantidade, sem print nem registro de nomes. Verificar: os quatro domínios respondem 200 e as quantidades batem.
-- [ ] 4.5 Conferência do PDF, com aprovação do Jonas (escrita): no tenant da WAB (curriculo.wab.com.br), criar uma conta de teste, enviar um PDF qualquer, contar os PDFs (deve subir 1), excluir a conta e contar de novo. Verificar: a contagem volta ao número da 4.2 e PDFs no disco = candidatos com PDF.
+- [ ] 4.5 Conferência do PDF sem escrever em produção (o Jonas não autorizou contas de teste em produção, 10/11/2026): o roteiro de criar conta, enviar PDF e excluir fica no teste local (tarefa 2.1); em produção, só leitura: PDFs no disco = candidatos com PDF, conferido de novo na primeira exclusão real de conta. Verificar: as duas contagens batem.
 
 ## Workflow follow-up
 

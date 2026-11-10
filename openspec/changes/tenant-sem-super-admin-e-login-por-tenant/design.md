@@ -28,7 +28,7 @@ Motivação em proposal.md. O estado atual, lido no código em 09/11/2026:
 `TenantController::delete()` conta os usuários do tenant (`UserRepository::count(['tenant' => $tenant])`) e, se houver, não remove e mostra "Este tenant tem N usuário(s). Exclua os usuários ou mova-os para outro tenant antes de excluir o tenant.". No banco, a FK `user.tenant_id` passa a não ter `ON DELETE` (comportamento RESTRICT do MariaDB): `JoinColumn(nullable: true)` sem `onDelete`. Assim, uma exclusão feita por outro caminho falha em vez de criar Super Admin.
 
 Alternativas consideradas:
-- **CASCADE** (apagar os usuários junto com o tenant): combina com o aviso "Excluir este tenant e todos os seus dados?", mas apaga contas do /admin sem aviso e não tem volta. Fica como alternativa se o Jonas preferir na confirmação; muda só o `onDelete` e a mensagem.
+- **CASCADE** (apagar os usuários junto com o tenant): combina com o aviso "Excluir este tenant e todos os seus dados?", mas apaga contas do /admin sem aviso e não tem volta. Descartado: em 10/11/2026 o Jonas escolheu recusar a exclusão enquanto houver usuários.
 - **Super Admin explícito** (papel gravado em `user.roles` em vez de "sem tenant"): corrige a causa, mas mexe em `getRoles()`, `isSuperAdmin()`, `UserType` ("vazio cria Super Admin"), nos três comandos e exige gravar o papel nos Super Admins atuais. Mais risco para um caso que hoje tem 0 ocorrências.
 - **Só a checagem na tela**: resolve o uso normal sem migration, mas deixa o banco aceitando a exclusão em cascata com SET NULL.
 
