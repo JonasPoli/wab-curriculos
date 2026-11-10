@@ -4,6 +4,7 @@
 Área logada em que o candidato completa e mantém o currículo: dados pessoais e PDF, experiências, formação, disponibilidade e cargos de interesse, dados de acesso e exclusão da conta. Mostra o progresso do cadastro em etapas. Implementado em `Controller/Pub/CandidateProfileController`, `Controller/Pub/CandidatePublicController::dashboard()`, `Twig/CandidateProgressExtension` e nos formulários de `Form/Pub/`.
 
 ## Requirements
+
 ### Requirement: Progresso do cadastro
 O sistema SHALL mostrar o progresso em 6 etapas e o percentual de etapas concluídas, arredondado: dados pessoais (nome, e-mail, telefone, cidade e UF preenchidos), experiências (ao menos uma), formação acadêmica (ao menos uma), disponibilidade (ao menos um cargo de interesse), currículo PDF (arquivo enviado) e dados de acesso, que conta sempre como concluída.
 
@@ -55,11 +56,20 @@ Em `/trabalhe-conosco/disponibilidade`, o sistema SHALL gravar a grade de turnos
 - **THEN** o cargo continua aparecendo para o candidato escolher
 
 ### Requirement: Dados de acesso
-Em `/trabalhe-conosco/acesso`, o sistema SHALL permitir trocar o e-mail de login e, opcionalmente, a senha (repetida, mínimo de 8 caracteres). Senha em branco mantém a atual. A troca de e-mail não confere se outro candidato do tenant já usa o mesmo e-mail.
+Em `/trabalhe-conosco/acesso`, o sistema SHALL permitir trocar o e-mail de login e, opcionalmente, a senha (repetida, mínimo de 8 caracteres). Senha em branco mantém a atual. O sistema MUST recusar um e-mail que outro candidato do mesmo tenant já usa, sem diferenciar maiúsculas, com "Este e-mail já está em uso por outra conta.", sem alterar nada e mantendo o candidato logado. O mesmo e-mail em outro tenant não impede a troca.
 
 #### Scenario: Só troca de e-mail
 - **WHEN** o candidato altera o e-mail e deixa a senha em branco
 - **THEN** o novo e-mail passa a ser o login e a senha continua a mesma
+
+#### Scenario: E-mail de outro candidato do tenant
+- **WHEN** o candidato da Procordis tenta trocar o e-mail para o de outro candidato da Procordis, escrito com outras maiúsculas
+- **THEN** a troca é recusada com "Este e-mail já está em uso por outra conta."
+- **AND** o e-mail e a senha continuam os de antes e o candidato continua logado ao abrir a próxima página
+
+#### Scenario: E-mail usado só em outro tenant
+- **WHEN** o candidato da Procordis troca o e-mail para um que só existe na AgriVitta
+- **THEN** a troca é aceita
 
 ### Requirement: Exclusão da conta pelo candidato
 Em `/trabalhe-conosco/excluir-conta`, o sistema SHALL excluir a conta só quando o candidato digita a palavra "remover" (sem diferenciar maiúsculas), fazendo logout, apagando o candidato com experiências, formações e cargos escolhidos e redirecionando para `/trabalhe-conosco/conta-excluida`. O arquivo PDF do currículo não é apagado do disco.

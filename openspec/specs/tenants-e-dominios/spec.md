@@ -4,6 +4,7 @@
 Define como o sistema descobre o tenant (a empresa) de cada requisição e isola os dados entre os tenants, que compartilham o mesmo código e o mesmo banco. A área pública usa o domínio acessado; o /admin usa o tenant impersonado pelo Super Admin ou o tenant do usuário. Implementado em `EventSubscriber/TenantSubscriber`, `Repository/TenantRepository::findByDomain()`, `Doctrine/TenantFilter`, `Controller/Admin/AbstractTenantController`, `Controller/Admin/TenantImpersonationController`, `Controller/Admin/TenantController` e `Twig/TenantExtension`.
 
 ## Requirements
+
 ### Requirement: Tenant pelo domínio na área pública
 O sistema SHALL resolver o tenant das rotas fora de `/admin` pelo host da requisição. Host e domínio cadastrado são comparados em minúsculas, sem `http://` ou `https://`, sem `www.` no início e sem barra final. Rotas que começam com `/_` ou `/logout` não resolvem tenant.
 
@@ -67,9 +68,18 @@ O sistema SHALL inserir sem escape o `headerScript` do tenant antes de `</head>`
 - **THEN** o script aparece no `<head>` das páginas públicas daquele domínio
 
 ### Requirement: Exclusão de tenant
-O sistema SHALL excluir o tenant só com token CSRF válido e, pelo banco, apagar em cascata os candidatos (com experiências, formações e cargos escolhidos), as áreas de interesse com os cargos, as pesquisas salvas e os pedidos de exclusão do tenant. Os usuários do tenant SHALL ficar sem tenant (SET NULL).
+O sistema SHALL excluir o tenant só com token CSRF válido e só quando ele não tem nenhum usuário do /admin; nesse caso, apaga em cascata os candidatos (com experiências, formações e cargos escolhidos), as áreas de interesse com os cargos, as pesquisas salvas e os pedidos de exclusão do tenant. Com usuários, a exclusão MUST ser recusada sem apagar nada, e nenhum usuário MUST ficar sem tenant por causa da exclusão de um tenant.
 
 #### Scenario: Tenant excluído com usuário
-- **WHEN** o Super Admin exclui um tenant que tem um usuário administrador
-- **THEN** os candidatos, áreas e cargos do tenant são apagados
-- **AND** o usuário continua existindo, sem tenant, e passa a ser tratado como Super Admin
+- **WHEN** o Super Admin tenta excluir um tenant que tem um usuário administrador
+- **THEN** o tenant, os candidatos, as áreas, os cargos e o usuário continuam como estavam
+- **AND** aparece "Este tenant tem 1 usuário(s). Exclua os usuários ou mova-os para outro tenant antes de excluir o tenant."
+
+#### Scenario: Tenant sem usuários
+- **WHEN** o Super Admin exclui um tenant que não tem usuários
+- **THEN** o tenant, os candidatos, as áreas, os cargos, as pesquisas salvas e os pedidos de exclusão dele são apagados
+- **AND** aparece "Tenant excluído."
+
+#### Scenario: Usuário de tenant não vira Super Admin
+- **WHEN** um tenant que tinha usuários é excluído depois de o Super Admin excluir os usuários dele
+- **THEN** não existe usuário sem tenant além dos Super Admins que já existiam antes

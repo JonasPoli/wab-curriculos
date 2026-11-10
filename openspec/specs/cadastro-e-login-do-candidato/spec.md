@@ -4,6 +4,7 @@
 Cria a conta do candidato no tenant do domínio acessado, faz o login e recupera a senha. A conta do candidato é o próprio registro `Candidate` (login pelo e-mail), separado dos usuários do /admin. Implementado em `Controller/Pub/CandidatePublicController`, `Form/Pub/CandidateRegisterType`, no firewall `candidate` de `config/packages/security.yaml` e nos e-mails `templates/email/candidate_welcome.html.twig` e `candidate_reset_password.html.twig`.
 
 ## Requirements
+
 ### Requirement: Cadastro inicial
 O sistema SHALL oferecer em `/trabalhe-conosco/cadastro` um formulário com nome completo, e-mail, telefone, cidade, UF (texto de até 2 letras), senha repetida de no mínimo 8 caracteres e a caixa "Li e aceito os termos de uso e a política de privacidade.", que MUST estar marcada. Nome, e-mail válido, telefone, cidade e UF são obrigatórios.
 
@@ -43,11 +44,23 @@ Depois de gravar, o sistema SHALL enviar ao candidato o e-mail "Bem-vindo ao <no
 - **AND** o candidato entra na área do candidato normalmente
 
 ### Requirement: Login do candidato
-O sistema SHALL autenticar o candidato em `/trabalhe-conosco/entrar` pelo e-mail (`_email`) e senha (`_password`), com token CSRF, e redirecionar para `/trabalhe-conosco/minha-conta`. Candidato já logado que abre a página de login SHALL ir direto para a área do candidato. A saída por `/trabalhe-conosco/logout` volta para a página de login.
+O sistema SHALL autenticar o candidato em `/trabalhe-conosco/entrar` pelo e-mail (`_email`) e senha (`_password`), com token CSRF, procurando o e-mail só entre os candidatos do tenant do domínio acessado, e redirecionar para `/trabalhe-conosco/minha-conta`. Num domínio sem tenant, o login MUST ser recusado. Candidato já logado que abre a página de login SHALL ir direto para a área do candidato. A saída por `/trabalhe-conosco/logout` volta para a página de login.
 
 #### Scenario: Login correto
 - **WHEN** o candidato informa e-mail e senha corretos
 - **THEN** entra em `/trabalhe-conosco/minha-conta`
+
+#### Scenario: Mesmo e-mail em dois tenants
+- **WHEN** o mesmo e-mail tem cadastro na Procordis e na AgriVitta, com senhas diferentes, e a pessoa entra em `agrivitta-curriculos.wab.com.br` com a senha da AgriVitta
+- **THEN** entra na conta da AgriVitta e vê os dados dela, nunca os da Procordis
+
+#### Scenario: E-mail só existe em outro tenant
+- **WHEN** alguém tenta entrar em `carreiras.procordis.org.br` com e-mail e senha de um candidato que só existe na AgriVitta
+- **THEN** o login é recusado com "E-mail ou senha incorretos."
+
+#### Scenario: Domínio sem tenant
+- **WHEN** alguém envia o formulário de login para `/trabalhe-conosco/entrar` num host que não é domínio de nenhum tenant
+- **THEN** o login é recusado e ninguém é autenticado
 
 ### Requirement: Páginas protegidas do candidato
 O sistema SHALL exigir ROLE_CANDIDATE em todo `/trabalhe-conosco/*`, exceto entrar, cadastro, esqueci-a-senha, redefinir-senha, conta-excluida, termos e privacidade, que são públicas. A sessão do candidato vale só dentro de `/trabalhe-conosco`.
